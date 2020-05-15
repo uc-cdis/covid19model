@@ -21,9 +21,11 @@ make_forecast_plot <- function(){
   filename <- args[1]
   
   load(paste0("results/", filename))
-  all_data <- data.frame()
-  all_data_forecast <- data.frame()
-  for(i in 1:length(countries)){
+  
+  data_interventions <- read.csv("data/interventions.csv", 
+                                 stringsAsFactors = FALSE)
+  
+  for(i in 1:11){
     N <- length(dates[[i]])
     N2 <- N + 7
     country <- countries[[i]]
@@ -40,9 +42,9 @@ make_forecast_plot <- function(){
     estimated_deaths_li_forecast <- colQuantiles(estimated.deaths[,1:N2,i], probs=.025)[N:N2]
     estimated_deaths_ui_forecast <- colQuantiles(estimated.deaths[,1:N2,i], probs=.975)[N:N2]
     
-    rt <- colMeans(out$Rt_adj[,1:N,i])
-    rt_li <- colQuantiles(out$Rt_adj[,1:N,i],probs=.025)
-    rt_ui <- colQuantiles(out$Rt_adj[,1:N,i],probs=.975)
+    rt <- colMeans(out$Rt[,1:N,i])
+    rt_li <- colQuantiles(out$Rt[,1:N,i],probs=.025)
+    rt_ui <- colQuantiles(out$Rt[,1:N,i],probs=.975)
     
     data_country <- data.frame("time" = as_date(as.character(dates[[i]])),
                                "country" = rep(country, length(dates[[i]])),
@@ -74,15 +76,13 @@ make_forecast_plot <- function(){
                                         "estimated_deaths_forecast" = estimated_deaths_forecast,
                                         "death_min_forecast" = estimated_deaths_li_forecast,
                                         "death_max_forecast"= estimated_deaths_ui_forecast)
-    all_data <- rbind(all_data, data_country)
-    all_data_forecast <- rbind(all_data_forecast, data_country_forecast)
+    
     make_single_plot(data_country = data_country, 
                      data_country_forecast = data_country_forecast,
                      filename = filename,
                      country = country)
+    
   }
-  write.csv(all_data, paste0("results/", "base-forecast-plot.csv"))
-  write.csv(all_data_forecast, paste0("results/", "forecast-plot.csv"))
 }
 
 make_single_plot <- function(data_country, data_country_forecast, filename, country){
@@ -127,24 +127,16 @@ make_single_plot <- function(data_country, data_country_forecast, filename, coun
     scale_x_date(date_breaks = "weeks", labels = date_format("%e %b")) + 
     scale_y_continuous(trans='log10', labels=comma) + 
     coord_cartesian(ylim = c(1, 100000), expand = FALSE) + 
-    theme_pubr(base_family="sans") + 
+    theme_pubr() + 
     theme(axis.text.x = element_text(angle = 45, hjust = 1)) + 
     guides(fill=guide_legend(ncol=1, reverse = TRUE)) + 
     annotate(geom="text", x=data_country$time[length(data_country$time)]+8, 
-             y=10000, label="",
+             y=10000, label="Forecast",
              color="black")
   print(p)
   
-  ggsave(file= paste0("figures/", country, "_forecast_", filename, ".png"), 
+  ggsave(file= paste0("figures/", country, "_forecast_", filename, ".pdf"), 
          p, width = 10)
-  
-  # Produce plots for Website
-  dir.create("web/figures/desktop/", showWarnings = FALSE, recursive = TRUE)
-  save_plot(filename = paste0("web/figures/desktop/", country, "_forecast", ".svg"), 
-            p, base_height = 4, base_asp = 1.618 * 2 * 8/12)
-  dir.create("web/figures/mobile/", showWarnings = FALSE, recursive = TRUE)
-  save_plot(filename = paste0("web/figures/mobile/", country, "_forecast", ".svg"), 
-            p, base_height = 4, base_asp = 1.1)
 }
 #-----------------------------------------------------------------------------------------------
 make_forecast_plot()

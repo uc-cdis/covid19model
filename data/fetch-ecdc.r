@@ -1,6 +1,5 @@
 library(lubridate)
-library(utils)
-library(httr)
+# library(readxl)
 
 # date_offset <- 0
 url <- "https://opendata.ecdc.europa.eu/covid19/casedistribution/csv"
@@ -9,11 +8,8 @@ url <- "https://opendata.ecdc.europa.eu/covid19/casedistribution/csv"
 
 url_page <- "https://www.ecdc.europa.eu/en/publications-data/download-todays-data-geographic-distribution-covid-19-cases-worldwide"
 tryCatch({
-  #download the dataset from the ECDC website to a local temporary file
-  r <- RETRY("GET", "https://opendata.ecdc.europa.eu/covid19/casedistribution/csv", 
-             write_disk("data/COVID-19-up-to-date.csv", overwrite=TRUE))
-  
-  if (http_error(r)) {
+  code <- download.file(url, "data/COVID-19-up-to-date.csv")
+  if (code != 0) {
     stop("Error downloading file")
   }
 },
