@@ -12,15 +12,11 @@ class HierarchicalDataset:
     for data wrangling
 
         Args:
-            - config_dir
             - cases_dir
             - ifr_dir
             - serial_interval_dir
             - interventions_dir
-            - num_countries
-            - num_covariates
             - N2: number of days including forecast
-            - DEBUG: flag for debugging setting
 
 
         Attributes:
@@ -29,7 +25,6 @@ class HierarchicalDataset:
             - serial_interval
             - num_countries
             - num_covariates
-            - DEBUG
             - ifr
             - covariate_names
             - covariates
@@ -37,45 +32,56 @@ class HierarchicalDataset:
 
     def __init__(
         self,
-        config_dir="../../data/catalog.yml",
         cases_dir="../../data/COVID-19-up-to-date.csv",
         ifr_dir="../../data/weighted_fatality.csv",
         serial_interval_dir="../../data/serial_interval.csv",
         interventions_dir="../../data/interventions.csv",
-        num_countries=11,
         num_covariates=6,
         N2=75,
         DEBUG=False,
     ):
-        with open(config_dir, "r") as stream:
-            # merci https://stackoverflow.com/questions/1773805/how-can-i-parse-a-yaml-file-in-python
-            try:
-                config = yaml.safe_load(stream)
-            except yaml.YAMLError as exc:
-                print(exc)
-
         # read in all the datasets
-        self.countries = config["countries"]
+
+        ### now: ripping apart their code
+
         self.cases = pd.read_csv(cases_dir, encoding="ISO-8859-1")
+        self.countries = self.cases["countryterritoryCode"].unique()
+        self.num_countries = len(self.countries)
+        
+        # "don't touch" - > need to investigate
+        # this also seems like an unnecessary table to have outside of the script
         self.serial_interval = pd.read_csv(serial_interval_dir)
-        covariates = pd.read_csv(interventions_dir)
-        self.num_countries = num_countries
-        self.num_covariates = num_covariates
-        # whether to use smaller dataset for debugging
-        self.DEBUG = DEBUG
+
 
         # process the datasets
-        # remaing column and the UK in particular
+        # remaining column and the UK in particular
         ifr = pd.read_csv(ifr_dir)
+
         # inefficient bit but couldn't figure out why .rename() doesn't work
         ifr["country"] = ifr.iloc[:, 1]
-        # rename the UK
-        ifr["country"][ifr["country"] == "United Kingdom"] = "United_Kingdom"
+
+
+
+        # will be just one statewide lockdown
+        # todo: investigate -> probably just 1? since only 1 intervention so far -> statewide lockdown
+        covariates = pd.read_csv(interventions_dir)
+        self.num_covariates = num_covariates
+
+
         self.ifr = ifr
-        # pick out the covariates for the countries (11 by default, 8 interventions)
+
+        # pick out the covariates for the countries
         # num_covariates+1 because we need the Country index column too
-        covariates = covariates.iloc[:num_countries, : num_covariates + 1]
+
+        # actual
+        # covariates = covariates.iloc[:self.num_countries, : num_covariates + 1]
+
+        # temporary
+        covariates = covariates.iloc[:11, : num_covariates + 1]
+
+        
         self.covariate_names = list(covariates.columns)[1:]
+
         # convert the dates to datetime
         for covariate_name in self.covariate_names:
             covariates[covariate_name] = covariates[covariate_name].apply(
@@ -83,13 +89,27 @@ class HierarchicalDataset:
             )
 
         # making all covariates that happen after lockdown to have same date as lockdown
+        # M: can rip this out
         non_lockdown_covariates = self.covariate_names.copy()
         non_lockdown_covariates.remove("lockdown")
+
+        print("covariate names:")
         for covariate_name in non_lockdown_covariates:
+            print(covariate_name)
             ind = covariates[covariate_name] > covariates["lockdown"]
             covariates[covariate_name][ind] = covariates["lockdown"][ind]
 
         self.covariates = covariates
+
+        self.covariates.to_csv("theirFinalCovariatesTable.csv")
+
+        print("covariates:")
+        print(self.covariates)
+
+        # seems that most of this is redundant and can removed
+        # generally, this function should be less than 10 lines
+
+
 
     def get_stan_data(self, N2):
         """Returns a dictionary object containing data to be fed into the Stan compiler
@@ -146,7 +166,7 @@ class HierarchicalDataset:
             # 30 days before 10th death
             index_2 = index_1 - 30
 
-            # TODO: what is the latter?
+            # ICL: todo: what is the latter?
             print(
                 "First non-zero cases is on day {}, and 30 days before 5 days is day {}".format(
                     index, index_2
@@ -180,49 +200,36 @@ class HierarchicalDataset:
             # discrete hazard rate from time t=0,...,99
             h = np.zeros(forecast + N)
 
-            if self.DEBUG:
-                mean = 18.8
-                cv = 0.45
+            # infection to onset
+            mean_1 = 5.1
+            cv_1 = 0.86
+            loc_1 = 1 / cv_1 ** 2
+            scale_1 = mean_1 * cv_1 ** 2
+            # onset to death
+            mean_2 = 18.8
+            cv_2 = 0.45
+            loc_2 = 1 / cv_2 ** 2
+            scale_2 = mean_2 * cv_2 ** 2
+            # assume that IFR is probability of dying given infection
+            x1 = gamma_np(shape=loc_1, scale=scale_1, size=int(5e6))
+            # infection-to-onset ----> do all people who are infected get to onset?
+            x2 = gamma_np(shape=loc_2, scale=scale_2, size=int(5e6))
 
-                loc = 1 / cv ** 2
-                scale = mean * cv ** 2
-                for i in range(len(h)):
-                    h[i] = (
-                        ifr * gamma_scipy.cdf(i, loc=loc, scale=scale)
-                        - ifr * gamma_scipy.cdf(i - 1, loc=loc, scale=scale)
-                    ) / (1 - ifr * gamma_scipy.cdf(i - 1, loc=loc, scale=scale))
+            # CDF of sum of 2 gamma distributions
+            gamma_cdf = ECDF(x1 + x2)
 
-            else:
-                # infection to onset
-                mean_1 = 5.1
-                cv_1 = 0.86
-                loc_1 = 1 / cv_1 ** 2
-                scale_1 = mean_1 * cv_1 ** 2
-                # onset to death
-                mean_2 = 18.8
-                cv_2 = 0.45
-                loc_2 = 1 / cv_2 ** 2
-                scale_2 = mean_2 * cv_2 ** 2
-                # assume that IFR is probability of dying given infection
-                x1 = gamma_np(shape=loc_1, scale=scale_1, size=int(5e6))
-                # infection-to-onset ----> do all people who are infected get to onset?
-                x2 = gamma_np(shape=loc_2, scale=scale_2, size=int(5e6))
+            # probability distribution of the infection-to-death distribution \pi_m in the paper
+            def convolution(u):
+                return ifr * gamma_cdf(u)
 
-                # CDF of sum of 2 gamma distributions
-                gamma_cdf = ECDF(x1 + x2)
+            h[0] = convolution(1.5) - convolution(0)
 
-                # probability distribution of the infection-to-death distribution \pi_m in the paper
-                def convolution(u):
-                    return ifr * gamma_cdf(u)
+            for i in range(1, len(h)):
+                h[i] = (convolution(i + 0.5) - convolution(i - 0.5)) / (
+                    1 - convolution(i - 0.5)
+                )
 
-                h[0] = convolution(1.5) - convolution(0)
-
-                for i in range(1, len(h)):
-                    h[i] = (convolution(i + 0.5) - convolution(i - 0.5)) / (
-                        1 - convolution(i - 0.5)
-                    )
-
-            # TODO: Check these quantities via tests
+            # ICL: todo: Check these quantities via tests
             s = np.zeros(N2)
             s[0] = 1
             for i in range(1, N2):
