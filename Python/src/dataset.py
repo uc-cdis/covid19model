@@ -36,7 +36,7 @@ class HierarchicalDataset:
         ifr_dir="../../data/weighted_fatality.csv",
         serial_interval_dir="../../data/serial_interval.csv",
         interventions_dir="../../data/interventions.csv",
-        num_covariates=6,
+        num_covariates=7,
         N2=75,
         DEBUG=False,
     ):
@@ -52,13 +52,13 @@ class HierarchicalDataset:
         # this also seems like an unnecessary table to have outside of the script
         self.serial_interval = pd.read_csv(serial_interval_dir)
 
-
+        # rip apart:::
         # process the datasets
         # remaining column and the UK in particular
         ifr = pd.read_csv(ifr_dir)
-
         # inefficient bit but couldn't figure out why .rename() doesn't work
         ifr["country"] = ifr.iloc[:, 1]
+        self.ifr = ifr
 
 
 
@@ -67,8 +67,6 @@ class HierarchicalDataset:
         covariates = pd.read_csv(interventions_dir)
         self.num_covariates = num_covariates
 
-
-        self.ifr = ifr
 
         # pick out the covariates for the countries
         # num_covariates+1 because we need the Country index column too
