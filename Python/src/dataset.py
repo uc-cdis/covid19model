@@ -36,11 +36,12 @@ class HierarchicalDataset:
         ifr_dir="../../data/weighted_fatality.csv",
         serial_interval_dir="../../data/serial_interval.csv",
         interventions_dir="../../data/interventions.csv",
-        num_covariates=7,
         N2=75,
-        DEBUG=False,
     ):
         # read in all the datasets
+
+        # seems that most of this is redundant and can removed
+        # generally, this function should be less than 10 lines
 
         ### now: ripping apart their code
 
@@ -60,52 +61,23 @@ class HierarchicalDataset:
         ifr["country"] = ifr.iloc[:, 1]
         self.ifr = ifr
 
+        #
 
+        # "covariate" == an intervention
+        # we have 1 intervention, and so 1 covariate: lockdown
+        # it is the same for all counties within a given state
+        # since it is a statewide intervention
+        self.covariates = pd.read_csv(interventions_dir, parse_dates=["lockdown"])
 
-        # will be just one statewide lockdown
-        # todo: investigate -> probably just 1? since only 1 intervention so far -> statewide lockdown
-        covariates = pd.read_csv(interventions_dir)
-        self.num_covariates = num_covariates
-
+        # take away "Country" and index columns
+        # probably (definitely) index column is unnecessary.. will fix later
+        self.num_covariates = len(list(self.covariates)) - 2
 
         # pick out the covariates for the countries
-        # num_covariates+1 because we need the Country index column too
-
-        # actual
-        # covariates = covariates.iloc[:self.num_countries, : num_covariates + 1]
-
-        # temporary
-        covariates = covariates.iloc[:11, : num_covariates + 1]
-
-        
-        self.covariate_names = list(covariates.columns)[1:]
-
-        # convert the dates to datetime
-        for covariate_name in self.covariate_names:
-            covariates[covariate_name] = covariates[covariate_name].apply(
-                pd.to_datetime, format="%Y-%m-%d"
-            )
-
-        # making all covariates that happen after lockdown to have same date as lockdown
-        # M: can rip this out
-        non_lockdown_covariates = self.covariate_names.copy()
-        non_lockdown_covariates.remove("lockdown")
-
-        print("covariate names:")
-        for covariate_name in non_lockdown_covariates:
-            print(covariate_name)
-            ind = covariates[covariate_name] > covariates["lockdown"]
-            covariates[covariate_name][ind] = covariates["lockdown"][ind]
-
-        self.covariates = covariates
-
-        self.covariates.to_csv("theirFinalCovariatesTable.csv")
+        self.covariate_names = list(self.covariates.columns)[2:]
 
         print("covariates:")
         print(self.covariates)
-
-        # seems that most of this is redundant and can removed
-        # generally, this function should be less than 10 lines
 
 
 
