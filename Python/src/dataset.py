@@ -16,7 +16,7 @@ class HierarchicalDataset:
             - ifr_dir
             - serial_interval_dir
             - interventions_dir
-            - N2: number of days including forecast
+            - N2: numbefr of days including forecast
 
 
         Attributes:
@@ -48,6 +48,9 @@ class HierarchicalDataset:
         self.cases = pd.read_csv(cases_dir, encoding="ISO-8859-1")
         self.countries = self.cases["countryterritoryCode"].unique()
         self.num_countries = len(self.countries)
+
+        ## HERE - next task: handle/adapt IFR and Serial Interval Tables
+        # then, onward to the STAN interface.
         
         # "don't touch" - > need to investigate
         # this also seems like an unnecessary table to have outside of the script
