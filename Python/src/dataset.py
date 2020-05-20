@@ -49,7 +49,7 @@ class HierarchicalDataset:
         self.countries = self.cases["countryterritoryCode"].unique()
         self.num_countries = len(self.countries)
 
-        ## HERE - next task: handle/adapt IFR and Serial Interval Tables
+        ## HERE - next task: handle/adapt Serial Interval table
         # then, onward to the STAN interface.
         
         # "don't touch" - > need to investigate
@@ -57,14 +57,7 @@ class HierarchicalDataset:
         self.serial_interval = pd.read_csv(serial_interval_dir)
 
         # rip apart:::
-        # process the datasets
-        # remaining column and the UK in particular
-        ifr = pd.read_csv(ifr_dir)
-        # inefficient bit but couldn't figure out why .rename() doesn't work
-        ifr["country"] = ifr.iloc[:, 1]
-        self.ifr = ifr
-
-        #
+        self.ifr = pd.read_csv(ifr_dir)
 
         # "covariate" == an intervention
         # we have 1 intervention, and so 1 covariate: lockdown
