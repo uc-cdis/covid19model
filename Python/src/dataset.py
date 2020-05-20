@@ -115,11 +115,13 @@ class HierarchicalDataset:
         # we will generate the dataset in this country order. Could also use a pandas dataframe, but not necessary in my opinion
         for country_num, country in enumerate(self.countries):
             ifr = self.ifr["weighted_fatality"][self.ifr["country"] == country]
+
             covariates1 = self.covariates.loc[
                 self.covariates["Country"] == country, self.covariate_names
             ]
-            cases = self.cases[self.cases["countriesAndTerritories"] == country]
-            cases["date"] = cases["dateRep"].apply(pd.to_datetime, format="%d/%m/%Y")
+            cases = self.cases[self.cases["countryterritoryCode"] == country]
+
+            cases["date"] = cases["dateRep"].apply(pd.to_datetime, format="%m/%d/%y")
 
             cases["t"] = cases["date"].apply(lambda v: dt_to_dec(v))
             cases = cases.sort_values(by="t")
@@ -127,8 +129,16 @@ class HierarchicalDataset:
 
             # where the first case occurs
             index = cases[(cases["cases"] > 0)].index[0]
+
+
             # where the cumulative deaths reaches 10
-            index_1 = cases[(cases["deaths"].cumsum() >= 10)].index[0]
+            # index_1 = cases[(cases["deaths"].cumsum() >= 10)].index[0]
+
+            # for now, greater than 0, just to get the code running ..
+            # todo - handle this - counties where there haven't been any deaths yet
+            index_1 = cases[(cases["deaths"].cumsum() >= 0)].index[0]
+
+
             # 30 days before 10th death
             index_2 = index_1 - 30
 
