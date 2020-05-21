@@ -45,18 +45,19 @@ class HierarchicalDataset:
 
         ### now: ripping apart their code
 
-        self.cases = pd.read_csv(cases_dir, encoding="ISO-8859-1")
+        # drop counties with fewer than 10 cumulative deaths
+        caseAndMortality = pd.read_csv(cases_dir, encoding="ISO-8859-1")
+        tmp = caseAndMortality.groupby(["countryterritoryCode"])[["cases", "deaths"]].sum()
+        drop = list(tmp.loc[(tmp["cases"] < 5) | (tmp["deaths"] < 10)].index)
+        self.cases = caseAndMortality.drop(caseAndMortality[caseAndMortality["countryterritoryCode"].isin(drop)].index)
+        
         self.countries = self.cases["countryterritoryCode"].unique()
         self.num_countries = len(self.countries)
-
-        ## HERE - next task: handle/adapt Serial Interval table
-        # then, onward to the STAN interface.
         
         # "don't touch" - > need to investigate
         # this also seems like an unnecessary table to have outside of the script
         self.serial_interval = pd.read_csv(serial_interval_dir)
 
-        # rip apart:::
         self.ifr = pd.read_csv(ifr_dir)
 
         # "covariate" == an intervention
@@ -71,10 +72,6 @@ class HierarchicalDataset:
 
         # pick out the covariates for the countries
         self.covariate_names = list(self.covariates.columns)[2:]
-
-        print("covariates:")
-        print(self.covariates)
-
 
 
     def get_stan_data(self, N2):
@@ -130,14 +127,8 @@ class HierarchicalDataset:
             # where the first case occurs
             index = cases[(cases["cases"] > 0)].index[0]
 
-
             # where the cumulative deaths reaches 10
-            # index_1 = cases[(cases["deaths"].cumsum() >= 10)].index[0]
-
-            # for now, greater than 0, just to get the code running ..
-            # todo - handle this - counties where there haven't been any deaths yet
-            index_1 = cases[(cases["deaths"].cumsum() >= 0)].index[0]
-
+            index_1 = cases[(cases["deaths"].cumsum() >= 10)].index[0]
 
             # 30 days before 10th death
             index_2 = index_1 - 30
