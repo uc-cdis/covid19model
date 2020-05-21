@@ -40,15 +40,12 @@ class HierarchicalDataset:
     ):
         # read in all the datasets
 
-        # seems that most of this is redundant and can removed
-        # generally, this function should be less than 10 lines
-
         ### now: ripping apart their code
 
-        # drop counties with fewer than 10 cumulative deaths
+        # drop counties with fewer than 10 cumulative deaths or cases
         caseAndMortality = pd.read_csv(cases_dir, encoding="ISO-8859-1")
         tmp = caseAndMortality.groupby(["countryterritoryCode"])[["cases", "deaths"]].sum()
-        drop = list(tmp.loc[(tmp["cases"] < 5) | (tmp["deaths"] < 10)].index)
+        drop = list(tmp.loc[(tmp["cases"] < 10) | (tmp["deaths"] < 10)].index)
         self.cases = caseAndMortality.drop(caseAndMortality[caseAndMortality["countryterritoryCode"].isin(drop)].index)
         
         self.countries = self.cases["countryterritoryCode"].unique()
@@ -133,9 +130,8 @@ class HierarchicalDataset:
             # 30 days before 10th death
             index_2 = index_1 - 30
 
-            # ICL: todo: what is the latter?
             print(
-                "First non-zero cases is on day {}, and 30 days before 5 days is day {}".format(
+                "First non-zero cases is on day {}, and 30 days before 10 total deaths is day {}".format(
                     index, index_2
                 )
             )
