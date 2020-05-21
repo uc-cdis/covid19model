@@ -115,9 +115,12 @@ class HierarchicalDataset:
             ]
             cases = self.cases[self.cases["countryterritoryCode"] == country]
 
+            # gives pandas warning about assigning to a copy of a slice
             cases["date"] = cases["dateRep"].apply(pd.to_datetime, format="%m/%d/%y")
 
+            # gives the same warning
             cases["t"] = cases["date"].apply(lambda v: dt_to_dec(v))
+            
             cases = cases.sort_values(by="t")
             cases = cases.reset_index()
 
