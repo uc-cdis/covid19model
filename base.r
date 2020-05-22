@@ -227,6 +227,8 @@ m = stan_model(paste0('stan-models/',StanModel,'.stan'))
 # here -> just for testing that the code works
 fit = sampling(m,data=stan_data,iter=10,warmup=5,chains=2,thin=1,control = list(adapt_delta = 0.90, max_treedepth = 10))
 
+#### simulation is finished 
+
 # should be fine
 out = rstan::extract(fit)
 prediction = out$prediction
@@ -241,16 +243,22 @@ print(sprintf("Jobid = %s",JOBID))
 save.image(paste0('results/',StanModel,'-',JOBID,'.Rdata'))
 save(fit,prediction,dates,reported_cases,deaths_by_country,countries,estimated.deaths,estimated.deaths.cf,out,covariates,file=paste0('results/',StanModel,'-',JOBID,'-stanfit.Rdata'))
 
-# -> here!
+#### saving simulation results is finished
 
-# to visualize results
+#### now -> visualize model results -> ####
+
+# icl: to visualize results
 library(bayesplot)
 filename <- paste0('base-',JOBID)
+
+# td: cut all but lockdown
 plot_labels <- c("School Closure",
                  "Self Isolation",
                  "Public Events",
                  "First Intervention",
                  "Lockdown", 'Social distancing')
+
+# should be fine
 alpha = (as.matrix(out$alpha))
 colnames(alpha) = plot_labels
 g = (mcmc_intervals(alpha, prob = .9))
@@ -258,7 +266,11 @@ ggsave(sprintf("results/%s-covars-alpha-log.pdf",filename),g,width=4,height=6)
 g = (mcmc_intervals(alpha, prob = .9,transformations = function(x) exp(-x)))
 ggsave(sprintf("results/%s-covars-alpha.pdf",filename),g,width=4,height=6)
 mu = (as.matrix(out$mu))
+
+# td: ensure countries extracted correctly from case-mortality matrix
 colnames(mu) = countries
+
+# should be fine
 g = (mcmc_intervals(mu,prob = .9))
 ggsave(sprintf("results/%s-covars-mu.pdf",filename),g,width=4,height=6)
 dimensions <- dim(out$Rt)
@@ -266,5 +278,8 @@ Rt = (as.matrix(out$Rt[,dimensions[2],]))
 colnames(Rt) = countries
 g = (mcmc_intervals(Rt,prob = .9))
 ggsave(sprintf("results/%s-covars-final-rt.pdf",filename),g,width=4,height=6)
+
+# td: check and annotate these other R scripts.
 system(paste0("Rscript plot-3-panel.r ", filename,'.Rdata'))
-system(paste0("Rscript plot-forecast.r ",filename,'.Rdata')) ## to run this code you will need to adjust manual values of forecast required
+## icl: to run this code you will need to adjust manual values of forecast required
+system(paste0("Rscript plot-forecast.r ",filename,'.Rdata')) 
