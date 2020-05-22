@@ -161,22 +161,22 @@ for(Country in countries) {
   }
   f = s * h
   
-  
-  # -> here!
-  
+  # should be fine
   y=c(as.vector(as.numeric(d1$Cases)),rep(-1,forecast))
   reported_cases[[Country]] = as.vector(as.numeric(d1$Cases))
   deaths=c(as.vector(as.numeric(d1$Deaths)),rep(-1,forecast))
   cases=c(as.vector(as.numeric(d1$Cases)),rep(-1,forecast))
   deaths_by_country[[Country]] = as.vector(as.numeric(d1$Deaths))
   covariates2 <- as.data.frame(d1[, colnames(covariates1)])
-  # x=1:(N+forecast)
+  # x=1:(N+forecast) # ?
   covariates2[N:(N+forecast),] <- covariates2[N,]
   
-  ## append data
+  ## icl: append data
   stan_data$N = c(stan_data$N,N)
-  stan_data$y = c(stan_data$y,y[1]) # just the index case!
-  # stan_data$x = cbind(stan_data$x,x)
+  stan_data$y = c(stan_data$y,y[1]) # icl: just the index case!
+  # stan_data$x = cbind(stan_data$x,x) # ?
+
+  # td: cut unused covariates
   stan_data$covariate1 = cbind(stan_data$covariate1,covariates2[,1])
   stan_data$covariate2 = cbind(stan_data$covariate2,covariates2[,2])
   stan_data$covariate3 = cbind(stan_data$covariate3,covariates2[,3])
@@ -184,10 +184,13 @@ for(Country in countries) {
   stan_data$covariate5 = cbind(stan_data$covariate5,covariates2[,5])
   stan_data$covariate6 = cbind(stan_data$covariate6,covariates2[,6])
   stan_data$covariate7 = cbind(stan_data$covariate7,covariates2[,7]) 
+
+  # shouold be fine
   stan_data$f = cbind(stan_data$f,f)
   stan_data$deaths = cbind(stan_data$deaths,deaths)
   stan_data$cases = cbind(stan_data$cases,cases)
   
+  # should be fine
   stan_data$N2=N2
   stan_data$x=1:N2
   if(length(stan_data$N) == 1) {
@@ -195,9 +198,9 @@ for(Country in countries) {
   }
 }
 
+# td: cut these
 stan_data$covariate2 = 0 * stan_data$covariate2 # remove travel bans
 stan_data$covariate4 = 0 * stan_data$covariate5 # remove sport
-
 #stan_data$covariate1 = stan_data$covariate1 # school closure
 stan_data$covariate2 = stan_data$covariate7 # self-isolating if ill
 #stan_data$covariate3 = stan_data$covariate3 # public events
@@ -211,51 +214,34 @@ stan_data$covariate5 = stan_data$covariate5 # lockdown
 stan_data$covariate6 = stan_data$covariate6 # social distancing encouraged
 stan_data$covariate7 = 0 # models should only take 6 covariates
 
-if(DEBUG) {
-  for(i in 1:length(countries)) {
-    write.csv(
-      data.frame(date=dates[[i]],
-                 `school closure`=stan_data$covariate1[1:stan_data$N[i],i],
-                 `self isolating if ill`=stan_data$covariate2[1:stan_data$N[i],i],
-                 `public events`=stan_data$covariate3[1:stan_data$N[i],i],
-                 `government makes any intervention`=stan_data$covariate4[1:stan_data$N[i],i],
-                 `lockdown`=stan_data$covariate5[1:stan_data$N[i],i],
-                 `social distancing encouraged`=stan_data$covariate6[1:stan_data$N[i],i]),
-      file=sprintf("results/%s-check-dates.csv",countries[i]),row.names=F)
-  }
-}
-
+# should be fine
 stan_data$y = t(stan_data$y)
 options(mc.cores = parallel::detectCores())
 rstan_options(auto_write = TRUE)
+
+# td: double check StanModel has right value - "us_base"
 m = stan_model(paste0('stan-models/',StanModel,'.stan'))
 
-if(DEBUG) {
-  fit = sampling(m,data=stan_data,iter=40,warmup=20,chains=2)
-} else { 
-  # actual -> see paper; consult with Phil.
-  # fit = sampling(m,data=stan_data,iter=4000,warmup=2000,chains=8,thin=4,control = list(adapt_delta = 0.90, max_treedepth = 10))
+# td: handle HMC convergence; see paper; consult with Phil.
+# fit = sampling(m,data=stan_data,iter=4000,warmup=2000,chains=8,thin=4,control = list(adapt_delta = 0.90, max_treedepth = 10))
+# here -> just for testing that the code works
+fit = sampling(m,data=stan_data,iter=10,warmup=5,chains=2,thin=1,control = list(adapt_delta = 0.90, max_treedepth = 10))
 
-  # their smaller run
-  # fit = sampling(m,data=stan_data,iter=200,warmup=100,chains=4,thin=4,control = list(adapt_delta = 0.90, max_treedepth = 10))
-
-  # just for testing that the code works
-  fit = sampling(m,data=stan_data,iter=10,warmup=5,chains=2,thin=1,control = list(adapt_delta = 0.90, max_treedepth = 10))
-}  
-
+# should be fine
 out = rstan::extract(fit)
 prediction = out$prediction
 estimated.deaths = out$E_deaths
 estimated.deaths.cf = out$E_deaths0
 
+# should be fine
 JOBID = Sys.getenv("PBS_JOBID")
 if(JOBID == "")
   JOBID = as.character(abs(round(rnorm(1) * 1000000)))
 print(sprintf("Jobid = %s",JOBID))
-
 save.image(paste0('results/',StanModel,'-',JOBID,'.Rdata'))
-
 save(fit,prediction,dates,reported_cases,deaths_by_country,countries,estimated.deaths,estimated.deaths.cf,out,covariates,file=paste0('results/',StanModel,'-',JOBID,'-stanfit.Rdata'))
+
+# -> here!
 
 # to visualize results
 library(bayesplot)
