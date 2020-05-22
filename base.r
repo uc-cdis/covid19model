@@ -4,6 +4,7 @@ library(lubridate)
 library(gdata)
 library(EnvStats)
 
+# td: get country list from case-mortality matrix
 countries <- c(
   "Denmark",
   "Italy",
@@ -18,27 +19,45 @@ countries <- c(
   "Switzerland"
 )
 
+# for the python routine:
+# dataset = HierarchicalDataset(cases_dir="./ILCaseAndMortalityInputV1.csv",
+#                               interventions_dir="ILInterventions.csv",
+#                               ifr_dir="ILWeightedFatalityInput.csv",
+#                               serial_interval_dir="../../data/serial_interval.csv", 
+#                              )
+# ...
+# import pystan
+# sm = pystan.StanModel(file="../../stan-models/us_base.stan")
+#
+
 args = commandArgs(trailingOnly=TRUE)
 if(length(args) == 0) {
+  # td: us_base
   args = 'base'
 } 
 StanModel = args[1]
-
 print(sprintf("Running %s",StanModel))
 
 ## Reading all data
+# td: read in IL case-mortality table
 d=readRDS('data/COVID-19-up-to-date.rds')
 
 ## get CFR
+# td: read in IL weighted_fatality
 cfr.by.country = read.csv("data/weighted_fatality.csv")
 cfr.by.country$country = as.character(cfr.by.country[,2])
 cfr.by.country$country[cfr.by.country$country == "United Kingdom"] = "United_Kingdom"
 
+# td: should be fine
 serial.interval = read.csv("data/serial_interval.csv")
+
+# td: read in IL lockdown table
 covariates = read.csv('data/interventions.csv', stringsAsFactors = FALSE)
+# td: probably remove this line
 covariates <- covariates[1:11, c(1,2,3,4,5,6, 7, 8)]
 
 ## making all covariates that happen after lockdown to have same date as lockdown
+# td: cut this whole section
 covariates$schools_universities[covariates$schools_universities > covariates$lockdown] <- covariates$lockdown[covariates$schools_universities > covariates$lockdown]
 covariates$travel_restrictions[covariates$travel_restrictions > covariates$lockdown] <- covariates$lockdown[covariates$travel_restrictions > covariates$lockdown] 
 covariates$public_events[covariates$public_events > covariates$lockdown] <- covariates$lockdown[covariates$public_events > covariates$lockdown]
@@ -46,9 +65,11 @@ covariates$sport[covariates$sport > covariates$lockdown] <- covariates$lockdown[
 covariates$social_distancing_encouraged[covariates$social_distancing_encouraged > covariates$lockdown] <- covariates$lockdown[covariates$social_distancing_encouraged > covariates$lockdown]
 covariates$self_isolating_if_ill[covariates$self_isolating_if_ill > covariates$lockdown] <- covariates$lockdown[covariates$self_isolating_if_ill > covariates$lockdown]
 
+# td: probably -2
 p <- ncol(covariates) - 1
 forecast = 0
 
+# td: remove DEBUG flow
 DEBUG = FALSE
 if(DEBUG == FALSE) {
   N2 = 75 # Increase this for a further forecast
@@ -57,10 +78,12 @@ if(DEBUG == FALSE) {
   # countries = c("Austria","Belgium") #,Spain")
   N2 = 75
 }
+# td: cut line
 # countries = c("Italy","United_Kingdom","Spain","Norway","Austria","Switzerland")
 
 dates = list()
 reported_cases = list()
+# td: cut unused covariates; change lengthscale
 stan_data = list(M=length(countries),N=NULL,p=p,x1=poly(1:N2,2)[,1],x2=poly(1:N2,2)[,2],
                  y=NULL,covariate1=NULL,covariate2=NULL,covariate3=NULL,covariate4=NULL,covariate5=NULL,covariate6=NULL,covariate7=NULL,deaths=NULL,f=NULL,
                  N0=6,cases=NULL,LENGTHSCALE=7,SI=serial.interval$fit[1:N2],
@@ -69,32 +92,45 @@ deaths_by_country = list()
 
 
 for(Country in countries) {
+
+  # should be fine
   CFR=cfr.by.country$weighted_fatality[cfr.by.country$country == Country]
   
+  # td: change 2:8
   covariates1 <- covariates[covariates$Country == Country, 2:8]
   
+  # td: countryCode, not Countries.and.territories
   d1=d[d$Countries.and.territories==Country,]
+
+  # td: fix change date format
   d1$date = as.Date(d1$DateRep,format='%d/%m/%Y')
   d1$t = decimal_date(d1$date) 
   d1=d1[order(d1$t),]
+
+  # should be fine
   index = which(d1$Cases>0)[1]
-  index1 = which(cumsum(d1$Deaths)>=10)[1] # also 5
+  index1 = which(cumsum(d1$Deaths)>=10)[1] 
   index2 = index1-30
   
-  print(sprintf("First non-zero cases is on day %d, and 30 days before 5 days is day %d",index,index2))
+  # should be fine
+  print(sprintf("First non-zero cases is on day %d, and 30 days before 10 cumulative deaths is day %d",index,index2))
   d1=d1[index2:nrow(d1),]
   stan_data$EpidemicStart = c(stan_data$EpidemicStart,index1+1-index2)
   
-  
+  # should be fine
   for (ii in 1:ncol(covariates1)) {
     covariate = names(covariates1)[ii]
-    d1[covariate] <- (as.Date(d1$DateRep, format='%d/%m/%Y') >= as.Date(covariates1[1,covariate]))*1  # should this be > or >=?
+    # td: change date format
+    d1[covariate] <- (as.Date(d1$DateRep, format='%d/%m/%Y') >= as.Date(covariates1[1,covariate]))*1  # icl: should this be > or >=?
   }
-  
+
+  # should be fine
   dates[[Country]] = d1$date
   # hazard estimation
   N = length(d1$Cases)
   print(sprintf("%s has %d days of data",Country,N))
+  
+  # should be fine
   forecast = N2 - N
   if(forecast < 0) {
     print(sprintf("%s: %d", Country, N))
@@ -104,25 +140,19 @@ for(Country in countries) {
   }
   
   h = rep(0,forecast+N) # discrete hazard rate from time t = 1, ..., 100
-  if(DEBUG) { # OLD -- but faster for testing this part of the code
-    mean = 18.8
-    cv = 0.45
-    
-    for(i in 1:length(h))
-      h[i] = (CFR*pgammaAlt(i,mean = mean,cv=cv) - CFR*pgammaAlt(i-1,mean = mean,cv=cv)) / (1-CFR*pgammaAlt(i-1,mean = mean,cv=cv))
-  } else { # NEW
-    mean1 = 5.1; cv1 = 0.86; # infection to onset
-    mean2 = 18.8; cv2 = 0.45 # onset to death
-    ## assume that CFR is probability of dying given infection
-    x1 = rgammaAlt(5e6,mean1,cv1) # infection-to-onset ----> do all people who are infected get to onset?
-    x2 = rgammaAlt(5e6,mean2,cv2) # onset-to-death
-    f = ecdf(x1+x2)
-    convolution = function(u) (CFR * f(u))
-    
-    h[1] = (convolution(1.5) - convolution(0)) 
-    for(i in 2:length(h)) {
-      h[i] = (convolution(i+.5) - convolution(i-.5)) / (1-convolution(i-.5))
-    }
+  mean1 = 5.1; cv1 = 0.86; # infection to onset
+  mean2 = 18.8; cv2 = 0.45 # onset to death
+
+  # td: double check these comments
+  # otherwise should be fine
+  ## icl: assume that CFR is probability of dying given infection
+  x1 = rgammaAlt(5e6,mean1,cv1) # icl: infection-to-onset ----> do all people who are infected get to onset?
+  x2 = rgammaAlt(5e6,mean2,cv2) # icl: onset-to-death
+  f = ecdf(x1+x2)
+  convolution = function(u) (CFR * f(u))
+  h[1] = (convolution(1.5) - convolution(0)) 
+  for(i in 2:length(h)) {
+    h[i] = (convolution(i+.5) - convolution(i-.5)) / (1-convolution(i-.5))
   }
   s = rep(0,N2)
   s[1] = 1 
@@ -132,7 +162,7 @@ for(Country in countries) {
   f = s * h
   
   
-  
+  # -> here!
   
   y=c(as.vector(as.numeric(d1$Cases)),rep(-1,forecast))
   reported_cases[[Country]] = as.vector(as.numeric(d1$Cases))
