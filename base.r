@@ -22,10 +22,14 @@ if(length(args) == 0) {
 StanModel = args[1]
 print(sprintf("Running %s",StanModel))
 
-# here! -> read in all the IL tables -> double check R commands in interactive session
-
 # case-mortality table
 d <- read.csv("./Python/notebooks/ILCaseAndMortalityInputV1.csv")
+
+# drop counties with fewer than 10 cumulative deaths or cases
+cumCaseAndDeath <- aggregate(cbind(d$cases, d$deaths), by=list(Category=d$countryterritoryCode), FUN=sum)
+dropCounties <- subset(cumCaseAndDeath, V1 < 10 | V2 < 10)$Category
+d <- subset(d, !(countryterritoryCode %in% dropCounties))
+
 countries <- unique(d$countryterritoryCode)
 
 # weighted fatality table
@@ -74,12 +78,13 @@ for(Country in countries) {
   covariates1 <- covariates[covariates$Country == Country, 3:ncol(covariates)]
   
   d1=d[d$countryterritoryCode==Country,]
-  d1$date = as.Date(d1$DateRep,format='%m/%d/%y')
+
+  d1$date = as.Date(d1$dateRep,format='%m/%d/%y')
   d1$t = decimal_date(d1$date) 
   d1=d1[order(d1$t),]
 
-  index = which(d1$Cases>0)[1]
-  index1 = which(cumsum(d1$Deaths)>=10)[1] 
+  index = which(d1$cases>0)[1]
+  index1 = which(cumsum(d1$deaths)>=10)[1] 
   index2 = index1-30
   
   print(sprintf("First non-zero cases is on day %d, and 30 days before 10 cumulative deaths is day %d",index,index2))
@@ -88,12 +93,12 @@ for(Country in countries) {
   
   for (ii in 1:ncol(covariates1)) {
     covariate = names(covariates1)[ii]
-    d1[covariate] <- (as.Date(d1$DateRep, format='%m/%d/%y') >= as.Date(covariates1[1,covariate]))*1  # icl: should this be > or >=?
+    d1[covariate] <- (as.Date(d1$dateRep, format='%m/%d/%y') >= as.Date(covariates1[1,covariate]))*1  # icl: should this be > or >=?
   }
 
   dates[[Country]] = d1$date
   # hazard estimation
-  N = length(d1$Cases)
+  N = length(d1$cases)
   print(sprintf("%s has %d days of data",Country,N))
   
   forecast = N2 - N
@@ -126,11 +131,11 @@ for(Country in countries) {
   }
   f = s * h
   
-  y=c(as.vector(as.numeric(d1$Cases)),rep(-1,forecast))
-  reported_cases[[Country]] = as.vector(as.numeric(d1$Cases))
-  deaths=c(as.vector(as.numeric(d1$Deaths)),rep(-1,forecast))
-  cases=c(as.vector(as.numeric(d1$Cases)),rep(-1,forecast))
-  deaths_by_country[[Country]] = as.vector(as.numeric(d1$Deaths))
+  y=c(as.vector(as.numeric(d1$cases)),rep(-1,forecast))
+  reported_cases[[Country]] = as.vector(as.numeric(d1$cases))
+  deaths=c(as.vector(as.numeric(d1$deaths)),rep(-1,forecast))
+  cases=c(as.vector(as.numeric(d1$cases)),rep(-1,forecast))
+  deaths_by_country[[Country]] = as.vector(as.numeric(d1$deaths))
   covariates2 <- as.data.frame(d1[, colnames(covariates1)])
   covariates2[N:(N+forecast),] <- covariates2[N,]
   
