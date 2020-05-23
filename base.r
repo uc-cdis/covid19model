@@ -22,41 +22,24 @@ if(length(args) == 0) {
 StanModel = args[1]
 print(sprintf("Running %s",StanModel))
 
-## Reading all data
-# td: read in IL case-mortality table
-d=readRDS('data/COVID-19-up-to-date.rds')
+# here! -> read in all the IL tables -> double check R commands in interactive session
 
-# td: get country list from case-mortality matrix
-countries <- c(
-  "Denmark",
-  "Italy",
-  "Germany",
-  "Spain",
-  "United_Kingdom",
-  "France",
-  "Norway",
-  "Belgium",
-  "Austria", 
-  "Sweden",
-  "Switzerland"
-)
+# case-mortality table
+d <- read.csv("./Python/notebooks/ILCaseAndMortalityInputV1.csv")
+countries <- unique(d$countryterritoryCode)
 
-## get CFR
-# td: read in IL weighted_fatality
-cfr.by.country = read.csv("data/weighted_fatality.csv")
+# weighted fatality table
+cfr.by.country = read.csv("./Python/notebooks/ILWeightedFatalityInput.csv")
 cfr.by.country$country = as.character(cfr.by.country[,2])
-cfr.by.country$country[cfr.by.country$country == "United Kingdom"] = "United_Kingdom"
 
-# td: should be fine
+# serial interval discrete gamma distribution
 serial.interval = read.csv("data/serial_interval.csv")
 
-# td: read in IL lockdown table
-covariates = read.csv('data/interventions.csv', stringsAsFactors = FALSE)
-# td: probably remove this line
-covariates <- covariates[1:11, c(1,2,3,4,5,6, 7, 8)]
-
-# td: probably -2
-p <- ncol(covariates) - 1
+# interventions table 
+# NOTE: "covariate" == "intervention"; 
+# e.g., if there are 3 different interventions in the model, then there are 3 covariates here in the code
+covariates = read.csv("./Python/notebooks/ILInterventions.csv", stringsAsFactors = FALSE)
+p <- ncol(covariates) - 2
 forecast = 0
 
 # NOTE: 7 (6?) is the NUMBER OF COVARIATES in the original model -> see comment "icl: models should only take 6 covariates"
@@ -78,7 +61,7 @@ stan_data = list(M=length(countries),
                 covariate1=NULL, # -> lockdown -> presently the only intervention in the IL model 
                 deaths=NULL,
                 f=NULL,
-                N0=6, # icl: N0 = 6 to make it consistent with Rayleigh
+                N0=6, # icl: N0 = 6 to make it consistent with Rayleigh # ?
                 cases=NULL,
 
                 # td: make this dynamic -> it's the number of covariates -> can be computed from the table of interventions
