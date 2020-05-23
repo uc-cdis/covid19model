@@ -191,12 +191,21 @@ save(fit,prediction,dates,reported_cases,deaths_by_country,countries,estimated.d
 
 # icl: to visualize results
 
-# should be fine
 library(bayesplot)
 filename <- paste0('base-',JOBID)
+
+
+# td: fix dimension mismatch -> it's the stan code, not this code
 plot_labels <- c("Lockdown")
 alpha = (as.matrix(out$alpha))
+
+print("--- alpha ---")
+print(alpha)
+
 colnames(alpha) = plot_labels
+
+
+
 g = (mcmc_intervals(alpha, prob = .9))
 ggsave(sprintf("results/%s-covars-alpha-log.pdf",filename),g,width=4,height=6)
 g = (mcmc_intervals(alpha, prob = .9,transformations = function(x) exp(-x)))
