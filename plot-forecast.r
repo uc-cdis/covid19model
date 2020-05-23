@@ -22,14 +22,16 @@ make_forecast_plot <- function(){
   
   load(paste0("results/", filename))
   
-  # td: read in IL table
-  data_interventions <- read.csv("data/interventions.csv", 
-                                 stringsAsFactors = FALSE)
+  # not used anywhere ?
+  data_interventions <- read.csv("./Python/notebooks/ILInterventions.csv", stringsAsFactors = FALSE)
+  # p <- ncol(covariates) - 2
+
   
   # td: don't hardcode number of countries (here: 11)
-  for(i in 1:11){
+  # for(i in 1:11){
+  for(i in 1:length(countries)){
     N <- length(dates[[i]])
-    N2 <- N + 7 # covariates?? or days - hmm..
+    N2 <- N + 7 # 7 is the (hardcoded (!)) number of days to forecast - see stan code
     country <- countries[[i]]
     
     predicted_cases <- colMeans(prediction[,1:N,i])
@@ -72,9 +74,9 @@ make_forecast_plot <- function(){
                                "rt_max" = rt_ui)
     
     times <- as_date(as.character(dates[[i]]))
-    times_forecast <- times[length(times)] + 0:7 # td: gotta be days
+    times_forecast <- times[length(times)] + 0:7 # td: another hardcoded 7 - the number of days to forecast
     data_country_forecast <- data.frame("time" = times_forecast,
-                                        "country" = rep(country, 8), # td: ?
+                                        "country" = rep(country, 8), # td: this might need to change ? -> the 8, I mean
                                         "estimated_deaths_forecast" = estimated_deaths_forecast,
                                         "death_min_forecast" = estimated_deaths_li_forecast,
                                         "death_max_forecast"= estimated_deaths_ui_forecast)
