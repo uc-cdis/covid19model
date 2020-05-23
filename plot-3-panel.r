@@ -22,10 +22,13 @@ make_three_pannel_plot <- function(){
   filename2 <- args[1]
   load(paste0("results/", filename2))
   print(sprintf("loading: %s",paste0("results/",filename2)))
+
+  # td: read in IL intervention table
   data_interventions <- read.csv("data/interventions.csv", 
                                  stringsAsFactors = FALSE)
+  # td: fix dimensions to IL table                            
+  # td: don't hardcode number of countries (in this case: 11)
   covariates <- data_interventions[1:11, c(1,2,3,4,5,6, 7, 8)]
-  
   for(i in 1:11){
     print(i)
     N <- length(dates[[i]])
@@ -51,10 +54,11 @@ make_three_pannel_plot <- function(){
     rt_ui2 <- colQuantiles(out$Rt[,1:N,i],probs=.75)
     
     
-    # delete these 2 lines
+    # icl: delete these 2 lines
+    # td: probably need to change this (?)
     covariates_country <- covariates[which(covariates$Country == country), 2:8]   
     
-    # Remove sport
+    # icl: Remove sport
     covariates_country$sport = NULL 
     covariates_country$travel_restrictions = NULL 
     covariates_country_long <- gather(covariates_country[], key = "key", 
@@ -170,7 +174,7 @@ make_plots <- function(data_country, covariates_country_long,
           legend.position = "None") + 
     guides(fill=guide_legend(ncol=1))
   
-  
+  # td: remove all but lockdown
   plot_labels <- c("Complete lockdown", 
                    "Public events banned",
                    "School closure",
