@@ -31,7 +31,7 @@ dropCounties <- subset(cumCaseAndDeath, V1 < 10 | V2 < 10)$Category
 d <- subset(d, !(countryterritoryCode %in% dropCounties))
 
 # HERE! just for testing -> take a small subset to see if the whole routine runs without error
-# uncomment to run the whole thing -> all counties in IL
+# comment out this line to run the model for all IL counties
 d <- subset(d, countryterritoryCode %in% list(84017001, 84017005, 84017007))
 
 countries <- unique(d$countryterritoryCode)
