@@ -22,12 +22,14 @@ make_forecast_plot <- function(){
   
   load(paste0("results/", filename))
   
+  # td: read in IL table
   data_interventions <- read.csv("data/interventions.csv", 
                                  stringsAsFactors = FALSE)
   
+  # td: don't hardcode number of countries (here: 11)
   for(i in 1:11){
     N <- length(dates[[i]])
-    N2 <- N + 7
+    N2 <- N + 7 # covariates?? or days - hmm..
     country <- countries[[i]]
     
     predicted_cases <- colMeans(prediction[,1:N,i])
@@ -70,9 +72,9 @@ make_forecast_plot <- function(){
                                "rt_max" = rt_ui)
     
     times <- as_date(as.character(dates[[i]]))
-    times_forecast <- times[length(times)] + 0:7
+    times_forecast <- times[length(times)] + 0:7 # td: gotta be days
     data_country_forecast <- data.frame("time" = times_forecast,
-                                        "country" = rep(country, 8),
+                                        "country" = rep(country, 8), # td: ?
                                         "estimated_deaths_forecast" = estimated_deaths_forecast,
                                         "death_min_forecast" = estimated_deaths_li_forecast,
                                         "death_max_forecast"= estimated_deaths_ui_forecast)
