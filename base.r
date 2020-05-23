@@ -34,7 +34,7 @@ countries <- unique(d$countryterritoryCode)
 
 # weighted fatality table
 cfr.by.country = read.csv("./Python/notebooks/ILWeightedFatalityInput.csv")
-cfr.by.country$country = as.character(cfr.by.country[,2])
+cfr.by.country$country = as.character(cfr.by.country[,3])
 
 # serial interval discrete gamma distribution
 serial.interval = read.csv("data/serial_interval.csv")
@@ -75,8 +75,8 @@ for(Country in countries) {
 
   CFR=cfr.by.country$weighted_fatality[cfr.by.country$country == Country]
 
-  covariates1 <- covariates[covariates$Country == Country, 3:ncol(covariates)]
-  
+  covariates1 <- covariates[covariates$Country == Country, 3:ncol(covariates), drop=FALSE]
+
   d1=d[d$countryterritoryCode==Country,]
 
   d1$date = as.Date(d1$dateRep,format='%m/%d/%y')

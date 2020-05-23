@@ -23,6 +23,7 @@ make_three_pannel_plot <- function(){
   load(paste0("results/", filename2))
   print(sprintf("loading: %s",paste0("results/",filename2)))
 
+  # also not used anywhere ?
   data_interventions <- read.csv("./Python/notebooks/ILInterventions.csv", stringsAsFactors = FALSE)
 
 
