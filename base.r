@@ -30,6 +30,10 @@ cumCaseAndDeath <- aggregate(cbind(d$cases, d$deaths), by=list(Category=d$countr
 dropCounties <- subset(cumCaseAndDeath, V1 < 10 | V2 < 10)$Category
 d <- subset(d, !(countryterritoryCode %in% dropCounties))
 
+# HERE! just for testing -> take a small subset to see if the whole routine runs without error
+# uncomment to run the whole thing -> all counties in IL
+d <- subset(d, countryterritoryCode %in% list(84017001, 84017005, 84017007))
+
 countries <- unique(d$countryterritoryCode)
 
 # weighted fatality table
