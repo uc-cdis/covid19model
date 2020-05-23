@@ -23,13 +23,12 @@ make_three_pannel_plot <- function(){
   load(paste0("results/", filename2))
   print(sprintf("loading: %s",paste0("results/",filename2)))
 
-  # td: read in IL intervention table
-  data_interventions <- read.csv("data/interventions.csv", 
-                                 stringsAsFactors = FALSE)
-  # td: fix dimensions to IL table                            
+  data_interventions <- read.csv("./Python/notebooks/ILInterventions.csv", stringsAsFactors = FALSE)
+
+
   # td: don't hardcode number of countries (in this case: 11)
-  covariates <- data_interventions[1:11, c(1,2,3,4,5,6, 7, 8)]
-  for(i in 1:11){
+  # for(i in 1:11){
+  for(i in 1:length(countries)){
     print(i)
     N <- length(dates[[i]])
     country <- countries[[i]]
@@ -52,17 +51,10 @@ make_three_pannel_plot <- function(){
     rt_ui <- colQuantiles(out$Rt[,1:N,i],probs=.975)
     rt_li2 <- colQuantiles(out$Rt[,1:N,i],probs=.25)
     rt_ui2 <- colQuantiles(out$Rt[,1:N,i],probs=.75)
+        
+    covariates_country <- covariates[which(covariates$Country == country), 3:ncol(covariates)]   
     
-    
-    # icl: delete these 2 lines
-    # td: probably need to change this (?)
-    covariates_country <- covariates[which(covariates$Country == country), 2:8]   
-    
-    # icl: Remove sport
-    covariates_country$sport = NULL 
-    covariates_country$travel_restrictions = NULL 
-    covariates_country_long <- gather(covariates_country[], key = "key", 
-                                      value = "value")
+    covariates_country_long <- gather(covariates_country[], key = "key", value = "value")
     covariates_country_long$x <- rep(NULL, length(covariates_country_long$key))
     un_dates <- unique(covariates_country_long$value)
     
@@ -77,8 +69,7 @@ make_three_pannel_plot <- function(){
     
     
     covariates_country_long$value <- as_date(covariates_country_long$value) 
-    covariates_country_long$country <- rep(country, 
-                                           length(covariates_country_long$value))
+    covariates_country_long$country <- rep(country, length(covariates_country_long$value))
     
     data_country <- data.frame("time" = as_date(as.character(dates[[i]])),
                                "country" = rep(country, length(dates[[i]])),
@@ -174,12 +165,7 @@ make_plots <- function(data_country, covariates_country_long,
           legend.position = "None") + 
     guides(fill=guide_legend(ncol=1))
   
-  # td: remove all but lockdown
-  plot_labels <- c("Complete lockdown", 
-                   "Public events banned",
-                   "School closure",
-                   "Self isolation",
-                   "Social distancing")
+  plot_labels <- c("lockdown")
   
   # Plotting interventions
   data_rt_95 <- data.frame(data_country$time, 
