@@ -61,32 +61,23 @@ stan_data = list(M=length(countries),
                 covariate1=NULL, # -> lockdown -> presently the only intervention in the IL model 
                 deaths=NULL,
                 f=NULL,
-                N0=6, # icl: N0 = 6 to make it consistent with Rayleigh # ?
+                N0=6, # icl: N0 = 6 to make it consistent with Rayleigh # ? td: check this
                 cases=NULL,
-
-                # td: make this dynamic -> it's the number of covariates -> can be computed from the table of interventions
-                LENGTHSCALE=1,
-
+                LENGTHSCALE=p, # this is the number of covariates (i.e., the number of interventions)
                 SI=serial.interval$fit[1:N2],
                 EpidemicStart = NULL)
 
 for(Country in countries) {
 
-  # should be fine
   CFR=cfr.by.country$weighted_fatality[cfr.by.country$country == Country]
-  
-  # td: change 2:8 to ???
-  covariates1 <- covariates[covariates$Country == Country, 2:8]
-  
-  # td: countryCode, not Countries.and.territories
-  d1=d[d$Countries.and.territories==Country,]
 
-  # td: fix change date format
-  d1$date = as.Date(d1$DateRep,format='%d/%m/%Y')
+  covariates1 <- covariates[covariates$Country == Country, 3:ncol(covariates)]
+  
+  d1=d[d$countryterritoryCode==Country,]
+  d1$date = as.Date(d1$DateRep,format='%m/%d/%y')
   d1$t = decimal_date(d1$date) 
   d1=d1[order(d1$t),]
 
-  # should be fine
   index = which(d1$Cases>0)[1]
   index1 = which(cumsum(d1$Deaths)>=10)[1] 
   index2 = index1-30
