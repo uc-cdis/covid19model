@@ -82,31 +82,24 @@ for(Country in countries) {
   index1 = which(cumsum(d1$Deaths)>=10)[1] 
   index2 = index1-30
   
-  # should be fine
   print(sprintf("First non-zero cases is on day %d, and 30 days before 10 cumulative deaths is day %d",index,index2))
   d1=d1[index2:nrow(d1),]
   stan_data$EpidemicStart = c(stan_data$EpidemicStart,index1+1-index2)
-
-  # here! ->
   
-  # should be fine
   for (ii in 1:ncol(covariates1)) {
     covariate = names(covariates1)[ii]
-    # td: change date format
-    d1[covariate] <- (as.Date(d1$DateRep, format='%d/%m/%Y') >= as.Date(covariates1[1,covariate]))*1  # icl: should this be > or >=?
+    d1[covariate] <- (as.Date(d1$DateRep, format='%m/%d/%y') >= as.Date(covariates1[1,covariate]))*1  # icl: should this be > or >=?
   }
 
-  # should be fine
   dates[[Country]] = d1$date
   # hazard estimation
   N = length(d1$Cases)
   print(sprintf("%s has %d days of data",Country,N))
   
-  # should be fine
   forecast = N2 - N
   if(forecast < 0) {
     print(sprintf("%s: %d", Country, N))
-    print("ERROR!!!! increasing N2")
+    print("ERROR!!!! increasing N2") # so aggressive..
     N2 = N
     forecast = N2 - N
   }
@@ -133,28 +126,23 @@ for(Country in countries) {
   }
   f = s * h
   
-  # should be fine
   y=c(as.vector(as.numeric(d1$Cases)),rep(-1,forecast))
   reported_cases[[Country]] = as.vector(as.numeric(d1$Cases))
   deaths=c(as.vector(as.numeric(d1$Deaths)),rep(-1,forecast))
   cases=c(as.vector(as.numeric(d1$Cases)),rep(-1,forecast))
   deaths_by_country[[Country]] = as.vector(as.numeric(d1$Deaths))
   covariates2 <- as.data.frame(d1[, colnames(covariates1)])
-  # x=1:(N+forecast) # -> ?
   covariates2[N:(N+forecast),] <- covariates2[N,]
   
   ## icl: append data
   stan_data$N = c(stan_data$N,N)
   stan_data$y = c(stan_data$y,y[1]) # icl: just the index case!
-  # stan_data$x = cbind(stan_data$x,x) # -> ?
 
-  # should be fine
   stan_data$covariate1 = cbind(stan_data$covariate1,covariates2[,1])
   stan_data$f = cbind(stan_data$f,f)
   stan_data$deaths = cbind(stan_data$deaths,deaths)
   stan_data$cases = cbind(stan_data$cases,cases)
   
-  # should be fine
   stan_data$N2=N2
   stan_data$x=1:N2
   if(length(stan_data$N) == 1) {
@@ -164,7 +152,6 @@ for(Country in countries) {
 
 # stan_data$covariate7 = 0 # icl: models should only take 6 covariates # -> ?
 
-# should be fine
 stan_data$y = t(stan_data$y)
 options(mc.cores = parallel::detectCores())
 rstan_options(auto_write = TRUE)
@@ -177,13 +164,11 @@ fit = sampling(m,data=stan_data,iter=10,warmup=5,chains=2,thin=1,control = list(
 
 #### simulation is finished 
 
-# should be fine
 out = rstan::extract(fit)
 prediction = out$prediction
 estimated.deaths = out$E_deaths
 estimated.deaths.cf = out$E_deaths0
 
-# should be fine
 JOBID = Sys.getenv("PBS_JOBID")
 if(JOBID == "")
   JOBID = as.character(abs(round(rnorm(1) * 1000000)))
@@ -191,7 +176,7 @@ print(sprintf("Jobid = %s",JOBID))
 save.image(paste0('results/',StanModel,'-',JOBID,'.Rdata'))
 save(fit,prediction,dates,reported_cases,deaths_by_country,countries,estimated.deaths,estimated.deaths.cf,out,covariates,file=paste0('results/',StanModel,'-',JOBID,'-stanfit.Rdata'))
 
-#### saving simulation results is finished
+#### saving of simulation results is finished
 
 #### now -> visualize model results -> ####
 
