@@ -65,16 +65,22 @@ forecast = 0
 # icl: Increase this for a further forecast
 # N2 = 75 
 # err if N2 is less than number of days of data for a given cluster -> e.g., Chicago has ~90, threw err for N2 == 75
-N2 = 90
+# see: N2 before correction - also serial interval note
+N2 = 75
 dates = list()
 reported_cases = list()
 deaths_by_country = list()
 
+# note: I believe the serial interval caps at 100 days
+# as soon as we have more than 100 days of data (i.e., in less than two weeks)
+# the script will start failing because it will try to pull
+# values from the serial interval greater than 100 (>>>?) -> double check
+
 stan_data = list(M=length(countries),
                 N=NULL,
                 p=p,
-                x1=poly(1:N2,2)[,1],
-                x2=poly(1:N2,2)[,2],
+                # x1=poly(1:N2,2)[,1], # N2 before correction -> causes errors
+                # x2=poly(1:N2,2)[,2], # N2 before correction
                 y=NULL,
                 covariate1=NULL, # -> lockdown -> presently the only intervention in the IL model 
                 deaths=NULL,
@@ -82,7 +88,7 @@ stan_data = list(M=length(countries),
                 N0=6, # icl: N0 = 6 to make it consistent with Rayleigh # ? td: check this
                 cases=NULL,
                 LENGTHSCALE=p, # this is the number of covariates (i.e., the number of interventions)
-                SI=serial.interval$fit[1:N2],
+                # SI=serial.interval$fit[1:N2], # N2 before correction
                 EpidemicStart = NULL)
 
 for(Country in countries) {
@@ -160,6 +166,10 @@ for(Country in countries) {
   stan_data$N = c(stan_data$N,N)
   stan_data$y = c(stan_data$y,y[1]) # icl: just the index case!
 
+  stan_data$x1=poly(1:N2,2)[,1]
+  stan_data$x2=poly(1:N2,2)[,2]
+  stan_data$SI=serial.interval$fit[1:N2]
+
   stan_data$covariate1 = cbind(stan_data$covariate1,covariates2[,1])
   stan_data$f = cbind(stan_data$f,f)
   stan_data$deaths = cbind(stan_data$deaths,deaths)
@@ -180,9 +190,9 @@ rstan_options(auto_write = TRUE)
 m = stan_model(paste0('stan-models/',StanModel,'.stan'))
 
 # td: handle HMC convergence; see paper; consult with Phil.
-fit = sampling(m,data=stan_data,iter=4000,warmup=2000,chains=8,thin=4,control = list(adapt_delta = 0.90, max_treedepth = 10))
+# fit = sampling(m,data=stan_data,iter=4000,warmup=2000,chains=8,thin=4,control = list(adapt_delta = 0.90, max_treedepth = 10))
 # here -> just for testing that the code works
-# fit = sampling(m,data=stan_data,iter=10,warmup=5,chains=2,thin=1,control = list(adapt_delta = 0.90, max_treedepth = 10))
+fit = sampling(m,data=stan_data,iter=10,warmup=5,chains=2,thin=1,control = list(adapt_delta = 0.90, max_treedepth = 10))
 # here -> upping the reps
 # fit = sampling(m,data=stan_data, thin=1, control = list(adapt_delta = 0.90, max_treedepth = 10))
 
