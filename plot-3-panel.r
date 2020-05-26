@@ -23,10 +23,6 @@ make_three_pannel_plot <- function(){
   load(paste0("results/", filename2))
   print(sprintf("loading: %s",paste0("results/",filename2)))
 
-  # also not used anywhere ?
-  data_interventions <- read.csv("./Python/notebooks/ILInterventions.csv", stringsAsFactors = FALSE)
-
-
   # td: don't hardcode number of countries (in this case: 11)
   # for(i in 1:11){
   for(i in 1:length(countries)){
@@ -62,7 +58,13 @@ make_three_pannel_plot <- function(){
     rt_ui2 <- colQuantiles(out$Rt[,1:N,i],probs=.75)
         
     # NOTE: `country` is an integer - should be okay here
-    covariates_country <- covariates[which(covariates$Country == country), 3:ncol(covariates)]   
+    covariates_country <- covariates[which(covariates$Country == country), 3:ncol(covariates), drop=FALSE]
+
+    # print("--- covariates ---")
+    # print(head(covariates))
+
+    # print("--- covariates_country ---")
+    # print(covariates_country)
     
     covariates_country_long <- gather(covariates_country[], key = "key", value = "value")
     covariates_country_long$x <- rep(NULL, length(covariates_country_long$key))
@@ -77,11 +79,10 @@ make_three_pannel_plot <- function(){
       }
     }
     
-    
     covariates_country_long$value <- as_date(covariates_country_long$value) 
     covariates_country_long$country <- rep(country, length(covariates_country_long$value))
     
-    data_country <- data.frame("time" = as_date(as.character(dates[[i]])),
+    data_country <- data.frame("time" = as_date(as.character(dates[[i]])), # conversions seem unnecessary -> check
                                "country" = rep(country, length(dates[[i]])),
                                "reported_cases" = reported_cases[[i]], 
                                "reported_cases_c" = cumsum(reported_cases[[i]]), 

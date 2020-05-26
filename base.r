@@ -23,7 +23,9 @@ StanModel = args[1]
 print(sprintf("Running %s",StanModel))
 
 # case-mortality table
+# dat[, c(3,6:15,37)] <- sapply(dat[, c(3,6:15,37)], as.numeric)
 d <- read.csv("./Python/notebooks/ILCaseAndMortalityInputV1.csv")
+d$countryterritoryCode <- sapply(d$countryterritoryCode, as.character)
 
 # drop counties with fewer than 10 cumulative deaths or cases
 cumCaseAndDeath <- aggregate(cbind(d$cases, d$deaths), by=list(Category=d$countryterritoryCode), FUN=sum)
@@ -47,6 +49,7 @@ serial.interval = read.csv("data/serial_interval.csv")
 # NOTE: "covariate" == "intervention"; 
 # e.g., if there are 3 different interventions in the model, then there are 3 covariates here in the code
 covariates = read.csv("./Python/notebooks/ILInterventions.csv", stringsAsFactors = FALSE)
+covariates$Country <- sapply(covariates$Country, as.character)
 p <- ncol(covariates) - 2
 forecast = 0
 
@@ -101,8 +104,8 @@ for(Country in countries) {
     d1[covariate] <- (as.Date(d1$dateRep, format='%m/%d/%y') >= as.Date(covariates1[1,covariate]))*1  # icl: should this be > or >=?
   }
 
-  dates[[as.character(Country)]] = d1$date
-
+  # dates[[as.character(Country)]] = d1$date
+  dates[[Country]] = d1$date
 
   # hazard estimation
   N = length(d1$cases)
