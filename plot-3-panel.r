@@ -30,10 +30,18 @@ make_three_pannel_plot <- function(){
   # td: don't hardcode number of countries (in this case: 11)
   # for(i in 1:11){
   for(i in 1:length(countries)){
-    print(i)
+
+    # print("--- i ---")
+    # print(i)
+
     N <- length(dates[[i]])
+
+    # here! careful - country is an integer right here
     country <- countries[[i]]
-    
+
+    # print("--- N ---")
+    # print(N)
+
     predicted_cases <- colMeans(prediction[,1:N,i])
     predicted_cases_li <- colQuantiles(prediction[,1:N,i], probs=.025)
     predicted_cases_ui <- colQuantiles(prediction[,1:N,i], probs=.975)
@@ -53,6 +61,7 @@ make_three_pannel_plot <- function(){
     rt_li2 <- colQuantiles(out$Rt[,1:N,i],probs=.25)
     rt_ui2 <- colQuantiles(out$Rt[,1:N,i],probs=.75)
         
+    # NOTE: `country` is an integer - should be okay here
     covariates_country <- covariates[which(covariates$Country == country), 3:ncol(covariates)]   
     
     covariates_country_long <- gather(covariates_country[], key = "key", value = "value")

@@ -84,6 +84,7 @@ for(Country in countries) {
   d1=d[d$countryterritoryCode==Country,]
 
   d1$date = as.Date(d1$dateRep,format='%m/%d/%y')
+
   d1$t = decimal_date(d1$date) 
   d1=d1[order(d1$t),]
 
@@ -100,7 +101,9 @@ for(Country in countries) {
     d1[covariate] <- (as.Date(d1$dateRep, format='%m/%d/%y') >= as.Date(covariates1[1,covariate]))*1  # icl: should this be > or >=?
   }
 
-  dates[[Country]] = d1$date
+  dates[[as.character(Country)]] = d1$date
+
+
   # hazard estimation
   N = length(d1$cases)
   print(sprintf("%s has %d days of data",Country,N))
@@ -212,5 +215,6 @@ g = (mcmc_intervals(Rt,prob = .9))
 ggsave(sprintf("results/%s-covars-final-rt.pdf",filename),g,width=4,height=6)
 
 # to generate the visualizations, uncomment these two lines (currently, errors in the code - doesn't run for IL)
-# system(paste0("Rscript plot-3-panel.r ", filename,'.Rdata'))
+system(paste0("Rscript plot-3-panel.r ", filename,'.Rdata'))
+
 # system(paste0("Rscript plot-forecast.r ", filename,'.Rdata')) ## icl: to run this code you will need to adjust manual values of forecast required
