@@ -34,7 +34,12 @@ d <- subset(d, !(countryterritoryCode %in% dropCounties))
 
 # HERE! just for testing -> take a small subset to see if the whole routine runs without error
 # comment out this line to run the model for all IL counties
-d <- subset(d, countryterritoryCode %in% list(84017001, 84017005, 84017007))
+# d <- subset(d, countryterritoryCode %in% list("84017001", "84017005", "84017007"))
+
+# 84017031 -> ID for Cook County
+# 84017043 -> ID for DuPage County
+# HERE -> testing running the model, bigger simulation, just for Cook and DuPage counties
+d <- subset(d, countryterritoryCode %in% list("84017031", "84017043"))
 
 countries <- unique(d$countryterritoryCode)
 
@@ -58,7 +63,9 @@ forecast = 0
 # --> should be dynamic, just computed from the table of interventions
 
 # icl: Increase this for a further forecast
-N2 = 75 
+# N2 = 75 
+# err if N2 is less than number of days of data for a given cluster -> e.g., Chicago has ~90, threw err for N2 == 75
+N2 = 90
 dates = list()
 reported_cases = list()
 deaths_by_country = list()
@@ -181,8 +188,11 @@ fit = sampling(m,data=stan_data,iter=10,warmup=5,chains=2,thin=1,control = list(
 
 out = rstan::extract(fit)
 prediction = out$prediction
+print(prediction)
 estimated.deaths = out$E_deaths
+print(estimated.deaths)
 estimated.deaths.cf = out$E_deaths0
+print(estimated.deaths.cf)
 
 JOBID = Sys.getenv("PBS_JOBID")
 if(JOBID == "")

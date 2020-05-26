@@ -26,7 +26,9 @@ make_forecast_plot <- function(){
   # for(i in 1:11){
   for(i in 1:length(countries)){
     N <- length(dates[[i]])
-    N2 <- N + 7 # 7 is the (hardcoded (!)) number of days to forecast - see stan code
+
+    # N2 should already be loaded from the loaded .rdata file
+    # N2 <- N + 7 
     country <- countries[[i]]
     
     predicted_cases <- colMeans(prediction[,1:N,i])
@@ -69,9 +71,10 @@ make_forecast_plot <- function(){
                                "rt_max" = rt_ui)
     
     times <- as_date(as.character(dates[[i]]))
-    times_forecast <- times[length(times)] + 0:7 # td: another hardcoded 7 - the number of days to forecast
+    times_forecast <- times[length(times)] + 0:(N2 - N) # td: another hardcoded 7 - the number of days to forecast
     data_country_forecast <- data.frame("time" = times_forecast,
-                                        "country" = rep(country, 8), # td: this might need to change ? -> the 8, I mean
+                                        # "country" = rep(country, 8), # td: this might need to change ? -> the 8, I mean
+                                        "country" = rep(country, N2 - N + 1), # p sure this works
                                         "estimated_deaths_forecast" = estimated_deaths_forecast,
                                         "death_min_forecast" = estimated_deaths_li_forecast,
                                         "death_max_forecast"= estimated_deaths_ui_forecast)
