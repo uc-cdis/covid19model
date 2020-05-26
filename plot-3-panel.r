@@ -195,9 +195,11 @@ make_plots <- function(data_country, covariates_country_long,
                                         group = key,
                                         fill = key)) +
     geom_hline(yintercept = 1, color = 'black', size = 0.1) + 
+    # missing values in one row -> warning -> td: double check this
     geom_segment(data = covariates_country_long,
                  aes(x = value, y = 0, xend = value, yend = max(x)), 
                  linetype = "dashed", colour = "grey", alpha = 0.75) +
+    # missing values in one row -> warning
     geom_point(data = covariates_country_long, aes(x = value, 
                                                    y = x, 
                                                    group = key, 

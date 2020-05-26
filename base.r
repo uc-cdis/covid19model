@@ -220,4 +220,4 @@ ggsave(sprintf("results/%s-covars-final-rt.pdf",filename),g,width=4,height=6)
 # to generate the visualizations, uncomment these two lines (currently, errors in the code - doesn't run for IL)
 system(paste0("Rscript plot-3-panel.r ", filename,'.Rdata'))
 
-# system(paste0("Rscript plot-forecast.r ", filename,'.Rdata')) ## icl: to run this code you will need to adjust manual values of forecast required
+system(paste0("Rscript plot-forecast.r ", filename,'.Rdata')) ## icl: to run this code you will need to adjust manual values of forecast required

@@ -22,11 +22,6 @@ make_forecast_plot <- function(){
   
   load(paste0("results/", filename))
   
-  # not used anywhere ?
-  data_interventions <- read.csv("./Python/notebooks/ILInterventions.csv", stringsAsFactors = FALSE)
-  # p <- ncol(covariates) - 2
-
-  
   # td: don't hardcode number of countries (here: 11)
   # for(i in 1:11){
   for(i in 1:length(countries)){
