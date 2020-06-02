@@ -66,7 +66,7 @@ forecast = 0
 # N2 = 75 
 # err if N2 is less than number of days of data for a given cluster -> e.g., Chicago has ~90, threw err for N2 == 75
 # see: N2 before correction - also serial interval note
-N2 = 75
+N2 = 75 # changed -> fixed the error; so when N2 has to get updated, the script fails
 dates = list()
 reported_cases = list()
 deaths_by_country = list()
@@ -90,6 +90,28 @@ stan_data = list(M=length(countries),
                 LENGTHSCALE=p, # this is the number of covariates (i.e., the number of interventions)
                 # SI=serial.interval$fit[1:N2], # N2 before correction
                 EpidemicStart = NULL)
+
+# new - adjust N2 before main procesesing routine - i.e., adjust N2 so that it's uniform across all counties
+for(Country in countries) {
+
+  tmp=d[d$countryterritoryCode==Country,]
+  tmp$date = as.Date(tmp$dateRep,format='%m/%d/%y')
+  tmp$t = decimal_date(tmp$date) 
+  tmp=tmp[order(tmp$t),]
+
+  index1 = which(cumsum(tmp$deaths)>=10)[1] 
+  index2 = index1-30
+  
+  tmp=tmp[index2:nrow(tmp),]
+  
+  N = length(tmp$cases)  
+  if(N2 - N < 0) {
+    print(sprintf("raising N2 from %d to %d", N2, N))
+    N2 = N
+  }
+}
+
+print(sprintf("uniform N2: %d", N2))
 
 for(Country in countries) {
 
@@ -127,20 +149,22 @@ for(Country in countries) {
   print(sprintf("%s has %d days of data",Country,N))
   
   forecast = N2 - N
-  if(forecast < 0) {
-    print(sprintf("%s: %d", Country, N))
-    print("ERROR!!!! increasing N2")
 
-    # prev code
+  # cut this out
+  # if(forecast < 0) {
+    # print(sprintf("%s: %d", Country, N))
+    # print("ERROR!!!! increasing N2")
+
+    # # prev code
     # N2 = N
 
-    # forecast three days ahead
-    # guess -> error when forecast == 0 # not true
-    N2 = N + 3
+    # # forecast three days ahead
+    # # guess -> error when forecast == 0 # not true
+    # # N2 = N + 3
 
-    # always 0, in this case -> should that be?
-    forecast = N2 - N
-  }
+    # # always 0, in this case -> should that be?
+    # forecast = N2 - N
+  # }
   
   h = rep(0,forecast+N) # discrete hazard rate from time t = 1, ..., 100
   mean1 = 5.1; cv1 = 0.86; # infection to onset
@@ -164,6 +188,7 @@ for(Country in countries) {
   }
   f = s * h
   
+  # looks like 'y' may be the problem 
   y=c(as.vector(as.numeric(d1$cases)),rep(-1,forecast))
   reported_cases[[Country]] = as.vector(as.numeric(d1$cases))
   deaths=c(as.vector(as.numeric(d1$deaths)),rep(-1,forecast))
@@ -172,6 +197,11 @@ for(Country in countries) {
   covariates2 <- as.data.frame(d1[, colnames(covariates1)])
   covariates2[N:(N+forecast),] <- covariates2[N,]
   
+  print(sprintf("N: %d", N))
+  print(sprintf("N2: %d", N2))
+  print(sprintf("length(cases): %d", length(cases)))
+  print(sprintf("forecast: %d", forecast))
+
   ## icl: append data
   stan_data$N = c(stan_data$N,N)
   stan_data$y = c(stan_data$y,y[1]) # icl: just the index case!
