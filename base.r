@@ -35,11 +35,11 @@ d <- subset(d, !(countryterritoryCode %in% dropCounties))
 # HERE! just for testing -> take a small subset to see if the whole routine runs without error
 # comment out this line to run the model for all IL counties
 # d <- subset(d, countryterritoryCode %in% list("84017001", "84017005", "84017007"))
-
+###
 # 84017031 -> ID for Cook County
 # 84017043 -> ID for DuPage County
 # HERE -> testing running the model, bigger simulation, just for Cook and DuPage counties
-d <- subset(d, countryterritoryCode %in% list("84017031", "84017043"))
+# d <- subset(d, countryterritoryCode %in% list("84017031", "84017043"))
 
 countries <- unique(d$countryterritoryCode)
 
@@ -108,6 +108,8 @@ for(Country in countries) {
   index1 = which(cumsum(d1$deaths)>=10)[1] 
   index2 = index1-30
   
+  ## HERE! -> this is where the error is - double check this business
+  # discrepency
   print(sprintf("First non-zero cases is on day %d, and 30 days before 10 cumulative deaths is day %d",index,index2))
   d1=d1[index2:nrow(d1),]
   stan_data$EpidemicStart = c(stan_data$EpidemicStart,index1+1-index2)
@@ -127,8 +129,16 @@ for(Country in countries) {
   forecast = N2 - N
   if(forecast < 0) {
     print(sprintf("%s: %d", Country, N))
-    print("ERROR!!!! increasing N2") # so aggressive..
-    N2 = N
+    print("ERROR!!!! increasing N2")
+
+    # prev code
+    # N2 = N
+
+    # forecast three days ahead
+    # guess -> error when forecast == 0 # not true
+    N2 = N + 3
+
+    # always 0, in this case -> should that be?
     forecast = N2 - N
   }
   
@@ -190,9 +200,9 @@ rstan_options(auto_write = TRUE)
 m = stan_model(paste0('stan-models/',StanModel,'.stan'))
 
 # td: handle HMC convergence; see paper; consult with Phil.
-fit = sampling(m,data=stan_data,iter=4000,warmup=2000,chains=8,thin=4,control = list(adapt_delta = 0.90, max_treedepth = 10))
+# fit = sampling(m,data=stan_data,iter=4000,warmup=2000,chains=8,thin=4,control = list(adapt_delta = 0.90, max_treedepth = 10))
 # here -> just for testing that the code works
-# fit = sampling(m,data=stan_data,iter=10,warmup=5,chains=2,thin=1,control = list(adapt_delta = 0.90, max_treedepth = 10))
+fit = sampling(m,data=stan_data,iter=10,warmup=5,chains=2,thin=1,control = list(adapt_delta = 0.90, max_treedepth = 10))
 # here -> upping the reps
 # fit = sampling(m,data=stan_data, thin=1, control = list(adapt_delta = 0.90, max_treedepth = 10))
 
