@@ -76,13 +76,17 @@ exploreNoCook$County <- NULL
 
 ## plots -> save them, name them, easily readable axes
 
+# look at everything 
+png(filename="./explorePlots/allVars.png", width=1600, height=1600, units="px", pointsize=24)
+plot(exploreNoCook)
+dev.off()
+
 #### distributions of interest
 
 # Rt
 # hist(as.numeric(explore$Rt), breaks=8)
 # hist(as.numeric(explore$R0), breaks=8)
 # hist(as.numeric(explore$Prop_Reduction_in_Rt), breaks=6)
-# hist(as.numeric(explore$Diff_Rt), breaks=8)
 
 # Reported Cases
 # hist(as.numeric(exploreNoCook$Reported_Cases))
@@ -104,5 +108,4 @@ exploreNoCook$County <- NULL
 # R0 vs. Rt
 # plot(explore$R0, explore$Rt)
 
-# look at everything 
-# plot(exploreNoCook)
+
