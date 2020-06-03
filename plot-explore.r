@@ -20,16 +20,11 @@ exploreNames <- c(
     "Rt",
     "R0",
     "Prop_Reduction_in_Rt", # (R0 - Rt) / R0
-    "Diff_Rt", # R0 - Rt
 
     "Modeled_Cases",
-    "Modeled_Cases_cf",
-    "Diff_Modeled_Cases", # cf - lockdown
     "Reported_Cases",
 
     "Modeled_Deaths",
-    "Modeled_Deaths_cf",
-    "Diff_Modeled_Deaths", # cf - lockdown
     "Reported_Deaths"
 )
 
@@ -60,16 +55,11 @@ for(i in 1:length(countries)){
     # "Rt",
     # "R0",
     # "Prop_Reduction_in_Rt", # (R0 - Rt) / R0
-    # "Diff_Rt", # R0 - Rt
 
     # "Modeled_Cases",
-    # "Modeled_Cases_cf",
-    # "Diff_Modeled_Cases", # cf - lockdown
     # "Reported_Cases",
 
     # "Modeled_Deaths",
-    # "Modeled_Deaths_cf",
-    # "Diff_Modeled_Deaths", # cf - lockdown
     # "Reported_Deaths"
 
     countyStats <- c(
@@ -77,14 +67,9 @@ for(i in 1:length(countries)){
         Rt,
         R0,
         (R0 - Rt) / R0,
-        R0 - Rt,
         total_predicted_cases,
-        total_predicted_cases_cf,
-        (total_predicted_cases_cf - total_predicted_cases) / total_predicted_cases_cf,
         total_reported_cases,
         total_estimated_deaths,
-        total_estimated_deaths_cf,
-        (total_estimated_deaths_cf - total_estimated_deaths) / total_estimated_deaths_cf,
         total_reported_deaths
     )
 
@@ -94,6 +79,39 @@ for(i in 1:length(countries)){
 # take away initial row which is just a zero vector placeholder
 explore <- explore[-1,]
 
-# print("let's take a look")
-# print(explore)
+# separate df without cook county
+exploreNoCook <- explore[explore$County != "84017031",]
 
+
+## plots -> save them, name them, easily readable axes
+
+#### distributions of interest
+
+# Rt
+# hist(as.numeric(explore$Rt), breaks=8)
+# hist(as.numeric(explore$R0), breaks=8)
+# hist(as.numeric(explore$Prop_Reduction_in_Rt), breaks=6)
+# hist(as.numeric(explore$Diff_Rt), breaks=8)
+
+# Reported Cases
+# hist(as.numeric(exploreNoCook$Reported_Cases))
+# hist(log(as.numeric(exploreNoCook$Reported_Cases)))
+
+# Reported Deaths
+# hist(as.numeric(exploreNoCook$Reported_Deaths))
+# hist(log(as.numeric(exploreNoCook$Reported_Deaths)))
+
+# Reported Deaths vs. Reported Cases
+# plot(log(as.numeric(exploreNoCook$Reported_Cases)), log(as.numeric(exploreNoCook$Reported_Deaths)))
+
+# Rt vs. Reported Deaths
+# plot(exploreNoCook$Rt, log(as.numeric(exploreNoCook$Reported_Deaths)))
+
+# Reduction in Rt vs. Reported Deaths
+# plot(exploreNoCook$Prop_Reduction_in_Rt, log(as.numeric(exploreNoCook$Reported_Deaths)))
+
+# R0 vs. Rt
+# plot(explore$R0, explore$Rt)
+
+# look at everything - should the raw numbers be logs?
+# plot(exploreNoCook)
