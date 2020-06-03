@@ -26,7 +26,7 @@ exploreNames <- c(
     "Reported_Deaths"
 )
 
-explore <- data.frame()
+explore <- data.frame(matrix(0, ncol=length(exploreNames)))
 colnames(explore) <- exploreNames
 
 for(i in 1:length(countries)){
@@ -81,6 +81,9 @@ for(i in 1:length(countries)){
 
     explore <- rbind(explore, countyStats)
 }
+
+# take away initial row which is just a zero vector placeholder
+explore <- explore[-1,]
 
 print("let's take a look")
 print(explore)
