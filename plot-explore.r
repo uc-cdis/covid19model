@@ -94,5 +94,6 @@ for(i in 1:length(countries)){
 # take away initial row which is just a zero vector placeholder
 explore <- explore[-1,]
 
-print("let's take a look")
-print(explore)
+# print("let's take a look")
+# print(explore)
+
