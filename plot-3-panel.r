@@ -32,7 +32,7 @@ make_three_pannel_plot <- function(){
 
     N <- length(dates[[i]])
 
-    # here! careful - country is an integer right here
+    # here! careful - country is an integer right here (is it? double check)
     country <- countries[[i]]
 
     # print("--- N ---")
