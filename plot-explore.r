@@ -44,8 +44,8 @@ for(i in 1:length(countries)){
 
     # check
     Rt <- mean(colMeans(out$Rt[,1:N,i]))
-    # check
-    R0 <- mean(colMeans(out$mu))
+    # check - testing
+    R0 <- mean(out$mu[,i])
 
     total_predicted_cases <- sum(colMeans(prediction[,1:N,i]))
     total_predicted_cases_cf <- sum(colMeans(out$prediction0[,1:N,i]))
@@ -76,15 +76,15 @@ for(i in 1:length(countries)){
         country,
         Rt,
         R0,
-        (R0 - Rt)/R0,
+        (R0 - Rt) / R0,
         R0 - Rt,
         total_predicted_cases,
         total_predicted_cases_cf,
-        total_predicted_cases_cf - total_predicted_cases,
+        (total_predicted_cases_cf - total_predicted_cases) / total_predicted_cases_cf,
         total_reported_cases,
         total_estimated_deaths,
         total_estimated_deaths_cf,
-        total_estimated_deaths_cf - total_estimated_deaths,
+        (total_estimated_deaths_cf - total_estimated_deaths) / total_estimated_deaths_cf,
         total_reported_deaths
     )
 
