@@ -2,18 +2,6 @@
 # load environment from all-IL run, post-simulation
 load("./results/run_2/us_base-488236.Rdata")
 
-# to wrangle:
-# R_t (a)
-# R_0 (a)
-# total rCases (a)
-# total cases_l (a)
-# total cases_0 (a)
-# total rDeaths (a)
-# total deaths_l (a)
-# total deaths_0 (a)
-#
-# very simple.
-
 exploreNames <- c(
     "County",
 
@@ -67,10 +55,10 @@ for(i in 1:length(countries)){
         Rt,
         R0,
         (R0 - Rt) / R0,
-        total_predicted_cases,
-        total_reported_cases,
-        total_estimated_deaths,
-        total_reported_deaths
+        log(total_predicted_cases),
+        log(total_reported_cases),
+        log(total_estimated_deaths),
+        log(total_reported_deaths)
     )
 
     explore <- rbind(explore, countyStats)
@@ -82,6 +70,9 @@ explore <- explore[-1,]
 # separate df without cook county
 exploreNoCook <- explore[explore$County != "84017031",]
 
+# remove county column (it's not a variable)
+explore$County <- NULL
+exploreNoCook$County <- NULL
 
 ## plots -> save them, name them, easily readable axes
 
@@ -113,5 +104,5 @@ exploreNoCook <- explore[explore$County != "84017031",]
 # R0 vs. Rt
 # plot(explore$R0, explore$Rt)
 
-# look at everything - should the raw numbers be logs?
+# look at everything 
 # plot(exploreNoCook)
