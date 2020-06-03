@@ -16,13 +16,20 @@ load("./results/run_2/us_base-488236.Rdata")
 
 exploreNames <- c(
     "County",
+
     "Rt",
     "R0",
+    "Prop_Reduction_in_Rt", # (R0 - Rt) / R0
+    "Diff_Rt", # R0 - Rt
+
     "Modeled_Cases",
     "Modeled_Cases_cf",
+    "Diff_Modeled_Cases", # cf - lockdown
     "Reported_Cases",
+
     "Modeled_Deaths",
     "Modeled_Deaths_cf",
+    "Diff_Modeled_Deaths", # cf - lockdown
     "Reported_Deaths"
 )
 
@@ -31,16 +38,9 @@ colnames(explore) <- exploreNames
 
 for(i in 1:length(countries)){
 
-    print("--- i ---")
-    print(i)
-
     N <- length(dates[[i]])
 
-    # here! careful - country is an integer right here (is it? double check)
     country <- countries[[i]]
-
-    print("--- N ---")
-    print(N)
 
     # check
     Rt <- mean(colMeans(out$Rt[,1:N,i]))
@@ -56,26 +56,35 @@ for(i in 1:length(countries)){
     total_reported_deaths <- sum(deaths_by_country[[i]])
 
     # "County",
+
     # "Rt",
     # "R0",
+    # "Prop_Reduction_in_Rt", # (R0 - Rt) / R0
+    # "Diff_Rt", # R0 - Rt
 
     # "Modeled_Cases",
     # "Modeled_Cases_cf",
+    # "Diff_Modeled_Cases", # cf - lockdown
     # "Reported_Cases",
 
     # "Modeled_Deaths",
     # "Modeled_Deaths_cf",
+    # "Diff_Modeled_Deaths", # cf - lockdown
     # "Reported_Deaths"
 
     countyStats <- c(
         country,
         Rt,
         R0,
+        (R0 - Rt)/R0,
+        R0 - Rt,
         total_predicted_cases,
         total_predicted_cases_cf,
+        total_predicted_cases_cf - total_predicted_cases,
         total_reported_cases,
         total_estimated_deaths,
         total_estimated_deaths_cf,
+        total_estimated_deaths_cf - total_estimated_deaths,
         total_reported_deaths
     )
 
