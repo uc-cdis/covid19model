@@ -76,6 +76,7 @@ explore$County <- NULL
 exploreNoCook$County <- NULL
 
 ## plots -> save them, name them, easily readable axes
+## todo: work out size/resolution issues
 
 # look at everything 
 png(filename="./explorePlots/allVars.png", width=1600, height=1600, units="px", pointsize=24)
@@ -84,29 +85,36 @@ dev.off()
 
 #### distributions of interest
 
+# NOTE: make it clear in each diagram if cook county is included or not
+# assume cook county is included
+# if exluded - explicitly state this in the title
+# NOTE: I haven't done this yet
+
 # Rt
-# hist(as.numeric(explore$Rt), breaks=8)
-# hist(as.numeric(explore$R0), breaks=8)
-# hist(as.numeric(explore$Prop_Reduction_in_Rt), breaks=6)
+hist(as.numeric(explore$Rt), breaks=8, main="Rt", xlab="Rt")
+hist(as.numeric(explore$R0), breaks=8, main="R0", xlab="R0")
+hist(as.numeric(explore$Prop_Reduction_in_Rt), main="Reduction in Rt", xlab="Reduction in Rt")
 
 # Reported Cases
-# hist(as.numeric(exploreNoCook$Reported_Cases))
-# hist(log(as.numeric(exploreNoCook$Reported_Cases)))
+hist(as.numeric(exploreNoCook$Reported_Cases), main="log(Reported Cases)", xlab="log(Reported Cases)")
+hist(exp(as.numeric(exploreNoCook$Reported_Cases)), main="Reported Cases", xlab="Reported Cases")
 
 # Reported Deaths
-# hist(as.numeric(exploreNoCook$Reported_Deaths))
-# hist(log(as.numeric(exploreNoCook$Reported_Deaths)))
+hist(as.numeric(exploreNoCook$Reported_Deaths), main="log(Reported Deaths)", xlab="log(Reported Deaths)")
+hist(exp(as.numeric(exploreNoCook$Reported_Deaths)), main="Reported Deaths", xlab="Reported Deaths")
 
 # Reported Deaths vs. Reported Cases
-# plot(log(as.numeric(exploreNoCook$Reported_Cases)), log(as.numeric(exploreNoCook$Reported_Deaths)))
+# y is reported deaths -> "x vs. y"
+plot(exploreNoCook$Reported_Cases, exploreNoCook$Reported_Deaths, 
+    main="Reported Deaths vs. Reported Cases",
+    xlab="log(Reported Cases)", ylab="log(Reported Deaths)")
 
 # Rt vs. Reported Deaths
-# plot(exploreNoCook$Rt, log(as.numeric(exploreNoCook$Reported_Deaths)))
-
-# Reduction in Rt vs. Reported Deaths
-# plot(exploreNoCook$Prop_Reduction_in_Rt, log(as.numeric(exploreNoCook$Reported_Deaths)))
+plot(exploreNoCook$Rt, exploreNoCook$Reported_Deaths,
+    main="Reported Deaths vs. Rt",
+    xlab="Rt", ylab="log(Reported Deaths)")
 
 # R0 vs. Rt
-# plot(explore$R0, explore$Rt)
+plot(explore$R0, explore$Rt, main="Rt vs. R0", xlab="R0", ylab="Rt")
 
 
