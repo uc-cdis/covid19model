@@ -79,9 +79,9 @@ exploreNoCook$County <- NULL
 ## todo: work out size/resolution issues
 
 # look at everything 
-png(filename="./explorePlots/explore.png", width=1600, height=1600, units="px", pointsize=24)
+png(filename="./explorePlots/exploreVars.png", width=1600, height=1600, units="px", pointsize=36)
 plot(exploreNoCook)
-
+dev.off()
 
 # NOTE: make it clear in each diagram if cook county is included or not
 # assume cook county is included
@@ -91,37 +91,55 @@ plot(exploreNoCook)
 #### distributions of interest
 
 # Rt
+png(filename="./explorePlots/freq_Rt.png", width=1600, height=1600, units="px", pointsize=36)
 hist(as.numeric(explore$Rt), breaks=8, main="Rt", xlab="Rt")
+dev.off()
+png(filename="./explorePlots/freq_R0.png", width=1600, height=1600, units="px", pointsize=36)
 hist(as.numeric(explore$R0), breaks=8, main="R0", xlab="R0")
+dev.off()
+png(filename="./explorePlots/freq_ReductionInRt.png", width=1600, height=1600, units="px", pointsize=36)
 hist(as.numeric(explore$Prop_Reduction_in_Rt), main="Reduction in Rt", xlab="Reduction in Rt")
+dev.off()
 
 # Reported Cases
+png(filename="./explorePlots/freq_ReportedCases_log.png", width=1600, height=1600, units="px", pointsize=36)
 hist(as.numeric(exploreNoCook$Reported_Cases), main="log(Reported Cases)", xlab="log(Reported Cases)")
+dev.off()
+png(filename="./explorePlots/freq_ReportedCases.png", width=1600, height=1600, units="px", pointsize=36)
 hist(exp(as.numeric(exploreNoCook$Reported_Cases)), main="Reported Cases", xlab="Reported Cases")
+dev.off()
+
 
 # Reported Deaths
+png(filename="./explorePlots/freq_ReportedDeaths_log.png", width=1600, height=1600, units="px", pointsize=36)
 hist(as.numeric(exploreNoCook$Reported_Deaths), main="log(Reported Deaths)", xlab="log(Reported Deaths)")
+dev.off()
+png(filename="./explorePlots/freq_ReportedDeaths.png", width=1600, height=1600, units="px", pointsize=36)
 hist(exp(as.numeric(exploreNoCook$Reported_Deaths)), main="Reported Deaths", xlab="Reported Deaths")
+dev.off()
+
 
 #### highlight some plots
 
 # Reported Deaths vs. Reported Cases
 # y is reported deaths -> "x vs. y"
+png(filename="./explorePlots/ReportedDeaths_vs_ReportedCases.png", width=1600, height=1600, units="px", pointsize=36)
 plot(exploreNoCook$Reported_Cases, exploreNoCook$Reported_Deaths, 
     main="Reported Deaths vs. Reported Cases",
     xlab="log(Reported Cases)", ylab="log(Reported Deaths)")
+dev.off()
 
 # Rt vs. Reported Deaths
+png(filename="./explorePlots/ReportedDeaths_vs_Rt.png", width=1600, height=1600, units="px", pointsize=36)
 plot(exploreNoCook$Rt, exploreNoCook$Reported_Deaths,
     main="Reported Deaths vs. Rt",
     xlab="Rt", ylab="log(Reported Deaths)")
-
-# R0 vs. Rt
-plot(explore$R0, explore$Rt, main="Rt vs. R0", xlab="R0", ylab="Rt")
-
-#### todo: fetch soc-ec vars, pop dens, etc. -> plot reduction in Rt, and Rt, or whatever, against these other soc-ec vars by county
-
-# Q. is it that simple?
 dev.off()
 
+# R0 vs. Rt
+png(filename="./explorePlots/Rt_vs_R0.png", width=1600, height=1600, units="px", pointsize=36)
+plot(explore$R0, explore$Rt, main="Rt vs. R0", xlab="R0", ylab="Rt")
+dev.off()
+
+#### todo! : fetch soc-ec vars, pop dens, etc. -> plot reduction in Rt, and Rt, or whatever, against these other soc-ec vars by county
 
