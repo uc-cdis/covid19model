@@ -121,6 +121,13 @@ dev.off()
 
 #### highlight some plots
 
+# Reduction in Rt vs. Reported Deaths
+png(filename="./explorePlots/ReductionInRt_vs_ReportedDeaths.png", width=1600, height=1600, units="px", pointsize=36)
+plot(exp(as.numeric(exploreNoCook$Reported_Deaths)), exploreNoCook$Prop_Reduction_in_Rt,
+    main="Reduction in Rt vs. Reported Deaths",
+    xlab="Reported Deaths", ylab="Reduction in Rt")
+dev.off()
+
 # Reported Deaths vs. Reported Cases
 # y is reported deaths -> "x vs. y"
 png(filename="./explorePlots/ReportedDeaths_vs_ReportedCases.png", width=1600, height=1600, units="px", pointsize=36)
