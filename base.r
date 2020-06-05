@@ -233,6 +233,7 @@ m = stan_model(paste0('stan-models/',StanModel,'.stan'))
 # fit = sampling(m,data=stan_data,iter=8000,warmup=4000,chains=8,thin=4,control = list(adapt_delta = 0.90, max_treedepth = 10))
 
 # bigger sim
+# 5 counties -> 66min -> pretty good
 fit = sampling(m,data=stan_data,iter=24000,warmup=12000,chains=8,thin=4,control = list(adapt_delta = 0.90, max_treedepth = 10))
 
 # here -> just for testing that the code works
