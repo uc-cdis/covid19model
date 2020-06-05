@@ -228,14 +228,18 @@ m = stan_model(paste0('stan-models/',StanModel,'.stan'))
 # fit = sampling(m,data=stan_data,iter=4000,warmup=2000,chains=8,thin=4,control = list(adapt_delta = 0.90, max_treedepth = 10))
 
 # big sim
-# fit = sampling(m,data=stan_data,iter=8000,warmup=4000,chains=8,thin=4,control = list(adapt_delta = 0.90, max_treedepth = 10))
-fit = sampling(m,data=stan_data,iter=20000,warmup=10000,chains=8,thin=4,control = list(adapt_delta = 0.90, max_treedepth = 10))
+# 25 counties -> 2.75 hrs
+# 5 counties -> 20min
+fit = sampling(m,data=stan_data,iter=8000,warmup=4000,chains=8,thin=4,control = list(adapt_delta = 0.90, max_treedepth = 10))
+
+# bigger sim
+fit = sampling(m,data=stan_data,iter=24000,warmup=12000,chains=8,thin=4,control = list(adapt_delta = 0.90, max_treedepth = 10))
 
 # here -> just for testing that the code works
 # fit = sampling(m,data=stan_data,iter=10,warmup=5,chains=2,thin=1,control = list(adapt_delta = 0.90, max_treedepth = 10))
 
 # here -> upping the reps
-fit = sampling(m,data=stan_data, thin=1, control = list(adapt_delta = 0.90, max_treedepth = 10))
+# fit = sampling(m,data=stan_data, thin=1, control = list(adapt_delta = 0.90, max_treedepth = 10))
 
 #### simulation is finished 
 
