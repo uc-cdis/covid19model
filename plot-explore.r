@@ -80,13 +80,17 @@ exploreNoCook$County <- NULL
 
 # look at everything 
 png(filename="./explorePlots/exploreVars.png", width=1600, height=1600, units="px", pointsize=36)
-plot(exploreNoCook)
+# todo: fix this manual toggling
+# plot(exploreNoCook)
+plot(explore)
 dev.off()
 
 # NOTE: make it clear in each diagram if cook county is included or not
 # assume cook county is included
 # if exluded - explicitly state this in the title
 # NOTE: I haven't done this yet
+
+# td: REALLY gotta fix the manual toggling between including or not including cook county in these plots
 
 #### distributions of interest
 
@@ -103,19 +107,23 @@ dev.off()
 
 # Reported Cases
 png(filename="./explorePlots/freq_ReportedCases_log.png", width=1600, height=1600, units="px", pointsize=36)
-hist(as.numeric(exploreNoCook$Reported_Cases), main="log(Reported Cases)", xlab="log(Reported Cases)")
+# hist(as.numeric(exploreNoCook$Reported_Cases), main="log(Reported Cases)", xlab="log(Reported Cases)")
+hist(as.numeric(explore$Reported_Cases), main="log(Reported Cases)", xlab="log(Reported Cases)")
 dev.off()
 png(filename="./explorePlots/freq_ReportedCases.png", width=1600, height=1600, units="px", pointsize=36)
-hist(exp(as.numeric(exploreNoCook$Reported_Cases)), main="Reported Cases", xlab="Reported Cases")
+# hist(exp(as.numeric(exploreNoCook$Reported_Cases)), main="Reported Cases", xlab="Reported Cases")
+hist(exp(as.numeric(explore$Reported_Cases)), main="Reported Cases", xlab="Reported Cases")
 dev.off()
 
 
 # Reported Deaths
 png(filename="./explorePlots/freq_ReportedDeaths_log.png", width=1600, height=1600, units="px", pointsize=36)
-hist(as.numeric(exploreNoCook$Reported_Deaths), main="log(Reported Deaths)", xlab="log(Reported Deaths)")
+# hist(as.numeric(exploreNoCook$Reported_Deaths), main="log(Reported Deaths)", xlab="log(Reported Deaths)")
+hist(as.numeric(explore$Reported_Deaths), main="log(Reported Deaths)", xlab="log(Reported Deaths)")
 dev.off()
 png(filename="./explorePlots/freq_ReportedDeaths.png", width=1600, height=1600, units="px", pointsize=36)
-hist(exp(as.numeric(exploreNoCook$Reported_Deaths)), main="Reported Deaths", xlab="Reported Deaths")
+# hist(exp(as.numeric(exploreNoCook$Reported_Deaths)), main="Reported Deaths", xlab="Reported Deaths")
+hist(exp(as.numeric(explore$Reported_Deaths)), main="Reported Deaths", xlab="Reported Deaths")
 dev.off()
 
 
@@ -123,7 +131,10 @@ dev.off()
 
 # Reduction in Rt vs. Reported Deaths
 png(filename="./explorePlots/ReductionInRt_vs_ReportedDeaths.png", width=1600, height=1600, units="px", pointsize=36)
-plot(exp(as.numeric(exploreNoCook$Reported_Deaths)), exploreNoCook$Prop_Reduction_in_Rt,
+# plot(exp(as.numeric(exploreNoCook$Reported_Deaths)), exploreNoCook$Prop_Reduction_in_Rt,
+#     main="Reduction in Rt vs. Reported Deaths",
+#     xlab="Reported Deaths", ylab="Reduction in Rt")
+plot(exp(as.numeric(explore$Reported_Deaths)), explore$Prop_Reduction_in_Rt,
     main="Reduction in Rt vs. Reported Deaths",
     xlab="Reported Deaths", ylab="Reduction in Rt")
 dev.off()
@@ -131,14 +142,20 @@ dev.off()
 # Reported Deaths vs. Reported Cases
 # y is reported deaths -> "x vs. y"
 png(filename="./explorePlots/ReportedDeaths_vs_ReportedCases.png", width=1600, height=1600, units="px", pointsize=36)
-plot(exploreNoCook$Reported_Cases, exploreNoCook$Reported_Deaths, 
+# plot(exploreNoCook$Reported_Cases, exploreNoCook$Reported_Deaths, 
+#     main="Reported Deaths vs. Reported Cases",
+#     xlab="log(Reported Cases)", ylab="log(Reported Deaths)")
+plot(explore$Reported_Cases, explore$Reported_Deaths, 
     main="Reported Deaths vs. Reported Cases",
     xlab="log(Reported Cases)", ylab="log(Reported Deaths)")
 dev.off()
 
 # Rt vs. Reported Deaths
 png(filename="./explorePlots/ReportedDeaths_vs_Rt.png", width=1600, height=1600, units="px", pointsize=36)
-plot(exploreNoCook$Rt, exploreNoCook$Reported_Deaths,
+# plot(exploreNoCook$Rt, exploreNoCook$Reported_Deaths,
+#     main="Reported Deaths vs. Rt",
+#     xlab="Rt", ylab="log(Reported Deaths)")
+plot(explore$Rt, explore$Reported_Deaths,
     main="Reported Deaths vs. Rt",
     xlab="Rt", ylab="log(Reported Deaths)")
 dev.off()
