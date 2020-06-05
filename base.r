@@ -29,14 +29,20 @@ d$countryterritoryCode <- sapply(d$countryterritoryCode, as.character)
 
 # drop counties with fewer than 10 cumulative deaths or cases
 cumCaseAndDeath <- aggregate(cbind(d$cases, d$deaths), by=list(Category=d$countryterritoryCode), FUN=sum)
-dropCounties <- subset(cumCaseAndDeath, V1 < 10 | V2 < 10)$Category
+
+# original - 10 is the cutoff
+# dropCounties <- subset(cumCaseAndDeath, V1 < 10 | V2 < 10)$Category
+# here -> upping the cutoff, for just this sim
+dropCounties <- subset(cumCaseAndDeath, V1 < 150 | V2 < 150)$Category
+
 d <- subset(d, !(countryterritoryCode %in% dropCounties))
+print(sprintf("nCounties with more than 150 deaths: %d", length(unique(d$countryterritoryCode))))
 
 # 84017031 -> ID for Cook County
 # 84017043 -> ID for DuPage County
 # HERE -> testing running the model, bigger simulation, just for Cook and DuPage counties
 # comment this line out to run the sim for all IL counties
-d <- subset(d, countryterritoryCode %in% list("84017031", "84017043"))
+# d <- subset(d, countryterritoryCode %in% list("84017031", "84017043"))
 
 countries <- unique(d$countryterritoryCode)
 
@@ -186,10 +192,10 @@ for(Country in countries) {
   covariates2 <- as.data.frame(d1[, colnames(covariates1)])
   covariates2[N:(N+forecast),] <- covariates2[N,]
   
-  print(sprintf("N: %d", N))
-  print(sprintf("N2: %d", N2))
-  print(sprintf("length(cases): %d", length(cases)))
-  print(sprintf("forecast: %d", forecast))
+  # print(sprintf("N: %d", N))
+  # print(sprintf("N2: %d", N2))
+  # print(sprintf("length(cases): %d", length(cases)))
+  # print(sprintf("forecast: %d", forecast))
 
   ## icl: append data
   stan_data$N = c(stan_data$N,N)
@@ -223,6 +229,7 @@ m = stan_model(paste0('stan-models/',StanModel,'.stan'))
 
 # big sim
 # fit = sampling(m,data=stan_data,iter=8000,warmup=4000,chains=8,thin=4,control = list(adapt_delta = 0.90, max_treedepth = 10))
+fit = sampling(m,data=stan_data,iter=20000,warmup=10000,chains=8,thin=4,control = list(adapt_delta = 0.90, max_treedepth = 10))
 
 # here -> just for testing that the code works
 # fit = sampling(m,data=stan_data,iter=10,warmup=5,chains=2,thin=1,control = list(adapt_delta = 0.90, max_treedepth = 10))
