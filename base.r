@@ -225,10 +225,10 @@ m = stan_model(paste0('stan-models/',StanModel,'.stan'))
 # fit = sampling(m,data=stan_data,iter=8000,warmup=4000,chains=8,thin=4,control = list(adapt_delta = 0.90, max_treedepth = 10))
 
 # here -> just for testing that the code works
-fit = sampling(m,data=stan_data,iter=10,warmup=5,chains=2,thin=1,control = list(adapt_delta = 0.90, max_treedepth = 10))
+# fit = sampling(m,data=stan_data,iter=10,warmup=5,chains=2,thin=1,control = list(adapt_delta = 0.90, max_treedepth = 10))
 
 # here -> upping the reps
-# fit = sampling(m,data=stan_data, thin=1, control = list(adapt_delta = 0.90, max_treedepth = 10))
+fit = sampling(m,data=stan_data, thin=1, control = list(adapt_delta = 0.90, max_treedepth = 10))
 
 #### simulation is finished 
 

@@ -34,7 +34,12 @@ make_forecast_plot <- function(){
     predicted_cases <- colMeans(prediction[,1:N,i])
     predicted_cases_li <- colQuantiles(prediction[,1:N,i], probs=.025)
     predicted_cases_ui <- colQuantiles(prediction[,1:N,i], probs=.975)
-    
+
+    # new
+    predicted_cases_forecast <- colMeans(prediction[,1:N2,i])[N:N2]
+    predicted_cases_li_forecast <- colQuantiles(prediction[,1:N2,i], probs=.025)[N:N2]
+    predicted_cases_ui_forecast <- colQuantiles(prediction[,1:N2,i], probs=.975)[N:N2]
+
     estimated_deaths <- colMeans(estimated.deaths[,1:N,i])
     estimated_deaths_li <- colQuantiles(estimated.deaths[,1:N,i], probs=.025)
     estimated_deaths_ui <- colQuantiles(estimated.deaths[,1:N,i], probs=.975)
@@ -73,13 +78,17 @@ make_forecast_plot <- function(){
     times <- as_date(as.character(dates[[i]]))
     times_forecast <- times[length(times)] + 0:(N2 - N) # td: another hardcoded 7 - the number of days to forecast
     data_country_forecast <- data.frame("time" = times_forecast,
-                                        # "country" = rep(country, 8), # td: this might need to change ? -> the 8, I mean
                                         "country" = rep(country, N2 - N + 1), # p sure this works
                                         "estimated_deaths_forecast" = estimated_deaths_forecast,
                                         "death_min_forecast" = estimated_deaths_li_forecast,
-                                        "death_max_forecast"= estimated_deaths_ui_forecast)
+                                        "death_max_forecast" = estimated_deaths_ui_forecast,
+                                        # new
+                                        "estimated_cases_forecast" = predicted_cases_forecast,
+                                        "cases_min_forecast" = predicted_cases_li_forecast,
+                                        "cases_max_forecast" = predicted_cases_ui_forecast
+                                        )
     
-    make_single_plot(data_country = data_country, 
+    make_two_plots(data_country = data_country, 
                      data_country_forecast = data_country_forecast,
                      filename = filename,
                      country = country)
@@ -87,7 +96,7 @@ make_forecast_plot <- function(){
   }
 }
 
-make_single_plot <- function(data_country, data_country_forecast, filename, country){
+make_two_plots <- function(data_country, data_country_forecast, filename, country){
   
   data_deaths <- data_country %>%
     select(time, deaths, estimated_deaths) %>%
@@ -137,7 +146,62 @@ make_single_plot <- function(data_country, data_country_forecast, filename, coun
              color="black")
   print(p)
   
-  ggsave(file= paste0("figures/", country, "_forecast_", filename, ".pdf"), 
+  ggsave(file= paste0("figures/", country, "deaths_forecast_", filename, ".pdf"), 
+         p, width = 10)
+
+  #### plot cases forecast ####
+
+  data_cases <- data_country %>%
+    select(time, reported_cases, predicted_cases) %>%
+    gather("key" = key, "value" = value, -time)
+  
+  data_cases_forecast <- data_country_forecast %>%
+    select(time, estimated_cases_forecast) %>%
+    gather("key" = key, "value" = value, -time)
+  
+  # Force less than 1 case to zero
+  data_cases$value[data_cases$value < 1] <- NA
+  data_cases_forecast$value[data_cases_forecast$value < 1] <- NA
+  data_cases_all <- rbind(data_cases, data_cases_forecast)
+  
+  p <- ggplot(data_country) +
+    geom_bar(data = data_country, aes(x = time, y = reported_cases), 
+             fill = "coral4", stat='identity', alpha=0.5) + 
+    geom_line(data = data_country, aes(x = time, y = predicted_cases), 
+              col = "deepskyblue4") + 
+    geom_line(data = data_country_forecast, 
+              aes(x = time, y = estimated_cases_forecast), 
+              col = "black", alpha = 0.5) + 
+    geom_ribbon(data = data_country, aes(x = time, 
+                                         ymin = predicted_min, 
+                                         ymax = predicted_max),
+                fill="deepskyblue4", alpha=0.3) +
+    geom_ribbon(data = data_country_forecast, 
+                aes(x = time, 
+                    ymin = cases_min_forecast, 
+                    ymax = cases_max_forecast),
+                fill = "black", alpha=0.35) +
+    geom_vline(xintercept = data_cases$time[length(data_cases$time)], 
+               col = "black", linetype = "dashed", alpha = 0.5) + 
+    #scale_fill_manual(name = "", 
+    #                 labels = c("Confirmed deaths", "Predicted deaths"),
+    #                 values = c("coral4", "deepskyblue4")) + 
+    xlab("Date") +
+    ylab("Daily number of cases\n") + 
+    scale_x_date(date_breaks = "weeks", labels = date_format("%e %b")) + 
+    scale_y_continuous(trans='log10', labels=comma) + 
+    # may need to change ylim if not big enough 
+    coord_cartesian(ylim = c(1, 100000), expand = FALSE) + 
+    theme_pubr() + 
+    theme(axis.text.x = element_text(angle = 45, hjust = 1)) + 
+    guides(fill=guide_legend(ncol=1, reverse = TRUE)) + 
+    # might need to touch this - what's with the hardcoded 8?
+    annotate(geom="text", x=data_country$time[length(data_country$time)]+8, 
+             y=10000, label="Forecast",
+             color="black")
+  print(p)
+  
+  ggsave(file= paste0("figures/", country, "cases_forecast_", filename, ".pdf"), 
          p, width = 10)
 }
 #-----------------------------------------------------------------------------------------------
