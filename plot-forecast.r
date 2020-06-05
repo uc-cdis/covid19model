@@ -146,7 +146,7 @@ make_two_plots <- function(data_country, data_country_forecast, filename, countr
              color="black")
   print(p)
   
-  ggsave(file= paste0("figures/", country, "deaths_forecast_", filename, ".pdf"), 
+  ggsave(file= paste0("figures/", country, "_deaths_forecast_", filename, ".pdf"), 
          p, width = 10)
 
   #### plot cases forecast ####
@@ -159,7 +159,7 @@ make_two_plots <- function(data_country, data_country_forecast, filename, countr
     select(time, estimated_cases_forecast) %>%
     gather("key" = key, "value" = value, -time)
   
-  # Force less than 1 case to zero
+  # Force less than 1 case to zero (?)
   data_cases$value[data_cases$value < 1] <- NA
   data_cases_forecast$value[data_cases_forecast$value < 1] <- NA
   data_cases_all <- rbind(data_cases, data_cases_forecast)
@@ -201,7 +201,7 @@ make_two_plots <- function(data_country, data_country_forecast, filename, countr
              color="black")
   print(p)
   
-  ggsave(file= paste0("figures/", country, "cases_forecast_", filename, ".pdf"), 
+  ggsave(file= paste0("figures/", country, "_cases_forecast_", filename, ".pdf"), 
          p, width = 10)
 }
 #-----------------------------------------------------------------------------------------------
