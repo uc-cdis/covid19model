@@ -1,7 +1,8 @@
 
 # load environment from all-IL run, post-simulation
 # load("./results/run_2/us_base-488236.Rdata") # -> prev - 4000 iterations
-load("./results/big_sim/us_base-2225348.Rdata") # 8000 iterations ("big sim")
+# load("./results/big_sim/us_base-2225348.Rdata") # -> prev - 8000 iterations ("big sim")
+load("./results/five_county_big/us_base-1028756.Rdata") # -> 24K iterations on 5 counties with most data
 
 exploreNames <- c(
     "County",
@@ -26,9 +27,8 @@ for(i in 1:length(countries)){
 
     country <- countries[[i]]
 
-    # check
-    Rt <- mean(colMeans(out$Rt[,1:N,i]))
-    # check - testing
+    dimensions <- dim(out$Rt)
+    Rt <- mean(out$Rt[,dimensions[2],i]) 
     R0 <- mean(out$mu[,i])
 
     total_predicted_cases <- sum(colMeans(prediction[,1:N,i]))
@@ -69,6 +69,7 @@ for(i in 1:length(countries)){
 explore <- explore[-1,]
 
 # separate df without cook county
+# here -> watch this
 exploreNoCook <- explore[explore$County != "84017031",]
 
 # remove county column (it's not a variable)
@@ -76,7 +77,6 @@ explore$County <- NULL
 exploreNoCook$County <- NULL
 
 ## plots -> save them, name them, easily readable axes
-## todo: work out size/resolution issues
 
 # look at everything 
 png(filename="./explorePlots/exploreVars.png", width=1600, height=1600, units="px", pointsize=36)
