@@ -33,10 +33,14 @@ cumCaseAndDeath <- aggregate(cbind(d$cases, d$deaths), by=list(Category=d$countr
 # original - 10 is the cutoff
 # dropCounties <- subset(cumCaseAndDeath, V1 < 10 | V2 < 10)$Category
 # here -> upping the cutoff, for just this sim
-dropCounties <- subset(cumCaseAndDeath, V1 < 150 | V2 < 150)$Category
+# dropCounties <- subset(cumCaseAndDeath, V1 < 150 | V2 < 150)$Category
+dropCounties <- subset(cumCaseAndDeath, V1 < 50 | V2 < 50)$Category
+
 
 d <- subset(d, !(countryterritoryCode %in% dropCounties))
-print(sprintf("nCounties with more than 150 deaths: %d", length(unique(d$countryterritoryCode))))
+print(sprintf("nCounties with more than 50 deaths: %d", length(unique(d$countryterritoryCode))))
+# print(sprintf("nCounties with more than 10 deaths: %d", length(unique(d$countryterritoryCode))))
+
 
 # 84017031 -> ID for Cook County
 # 84017043 -> ID for DuPage County
@@ -234,6 +238,7 @@ m = stan_model(paste0('stan-models/',StanModel,'.stan'))
 
 # bigger sim
 # 5 counties -> 66min -> pretty good
+# 9 counties -> ?
 fit = sampling(m,data=stan_data,iter=24000,warmup=12000,chains=8,thin=4,control = list(adapt_delta = 0.90, max_treedepth = 10))
 
 # here -> just for testing that the code works
