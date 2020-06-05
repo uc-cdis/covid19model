@@ -32,14 +32,11 @@ cumCaseAndDeath <- aggregate(cbind(d$cases, d$deaths), by=list(Category=d$countr
 dropCounties <- subset(cumCaseAndDeath, V1 < 10 | V2 < 10)$Category
 d <- subset(d, !(countryterritoryCode %in% dropCounties))
 
-# HERE! just for testing -> take a small subset to see if the whole routine runs without error
-# comment out this line to run the model for all IL counties
-# d <- subset(d, countryterritoryCode %in% list("84017001", "84017005", "84017007"))
-###
 # 84017031 -> ID for Cook County
 # 84017043 -> ID for DuPage County
 # HERE -> testing running the model, bigger simulation, just for Cook and DuPage counties
-# d <- subset(d, countryterritoryCode %in% list("84017031", "84017043"))
+# comment this line out to run the sim for all IL counties
+d <- subset(d, countryterritoryCode %in% list("84017031", "84017043"))
 
 countries <- unique(d$countryterritoryCode)
 
@@ -48,7 +45,9 @@ cfr.by.country = read.csv("./Python/notebooks/ILWeightedFatalityInput.csv")
 cfr.by.country$country = as.character(cfr.by.country[,3])
 
 # serial interval discrete gamma distribution
-serial.interval = read.csv("data/serial_interval.csv")
+# serial.interval = read.csv("data/serial_interval.csv") # breaks when modeling more than 100 days
+serial.interval = read.csv("serialInterval300.csv") # new table
+
 
 # interventions table 
 # NOTE: "covariate" == "intervention"; 
@@ -109,7 +108,9 @@ for(Country in countries) {
   N = length(tmp$cases)  
   if(N2 - N < 0) {
     print(sprintf("raising N2 from %d to %d", N2, N))
-    N2 = N
+    # testing..
+    # N2 = N
+    N2 = N + 7
   }
 }
 
@@ -150,7 +151,9 @@ for(Country in countries) {
   N = length(d1$cases)
   print(sprintf("%s has %d days of data",Country,N))
   
-  forecast = N2 - N
+  # at least a seven day forecast
+  # testing this
+  forecast <- max(N2 - N, 7)
   
   h = rep(0,forecast+N) # discrete hazard rate from time t = 1, ..., 100
   mean1 = 5.1; cv1 = 0.86; # infection to onset
@@ -219,10 +222,11 @@ m = stan_model(paste0('stan-models/',StanModel,'.stan'))
 # fit = sampling(m,data=stan_data,iter=4000,warmup=2000,chains=8,thin=4,control = list(adapt_delta = 0.90, max_treedepth = 10))
 
 # big sim
-fit = sampling(m,data=stan_data,iter=8000,warmup=4000,chains=8,thin=4,control = list(adapt_delta = 0.90, max_treedepth = 10))
+# fit = sampling(m,data=stan_data,iter=8000,warmup=4000,chains=8,thin=4,control = list(adapt_delta = 0.90, max_treedepth = 10))
 
 # here -> just for testing that the code works
-# fit = sampling(m,data=stan_data,iter=10,warmup=5,chains=2,thin=1,control = list(adapt_delta = 0.90, max_treedepth = 10))
+fit = sampling(m,data=stan_data,iter=10,warmup=5,chains=2,thin=1,control = list(adapt_delta = 0.90, max_treedepth = 10))
+
 # here -> upping the reps
 # fit = sampling(m,data=stan_data, thin=1, control = list(adapt_delta = 0.90, max_treedepth = 10))
 
