@@ -4,17 +4,6 @@ library(lubridate)
 library(gdata)
 library(EnvStats)
 
-# for the python routine:
-# dataset = HierarchicalDataset(cases_dir="./ILCaseAndMortalityInputV1.csv",
-#                               interventions_dir="ILInterventions.csv",
-#                               ifr_dir="ILWeightedFatalityInput.csv",
-#                               serial_interval_dir="../../data/serial_interval.csv", 
-#                              )
-# ...
-# import pystan
-# sm = pystan.StanModel(file="../../stan-models/us_base.stan")
-#
-
 args = commandArgs(trailingOnly=TRUE)
 if(length(args) == 0) {
   args = 'us_base'
