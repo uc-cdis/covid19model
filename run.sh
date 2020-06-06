@@ -23,4 +23,4 @@ Rscript base.r $1 $2 $3
 
 cd ..
 
-echo "\n- Routine Completed -\n
+echo "\n- Routine Completed -\n"
