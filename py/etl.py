@@ -44,7 +44,7 @@ def makeCaseMortalityTable(dirPath):
     ## get daily counts -> make this a fn
 
     # take this out, put it back after compute
-    dc = cases.copy().iloc[:,11:]
+    dc = cases.copy().iloc[:,11:].astype(np.int64)
 
     # fix monotone errors
     # rows
@@ -62,11 +62,9 @@ def makeCaseMortalityTable(dirPath):
     # print(dc.apply(lambda x: x.is_monotonic, axis=1).unique())
 
     dailyCounts = cases.copy()
+
     # replace cumulative counts with daily counts (i.e., increments)
     dailyCounts.iloc[:,12:] = dc.diff(axis=1, periods=1).iloc[:,1:]
-
-    # take a look at cook (county)
-    # dailyCounts[dailyCounts["Admin2"] == "Cook"]
 
     # treat the daily counts as our working table from here forward
     # note: need to do the same procedure for the death counts
@@ -99,7 +97,7 @@ def makeCaseMortalityTable(dirPath):
 
     # take this out, put it back after compute
     # note: this table has "population" column - 1 additional column, so dates start at 12, not 11
-    dc = deaths.copy().iloc[:,12:]
+    dc = deaths.copy().iloc[:,12:].astype(np.int64)
 
     ## fix monotone errors -> make this a fn
     # rows

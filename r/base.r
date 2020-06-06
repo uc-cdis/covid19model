@@ -12,8 +12,8 @@ StanModel = args[1]
 print(sprintf("Running %s",StanModel))
 
 # case-mortality table
-# dat[, c(3,6:15,37)] <- sapply(dat[, c(3,6:15,37)], as.numeric)
 d <- read.csv("../modelInput/ILCaseAndMortalityV1.csv")
+
 d$countryterritoryCode <- sapply(d$countryterritoryCode, as.character)
 
 # drop counties with fewer than 10 cumulative deaths or cases
@@ -22,13 +22,11 @@ cumCaseAndDeath <- aggregate(cbind(d$cases, d$deaths), by=list(Category=d$countr
 # original - 10 is the cutoff
 # dropCounties <- subset(cumCaseAndDeath, V1 < 10 | V2 < 10)$Category
 # here -> upping the cutoff, for just this sim
-# dropCounties <- subset(cumCaseAndDeath, V1 < 150 | V2 < 150)$Category
-dropCounties <- subset(cumCaseAndDeath, V1 < 50 | V2 < 50)$Category
-
-
+dropCounties <- subset(cumCaseAndDeath, V1 < 150 | V2 < 150)$Category
+# dropCounties <- subset(cumCaseAndDeath, V1 < 50 | V2 < 50)$Category
 d <- subset(d, !(countryterritoryCode %in% dropCounties))
-print(sprintf("nCounties with more than 50 deaths: %d", length(unique(d$countryterritoryCode))))
-# print(sprintf("nCounties with more than 10 deaths: %d", length(unique(d$countryterritoryCode))))
+# print(sprintf("nCounties with more than 50 deaths: %d", length(unique(d$countryterritoryCode))))
+print(sprintf("nCounties with more than 150 deaths: %d", length(unique(d$countryterritoryCode))))
 
 
 # 84017031 -> ID for Cook County
