@@ -4,8 +4,12 @@
 import sys
 sys.path.append("..") # needed?
 import numpy as np
+import warnings
+warnings.simplefilter(action='ignore', category=FutureWarning) # suppress pandas "future warning"
 import pandas as pd
 from src.dataset import HierarchicalDataset
+
+print("~ COVID-19 CASE-MORTALITY TABLE ~")
 
 # E
 print("--- extracting JHU covid-19 case and mortality data ---")
@@ -198,7 +202,9 @@ df.to_csv("ILCaseAndMortalityInputV1.csv")
 
 ## next -> interventions table -> make each table etl a fn ##
 
-print("--- constructing covariates (i.e., interventions) table ---")
+print("~ INTERVENTIONS TABLE ~")
+
+print("--- constructing interventions table ---")
 
 countyIDList = df["countryterritoryCode"].unique()
 
@@ -226,6 +232,8 @@ ourCovariates.to_csv("ILInterventions.csv")
 
 ## next task: handle/adapt IFR 
 
+print("~ IFR TABLE ~")
+
 # first tackling ifr
 ifr = pd.read_csv("../data/EU/weighted_fatality.csv", parse_dates=False)
 
@@ -235,8 +243,9 @@ ifr = pd.read_csv("../data/EU/weighted_fatality.csv", parse_dates=False)
 # we can make this right
 # ifr
 
-
 ifr["country"] = ifr.iloc[:, 1]
+
+print("--- constructing IFR table ---")
 
 ourIFR = ILCaseAndMortality[["CountyID", "Population"]].copy().drop_duplicates()
 
@@ -273,7 +282,6 @@ ILAgeDistr = {
 
 ageDist = pd.DataFrame(ILAgeDistr)
 
-
 ourIFR[list(ageDist)] = pd.DataFrame(np.repeat(ageDist.values, len(ourIFR.index), axis=0))
 strata = list(ILAgeDistr.keys())
 ourIFR[strata] = ourIFR[strata].mul(ourIFR["Population"], axis=0)
@@ -289,7 +297,6 @@ ourIFR[strata] = ourIFR[strata].mul(ourIFR["Population"], axis=0)
 # so will do the simplest thing for now and extend later
 
 # more or less arbitrary, gonna say 3% -> HERE! fixme.
-
 ourIFR["weighted_fatality"] = .03
 
 # reorder columns
@@ -313,6 +320,8 @@ ILInputIFR["Region, subregion, country or area *"] = ILInputIFR["country"]
 ILInputIFR["Unnamed: 0"] = ILInputIFR.index
 # reorder to match their order
 ILInputIFR = ILInputIFR[list(ifr)]
+
+print("--- saving IFR table ---")
 
 # save this
 ILInputIFR.to_csv("ILWeightedFatalityInput.csv")
