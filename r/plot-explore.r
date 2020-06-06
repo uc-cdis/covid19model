@@ -2,7 +2,8 @@
 # load environment from all-IL run, post-simulation
 # load("./results/run_2/us_base-488236.Rdata") # -> prev - 4000 iterations
 # load("./results/big_sim/us_base-2225348.Rdata") # -> prev - 8000 iterations ("big sim")
-load("./results/five_county_big/us_base-1028756.Rdata") # -> 24K iterations on 5 counties with most data
+# load("./results/five_county_big/us_base-1028756.Rdata") # -> 24K iterations on 5 counties with most data
+load("./results/nine_county_big/us_base-606037.Rdata") # -> 24K iterations on 9 counties with most data
 
 exploreNames <- c(
     "County",
