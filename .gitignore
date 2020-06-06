@@ -42,8 +42,7 @@ vignettes/*.pdf
 stan/*.rds
 
 # others
-modelOutput/*.pdf 
-modelOutput/*.png
+modelOutput/*
 Rplots.pdf
 
 *.DS_Store
