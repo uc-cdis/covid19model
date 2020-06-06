@@ -2,12 +2,12 @@
 ### main point: ETL JHU covid-19 case and mortality data
 
 import sys
-sys.path.append("..")
+sys.path.append("..") # ?
 import numpy as np
 import pandas as pd
 from src.dataset import HierarchicalDataset
 
-EuroCaseAndMortality = pd.read_csv("../../data/EU/COVID-19-up-to-date.csv", encoding="ISO-8859-1")
+EuroCaseAndMortality = pd.read_csv("../data/EU/COVID-19-up-to-date.csv", encoding="ISO-8859-1")
 
 # fetch the JHU time-series data
 # see: https://github.com/CSSEGISandData/COVID-19/blob/master/csse_covid_19_data/csse_covid_19_time_series/README.md
@@ -193,13 +193,16 @@ df.to_csv("ILCaseAndMortalityInputV1.csv")
 countyIDList = df["countryterritoryCode"].unique()
 
 # their "covariates" table -> interventions and dates, by county
-theirCovariates = pd.read_csv("theirFinalCovariatesTable.csv")
+theirCovariates = pd.read_csv("./notebooks/theirFinalCovariatesTable.csv") # does this actually get used?
+
+# -> should remove all their tables, comparisons to their tables etc.
+# self-contained ETL -> we can have our own config -> not the old EU tables
 
 # task: make a table for IL by county that looks like this
 # only column is lockdown
 # dates for all counties the same
 # admittedly a dumb table for now, but will get extended later
-theirInitCovariates = pd.read_csv("../../data/EU/interventions.csv")
+theirInitCovariates = pd.read_csv("../data/EU/interventions.csv")
 
 covariates = theirInitCovariates.copy()
 num_covariates = 7 # ?
@@ -220,7 +223,7 @@ ourCovariates.to_csv("ILInterventions.csv")
 ## next task: handle/adapt IFR and Serial Interval Tables
 
 # first tackling ifr
-ifr = pd.read_csv("../../data/EU/weighted_fatality.csv", parse_dates=False)
+ifr = pd.read_csv("../data/EU/weighted_fatality.csv", parse_dates=False)
 
 # wow there's a mistake
 # "Oct-19" should be "10-19" -> it got parsed as a date by pandas
@@ -247,7 +250,7 @@ relFreq = ifr[["0-9", "Oct-19", "20-29", "30-39", "40-49", "50-59", "60-69", "70
 
 # for starters applying same distribution to each county, for sake of just running the model as soon as possible
 # later (tomorrow) can get the by-county resolution for age distribution -> HERE! fixme.
-# ILAgeDistr = pd.read_csv("IL-Age-Distr/ageDistr.csv")
+# ILAgeDistr = pd.read_csv("./notebooks/IL-Age-Distr/ageDistr.csv")
 
 # for now, manually entering this
 # source:
