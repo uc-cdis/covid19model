@@ -39,7 +39,7 @@ vignettes/*.pdf
 .Renviron
 
 ## no stan rds files being dumped
-stan-models/*.rds
+stan/*.rds
 
 # others
 modelOutput/
