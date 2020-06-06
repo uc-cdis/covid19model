@@ -4,29 +4,26 @@ library(lubridate)
 library(gdata)
 library(EnvStats)
 
+# Rscript base.r us_base 150 4000 
 args = commandArgs(trailingOnly=TRUE)
-if(length(args) == 0) {
-  args = 'us_base'
-} 
 StanModel = args[1]
-print(sprintf("Running %s",StanModel))
+minimumReportedDeaths = as.integer(args[2])
+nStanIterations = as.integer(args[3])
+print(sprintf("Running stan model %s",StanModel))
+print(sprintf("Only running on counties with at least %d total reported deaths", minimumReportedDeaths))
+print(sprintf("Running MCMC routine with %d iterations", nStanIterations))
 
 # case-mortality table
 d <- read.csv("../modelInput/ILCaseAndMortalityV1.csv")
 
 d$countryterritoryCode <- sapply(d$countryterritoryCode, as.character)
 
-# drop counties with fewer than 10 cumulative deaths or cases
-cumCaseAndDeath <- aggregate(cbind(d$cases, d$deaths), by=list(Category=d$countryterritoryCode), FUN=sum)
+# drop counties with fewer than cutoff cumulative deaths or cases
+cumCaseAndDeath <- aggregate(cbind(d$deaths), by=list(Category=d$countryterritoryCode), FUN=sum)
 
-# original - 10 is the cutoff
-# dropCounties <- subset(cumCaseAndDeath, V1 < 10 | V2 < 10)$Category
-# here -> upping the cutoff, for just this sim
-dropCounties <- subset(cumCaseAndDeath, V1 < 150 | V2 < 150)$Category
-# dropCounties <- subset(cumCaseAndDeath, V1 < 50 | V2 < 50)$Category
+dropCounties <- subset(cumCaseAndDeath, V1 < minimumReportedDeaths)$Category
 d <- subset(d, !(countryterritoryCode %in% dropCounties))
-# print(sprintf("nCounties with more than 50 deaths: %d", length(unique(d$countryterritoryCode))))
-print(sprintf("nCounties with more than 150 deaths: %d", length(unique(d$countryterritoryCode))))
+print(sprintf("nCounties with more than %d deaths: %d", minimumReportedDeaths, length(unique(d$countryterritoryCode))))
 
 
 # 84017031 -> ID for Cook County
@@ -215,6 +212,9 @@ m = stan_model(paste0('../stan/',StanModel,'.stan'))
 
 ## here -> fix this whole section - parameterize, make it better - so ugly right now
 
+# for now, doing it this way
+fit = sampling(m,data=stan_data,iter=nStanIterations,warmup=nStanIterations/2,chains=8,thin=4,control = list(adapt_delta = 0.90, max_treedepth = 10))
+
 # td: handle HMC convergence; see paper; consult with Phil.
 # fit = sampling(m,data=stan_data,iter=4000,warmup=2000,chains=8,thin=4,control = list(adapt_delta = 0.90, max_treedepth = 10))
 
@@ -225,11 +225,11 @@ m = stan_model(paste0('../stan/',StanModel,'.stan'))
 
 # bigger sim
 # 5 counties -> 66min -> pretty good
-# 9 counties -> ?
+# 9 counties -> 106min
 # fit = sampling(m,data=stan_data,iter=24000,warmup=12000,chains=8,thin=4,control = list(adapt_delta = 0.90, max_treedepth = 10))
 
 # here -> just for testing that the code works
-fit = sampling(m,data=stan_data,iter=10,warmup=5,chains=2,thin=1,control = list(adapt_delta = 0.90, max_treedepth = 10))
+# fit = sampling(m,data=stan_data,iter=10,warmup=5,chains=2,thin=1,control = list(adapt_delta = 0.90, max_treedepth = 10))
 
 # here -> upping the reps
 # fit = sampling(m,data=stan_data, thin=1, control = list(adapt_delta = 0.90, max_treedepth = 10))
