@@ -42,9 +42,7 @@ vignettes/*.pdf
 stan-models/*.rds
 
 # others
-results/*
-figures/*
-explorePlots/*
+modelOutput/
 Rplots.pdf
 
 *.DS_Store
