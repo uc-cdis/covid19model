@@ -24,6 +24,8 @@ def etlCaseMortalityData():
     # E
     print("--- extracting JHU covid-19 case and mortality data ---")
 
+    # what's the issue here? sometimes stalls for some reason -> fetching data from git
+
     # fetch the JHU time-series data
     # see: https://github.com/CSSEGISandData/COVID-19/blob/master/csse_covid_19_data/csse_covid_19_time_series/README.md
     jhu = "https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/"
@@ -209,7 +211,7 @@ def etlCaseMortalityData():
     print("--- saving transformed case and mortality data  ---")
 
     # okay, done, now save it
-    df.to_csv("ILCaseAndMortalityInputV1.csv")
+    df.to_csv("ILCaseAndMortalityV1.csv")
 
     countyIDList = ILCaseAndMortality["CountyID"].unique()
 
@@ -244,7 +246,7 @@ def makeInterventionsTable(countyIDList):
     print("--- saving covariates table ---")
 
     # save this new table
-    ourCovariates.to_csv("ILInterventions.csv")
+    ourCovariates.to_csv("ILInterventionsV1.csv")
 
 def makeIFRTable(population_df):
 
@@ -338,7 +340,7 @@ def makeIFRTable(population_df):
     print("--- saving IFR table ---")
 
     # save this
-    ILInputIFR.to_csv("ILWeightedFatalityInput.csv")
+    ILInputIFR.to_csv("ILWeightedFatalityV1.csv")
 
 if __name__ == "__main__":
     countyIDList, population_df = etlCaseMortalityData()
