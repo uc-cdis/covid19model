@@ -203,7 +203,7 @@ def makeCaseMortalityTable(dirPath):
 
     # reorder the columns to match Euro table
     # fixme - don't need to read in their table -> just have this column order as config
-    EuroCaseAndMortality = pd.read_csv("../data/EU/COVID-19-up-to-date.csv", encoding="ISO-8859-1")
+    EuroCaseAndMortality = pd.read_csv("../modelInput/data/EU/COVID-19-up-to-date.csv", encoding="ISO-8859-1")
     df = df[list(EuroCaseAndMortality)]
 
     print("--- saving transformed case and mortality data  ---")
@@ -255,7 +255,7 @@ def makeIFRTable(dirPath, population_df):
     print("\n~ IFR TABLE ~")
 
     # first tackling ifr
-    ifr = pd.read_csv("../data/EU/weighted_fatality.csv", parse_dates=False)
+    ifr = pd.read_csv("../modelInput/data/EU/weighted_fatality.csv", parse_dates=False)
     ifr["country"] = ifr.iloc[:, 1]
 
     print("--- constructing IFR table ---")
@@ -346,7 +346,7 @@ def makeIFRTable(dirPath, population_df):
 if __name__ == "__main__":
 
     # put tables here
-    dirPath = "../modelInputTables"
+    dirPath = "../modelInput"
     os.makedirs(dirPath, exist_ok=True)
 
     p1, countyIDList, population_df = makeCaseMortalityTable(dirPath)

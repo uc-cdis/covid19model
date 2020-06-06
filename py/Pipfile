@@ -6,7 +6,6 @@ verify_ssl = true
 [packages]
 pandas = "*"
 pylint = "*"
-numpy = "*"
 
 [requires]
 python_version = "3.7"
