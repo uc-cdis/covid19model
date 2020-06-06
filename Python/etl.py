@@ -2,12 +2,13 @@
 ### main point: ETL JHU covid-19 case and mortality data
 
 import sys
-sys.path.append("..") # ?
+sys.path.append("..") # needed?
 import numpy as np
 import pandas as pd
 from src.dataset import HierarchicalDataset
 
-EuroCaseAndMortality = pd.read_csv("../data/EU/COVID-19-up-to-date.csv", encoding="ISO-8859-1")
+# E
+print("--- extracting JHU covid-19 case and mortality data ---")
 
 # fetch the JHU time-series data
 # see: https://github.com/CSSEGISandData/COVID-19/blob/master/csse_covid_19_data/csse_covid_19_time_series/README.md
@@ -17,13 +18,16 @@ deaths_csv = "time_series_covid19_deaths_US.csv"
 casesOrig = pd.read_csv(jhu + cases_csv)
 deathsOrig = pd.read_csv(jhu + deaths_csv)
 
+# T
+print("--- transforming case and mortality data ---")
+
 # 1. process cases df to match form of EU table
 cases = casesOrig
+
 # filter for IL
 cases = cases.loc[cases["Province_State"] == "Illinois"]
 
-
-# get daily counts
+## get daily counts -> make this a fn
 
 # take this out, put it back after compute
 dc = cases.copy().iloc[:,11:]
@@ -183,44 +187,44 @@ df = df.rename(ToEuroColumnsMap, axis=1)
 df["geoId"] = df["countriesAndTerritories"]
 
 # reorder the columns to match Euro table
+# fixme - don't need to read in their table -> just have this column order as config
+EuroCaseAndMortality = pd.read_csv("../data/EU/COVID-19-up-to-date.csv", encoding="ISO-8859-1")
 df = df[list(EuroCaseAndMortality)]
+
+print("--- saving transformed case and mortality data  ---")
 
 # okay, done, now save it
 df.to_csv("ILCaseAndMortalityInputV1.csv")
 
-## next ##
+## next -> interventions table -> make each table etl a fn ##
+
+print("--- constructing covariates (i.e., interventions) table ---")
 
 countyIDList = df["countryterritoryCode"].unique()
-
-# their "covariates" table -> interventions and dates, by county
-theirCovariates = pd.read_csv("./notebooks/theirFinalCovariatesTable.csv") # does this actually get used?
 
 # -> should remove all their tables, comparisons to their tables etc.
 # self-contained ETL -> we can have our own config -> not the old EU tables
 
-# task: make a table for IL by county that looks like this
+# task: make a table for IL by county that looks like their covariates table
 # only column is lockdown
 # dates for all counties the same
 # admittedly a dumb table for now, but will get extended later
-theirInitCovariates = pd.read_csv("../data/EU/interventions.csv")
-
-covariates = theirInitCovariates.copy()
-num_covariates = 7 # ?
-covariates = covariates.iloc[:11, : num_covariates + 1]
-
-covariate_names = list(covariates.columns)[1:]
 
 # counties correspond to countries
 ourCovariates = pd.DataFrame(ILCaseAndMortality["CountyID"].unique(), columns=["Country"])
+
+print("--- loading intervention: lockdown ---")
 
 # date of IL lockdown: Saturday, March 21st, 2020
 # source: https://www.chicagotribune.com/coronavirus/ct-coronavirus-illinois-shelter-in-place-lockdown-order-20200320-teedakbfw5gvdgmnaxlel54hau-story.html
 ourCovariates["lockdown"] = "2020-03-21"
 
+print("--- saving covariates table ---")
+
 # save this new table
 ourCovariates.to_csv("ILInterventions.csv")
 
-## next task: handle/adapt IFR and Serial Interval Tables
+## next task: handle/adapt IFR 
 
 # first tackling ifr
 ifr = pd.read_csv("../data/EU/weighted_fatality.csv", parse_dates=False)
@@ -312,3 +316,9 @@ ILInputIFR = ILInputIFR[list(ifr)]
 
 # save this
 ILInputIFR.to_csv("ILWeightedFatalityInput.csv")
+
+## HERE! -> not handled here in python -> Serial Interval Table -> would be worthwhile to reproduce the R for that here
+## "serial interval table" <--> that discretized gamma distribution 
+## so that this script does indeed produce all the required input tables for the model
+## alternatively, could just generate that discretized gamma distribution in the R code itself, pre-simulation
+## I don't like that idea -> will try to reproduce results in python - but not now -> other more pressing tasks now
