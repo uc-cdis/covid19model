@@ -17,7 +17,7 @@ import pandas as pd
 
 def makeCaseMortalityTable(dirPath):
         
-    print("~ COVID-19 CASE-MORTALITY TABLE ~")
+    print("\n~ COVID-19 CASE-MORTALITY TABLE ~")
 
     # E
     print("--- extracting JHU covid-19 case and mortality data ---")
@@ -209,18 +209,19 @@ def makeCaseMortalityTable(dirPath):
     print("--- saving transformed case and mortality data  ---")
 
     # okay, done, now save it
-    df.to_csv(dirPath + "/ILCaseAndMortalityV1.csv")
+    p = dirPath + "/ILCaseAndMortalityV1.csv"
+    df.to_csv(p)
 
     countyIDList = ILCaseAndMortality["CountyID"].unique()
 
     population_df = ILCaseAndMortality[["CountyID", "Population"]].copy().drop_duplicates()
 
-    return(countyIDList, population_df)
+    return(p, countyIDList, population_df)
 
 
 
 def makeInterventionsTable(dirPath, countyIDList): 
-    print("~ INTERVENTIONS TABLE ~")
+    print("\n~ INTERVENTIONS TABLE ~")
 
     # -> should remove all their tables, comparisons to their tables etc.
     # self-contained ETL -> we can have our own config -> not the old EU tables
@@ -244,11 +245,14 @@ def makeInterventionsTable(dirPath, countyIDList):
     print("--- saving covariates table ---")
 
     # save this new table
-    ourCovariates.to_csv(dirPath + "/ILInterventionsV1.csv")
+    p = dirPath + "/ILInterventionsV1.csv"
+    ourCovariates.to_csv(p)
+
+    return(p)
 
 def makeIFRTable(dirPath, population_df):
 
-    print("~ IFR TABLE ~")
+    print("\n~ IFR TABLE ~")
 
     # first tackling ifr
     ifr = pd.read_csv("../data/EU/weighted_fatality.csv", parse_dates=False)
@@ -331,7 +335,10 @@ def makeIFRTable(dirPath, population_df):
     print("--- saving IFR table ---")
 
     # save this
-    ILInputIFR.to_csv(dirPath + "/ILWeightedFatalityV1.csv")
+    p = dirPath + "/ILWeightedFatalityV1.csv"
+    ILInputIFR.to_csv(p)
+
+    return(p)
 
 # wow I want to really, thoroughly refactor all this so bad
 # make a class - the whole thing -> not the most time pressing task though
@@ -342,6 +349,13 @@ if __name__ == "__main__":
     dirPath = "../modelInputTables"
     os.makedirs(dirPath, exist_ok=True)
 
-    countyIDList, population_df = makeCaseMortalityTable(dirPath)
-    makeInterventionsTable(dirPath, countyIDList)
-    makeIFRTable(dirPath, population_df)
+    p1, countyIDList, population_df = makeCaseMortalityTable(dirPath)
+    p2 = makeInterventionsTable(dirPath, countyIDList)
+    p3 = makeIFRTable(dirPath, population_df)
+
+    print("\n")
+    print("tables successfully written to these paths:")
+    print("\t", p1)
+    print("\t", p2)
+    print("\t", p3)
+    print("\n")
