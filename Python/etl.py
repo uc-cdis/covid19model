@@ -17,7 +17,7 @@ warnings.simplefilter(action='ignore', category=FutureWarning) # suppress pandas
 import pandas as pd
 from src.dataset import HierarchicalDataset
 
-def etlCaseMortalityData():
+def makeCaseMortalityTable():
         
     print("~ COVID-19 CASE-MORTALITY TABLE ~")
 
@@ -343,6 +343,6 @@ def makeIFRTable(population_df):
     ILInputIFR.to_csv("ILWeightedFatalityV1.csv")
 
 if __name__ == "__main__":
-    countyIDList, population_df = etlCaseMortalityData()
+    countyIDList, population_df = makeCaseMortalityTable()
     makeInterventionsTable(countyIDList)
     makeIFRTable(population_df)
