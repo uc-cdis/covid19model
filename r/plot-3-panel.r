@@ -20,8 +20,8 @@ make_three_pannel_plot <- function(){
   args <- commandArgs(trailingOnly = TRUE)
   
   filename2 <- args[1]
-  load(paste0("results/", filename2))
-  print(sprintf("loading: %s",paste0("results/",filename2)))
+  load(paste0("../modelOutput/results/", filename2))
+  print(sprintf("loading: %s",paste0("../modelOutput/results/",filename2)))
 
   # td: don't hardcode number of countries (in this case: 11)
   # for(i in 1:11){
@@ -220,7 +220,7 @@ make_plots <- function(data_country, covariates_country_long,
     theme(legend.position="right")
   
   p <- plot_grid(p1, p2, p3, ncol = 3, rel_widths = c(1, 1, 2))
-  save_plot(filename = paste0("figures/", country, "_three_pannel_", filename2, ".pdf"), 
+  save_plot(filename = paste0("../modelOutput/figures/", country, "_three_panel_", filename2, ".pdf"), 
             p, base_width = 14)
 }
 

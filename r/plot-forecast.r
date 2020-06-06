@@ -20,7 +20,7 @@ make_forecast_plot <- function(){
   args <- commandArgs(trailingOnly = TRUE)
   filename <- args[1]
   
-  load(paste0("results/", filename))
+  load(paste0("../modelOutput/results/", filename))
   
   # td: don't hardcode number of countries (here: 11)
   # for(i in 1:11){
@@ -146,7 +146,7 @@ make_two_plots <- function(data_country, data_country_forecast, filename, countr
              color="black")
   print(p)
   
-  ggsave(file= paste0("figures/", country, "_deaths_forecast_", filename, ".pdf"), 
+  ggsave(file= paste0("../modelOutput/figures/", country, "_deaths_forecast_", filename, ".pdf"), 
          p, width = 10)
 
   #### plot cases forecast ####
@@ -201,7 +201,7 @@ make_two_plots <- function(data_country, data_country_forecast, filename, countr
              color="black")
   print(p)
   
-  ggsave(file= paste0("figures/", country, "_cases_forecast_", filename, ".pdf"), 
+  ggsave(file= paste0("../modelOutput/figures/", country, "_cases_forecast_", filename, ".pdf"), 
          p, width = 10)
 }
 #-----------------------------------------------------------------------------------------------

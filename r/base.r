@@ -13,7 +13,7 @@ print(sprintf("Running %s",StanModel))
 
 # case-mortality table
 # dat[, c(3,6:15,37)] <- sapply(dat[, c(3,6:15,37)], as.numeric)
-d <- read.csv("./Python/notebooks/ILCaseAndMortalityInputV1.csv")
+d <- read.csv("../modelInput/ILCaseAndMortalityV1.csv")
 d$countryterritoryCode <- sapply(d$countryterritoryCode, as.character)
 
 # drop counties with fewer than 10 cumulative deaths or cases
@@ -40,18 +40,16 @@ print(sprintf("nCounties with more than 50 deaths: %d", length(unique(d$countryt
 countries <- unique(d$countryterritoryCode)
 
 # weighted fatality table
-cfr.by.country = read.csv("./Python/notebooks/ILWeightedFatalityInput.csv")
+cfr.by.country = read.csv("../modelInput/ILWeightedFatalityV1.csv")
 cfr.by.country$country = as.character(cfr.by.country[,3])
 
 # serial interval discrete gamma distribution
-# serial.interval = read.csv("data/serial_interval.csv") # breaks when modeling more than 100 days
-serial.interval = read.csv("serialInterval300.csv") # new table
-
+serial.interval = read.csv("../modelInput/ILSerialIntervalV1.csv") # new table
 
 # interventions table 
 # NOTE: "covariate" == "intervention"; 
 # e.g., if there are 3 different interventions in the model, then there are 3 covariates here in the code
-covariates = read.csv("./Python/notebooks/ILInterventions.csv", stringsAsFactors = FALSE)
+covariates = read.csv("../modelInput/ILInterventionsV1.csv", stringsAsFactors = FALSE)
 covariates$Country <- sapply(covariates$Country, as.character)
 p <- ncol(covariates) - 2
 forecast = 0
@@ -215,7 +213,9 @@ for(Country in countries) {
 stan_data$y = t(stan_data$y)
 options(mc.cores = parallel::detectCores())
 rstan_options(auto_write = TRUE)
-m = stan_model(paste0('stan-models/',StanModel,'.stan'))
+m = stan_model(paste0('../stan/',StanModel,'.stan'))
+
+## here -> fix this whole section - parameterize, make it better - so ugly right now
 
 # td: handle HMC convergence; see paper; consult with Phil.
 # fit = sampling(m,data=stan_data,iter=4000,warmup=2000,chains=8,thin=4,control = list(adapt_delta = 0.90, max_treedepth = 10))
@@ -228,10 +228,10 @@ m = stan_model(paste0('stan-models/',StanModel,'.stan'))
 # bigger sim
 # 5 counties -> 66min -> pretty good
 # 9 counties -> ?
-fit = sampling(m,data=stan_data,iter=24000,warmup=12000,chains=8,thin=4,control = list(adapt_delta = 0.90, max_treedepth = 10))
+# fit = sampling(m,data=stan_data,iter=24000,warmup=12000,chains=8,thin=4,control = list(adapt_delta = 0.90, max_treedepth = 10))
 
 # here -> just for testing that the code works
-# fit = sampling(m,data=stan_data,iter=10,warmup=5,chains=2,thin=1,control = list(adapt_delta = 0.90, max_treedepth = 10))
+fit = sampling(m,data=stan_data,iter=10,warmup=5,chains=2,thin=1,control = list(adapt_delta = 0.90, max_treedepth = 10))
 
 # here -> upping the reps
 # fit = sampling(m,data=stan_data, thin=1, control = list(adapt_delta = 0.90, max_treedepth = 10))
@@ -247,8 +247,8 @@ JOBID = Sys.getenv("PBS_JOBID")
 if(JOBID == "")
   JOBID = as.character(abs(round(rnorm(1) * 1000000)))
 print(sprintf("Jobid = %s",JOBID))
-save.image(paste0('results/',StanModel,'-',JOBID,'.Rdata'))
-save(fit,prediction,dates,reported_cases,deaths_by_country,countries,estimated.deaths,estimated.deaths.cf,out,covariates,file=paste0('results/',StanModel,'-',JOBID,'-stanfit.Rdata'))
+save.image(paste0('../modelOutput/results/',StanModel,'-',JOBID,'.Rdata'))
+save(fit,prediction,dates,reported_cases,deaths_by_country,countries,estimated.deaths,estimated.deaths.cf,out,covariates,file=paste0('../modelOutput/results/',StanModel,'-',JOBID,'-stanfit.Rdata'))
 
 #### saving of simulation results is finished
 
@@ -263,20 +263,20 @@ plot_labels <- c("Lockdown")
 alpha = (as.matrix(out$alpha))
 colnames(alpha) = plot_labels
 g = (mcmc_intervals(alpha, prob = .9))
-ggsave(sprintf("results/%s-covars-alpha-log.pdf",filename),g,width=4,height=6)
+ggsave(sprintf("../modelOutput/results/%s-covars-alpha-log.pdf",filename),g,width=4,height=6)
 g = (mcmc_intervals(alpha, prob = .9,transformations = function(x) exp(-x)))
-ggsave(sprintf("results/%s-covars-alpha.pdf",filename),g,width=4,height=6)
+ggsave(sprintf("../modelOutput/results/%s-covars-alpha.pdf",filename),g,width=4,height=6)
 mu = (as.matrix(out$mu))
 colnames(mu) = countries
 g = (mcmc_intervals(mu,prob = .9))
-ggsave(sprintf("results/%s-covars-mu.pdf",filename),g,width=4,height=6)
+ggsave(sprintf("../modelOutput/results/%s-covars-mu.pdf",filename),g,width=4,height=6)
 dimensions <- dim(out$Rt)
 Rt = (as.matrix(out$Rt[,dimensions[2],]))
 colnames(Rt) = countries
 g = (mcmc_intervals(Rt,prob = .9))
-ggsave(sprintf("results/%s-covars-final-rt.pdf",filename),g,width=4,height=6)
+ggsave(sprintf("../modelOutput/results/%s-covars-final-rt.pdf",filename),g,width=4,height=6)
 
-# to generate the visualizations, uncomment these two lines (currently, errors in the code - doesn't run for IL)
+
 system(paste0("Rscript plot-3-panel.r ", filename,'.Rdata'))
-
 system(paste0("Rscript plot-forecast.r ", filename,'.Rdata')) ## icl: to run this code you will need to adjust manual values of forecast required
+system(paste0("Rscript plot-explore.r ", filename,'.Rdata'))
