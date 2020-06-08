@@ -49,7 +49,12 @@ pts <- nrow(fullSet)
 
 # compute the score
 correlationScore <- cor(fullSet$pred, fullSet$obs)
+
+# error here???
 print(sprintf("correlation: %d", correlationScore))
+
+
+print(sprintf("number of dates: %d", n))
 print(sprintf("number of points: %d", pts))
 
 # look at it
