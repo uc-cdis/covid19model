@@ -12,25 +12,30 @@
 # ../modelOutput/results/nine_county_big/us_base-606037-stanfit.Rdata
 
 load("../modelOutput/results/nine_county_big/us_base-606037.Rdata")
-
-# county index
-i <- 4
-
-N <- length(dates[[i]])
-
-lastObs <- tail(dates[[i]], 1)
-
-# last index is county
-estimated_deaths_forecast <- colMeans(estimated.deaths[,1:N2,i])[N:N2]
-
-
-# print("estimated deaths for one county:")
-# print(dim(estimated_deaths))
-# print(head(estimated_deaths))
-
 obs <- read.csv("../modelInput/ILCaseAndMortalityV1.csv")
 
-# print("observations:")
-# print(dim(obs))
-# print(head(obs))
+for(i in 1:length(countries)){
 
+    # county index
+    county <- countries[[i]]
+    N <- length(dates[[i]])
+    countyDates <- dates[[i]]
+    lastObs <- tail(dates[[i]], 1)
+
+    # last index is county
+    countyForecast <- colMeans(estimated.deaths[,(N+1):N2,i])
+
+    countyObs <- obs[obs$countryterritoryCode==county,]
+    
+    # tail(as.Date(countyObs$dateRep, format = "%m/%d/%y"), 1) > lastObs
+    validationObs <- countyObs[as.Date(countyObs$dateRep, format = "%m/%d/%y") > lastObs, ]
+
+    # number of points for this county
+    n <- min(length(countyForecast), nrow(validationObs))
+
+    # here it is - for one county
+    vdf <- data.frame("date"=validationObs$dateRep[1:n], "obs"=validationObs$deaths[1:n], "pred"=countyForecast[1:n])
+
+} 
+
+# plot(vdf$obs, vdf$pred)
