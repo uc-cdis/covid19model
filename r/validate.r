@@ -14,6 +14,8 @@
 load("../modelOutput/results/nine_county_big/us_base-606037.Rdata")
 obs <- read.csv("../modelInput/ILCaseAndMortalityV1.csv")
 
+l <- list()
+
 for(i in 1:length(countries)){
 
     # county index
@@ -26,7 +28,7 @@ for(i in 1:length(countries)){
     countyForecast <- colMeans(estimated.deaths[,(N+1):N2,i])
 
     countyObs <- obs[obs$countryterritoryCode==county,]
-    
+
     # tail(as.Date(countyObs$dateRep, format = "%m/%d/%y"), 1) > lastObs
     validationObs <- countyObs[as.Date(countyObs$dateRep, format = "%m/%d/%y") > lastObs, ]
 
@@ -35,7 +37,26 @@ for(i in 1:length(countries)){
 
     # here it is - for one county
     vdf <- data.frame("date"=validationObs$dateRep[1:n], "obs"=validationObs$deaths[1:n], "pred"=countyForecast[1:n])
+    vdf$county <- county
 
+    l[[i]] <- vdf
 } 
 
-# plot(vdf$obs, vdf$pred)
+fullSet <- do.call(rbind, l)
+
+# number of points 
+pts <- nrow(fullSet)
+
+# compute the score
+correlationScore <- cor(fullSet$pred, fullSet$obs)
+print(sprintf("correlation: %d", correlationScore))
+print(sprintf("number of points: %d", pts))
+
+# look at it
+png(filename="../modelOutput/explorePlots/firstValidation.png", width=1600, height=1600, units="px", pointsize=36)
+plot(fullSet$obs, fullSet$pred)
+dev.off()
+
+png(filename="../modelOutput/explorePlots/firstValidation_log.png", width=1600, height=1600, units="px", pointsize=36)
+plot(log(fullSet$obs), log(fullSet$pred))
+dev.off()
