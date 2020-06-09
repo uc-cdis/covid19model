@@ -19,8 +19,14 @@ make_forecast_plot <- function(){
   
   args <- commandArgs(trailingOnly = TRUE)
   filename <- args[1]
+
+  # for generating initial viz
+  # comment this out later..
+  filename <- "five_county_big/us_base-1028756.Rdata"
   
   load(paste0("../modelOutput/results/", filename))
+
+  codeToName <- unique(data.frame("code" = d$countryterritoryCode, "name" = d$countriesAndTerritories))
   
   # td: don't hardcode number of countries (here: 11)
   # for(i in 1:11){
@@ -30,6 +36,7 @@ make_forecast_plot <- function(){
     # N2 should already be loaded from the loaded .rdata file
     # N2 <- N + 7 
     country <- countries[[i]]
+    countryName <- as.character(codeToName$name[codeToName$code == country]) # this is the name -> "Cook"
     
     predicted_cases <- colMeans(prediction[,1:N,i])
     predicted_cases_li <- colQuantiles(prediction[,1:N,i], probs=.025)
@@ -91,12 +98,16 @@ make_forecast_plot <- function(){
     make_two_plots(data_country = data_country, 
                      data_country_forecast = data_country_forecast,
                      filename = filename,
-                     country = country)
+                     country = countryName)
     
   }
 }
 
 make_two_plots <- function(data_country, data_country_forecast, filename, country){
+
+  # for static - change later
+  countyDir <- file.path("../modelOutput/static", country)
+  dir.create(countyDir, showWarnings = FALSE)
   
   data_deaths <- data_country %>%
     select(time, deaths, estimated_deaths) %>%
@@ -144,10 +155,9 @@ make_two_plots <- function(data_country, data_country_forecast, filename, countr
     annotate(geom="text", x=data_country$time[length(data_country$time)]+8, 
              y=10000, label="Forecast",
              color="black")
-  print(p)
   
-  ggsave(file= paste0("../modelOutput/figures/", country, "_deaths_forecast_", filename, ".pdf"), 
-         p, width = 10)
+  # ggsave(file= paste0("../modelOutput/figures/", country, "_deaths_forecast_", filename, ".pdf"), p, width = 10)
+  save_plot(filename = file.path(countyDir, "deathsForecast.png"), p)
 
   #### plot cases forecast ####
 
@@ -199,10 +209,9 @@ make_two_plots <- function(data_country, data_country_forecast, filename, countr
     annotate(geom="text", x=data_country$time[length(data_country$time)]+8, 
              y=10000, label="Forecast",
              color="black")
-  print(p)
   
-  ggsave(file= paste0("../modelOutput/figures/", country, "_cases_forecast_", filename, ".pdf"), 
-         p, width = 10)
+  # ggsave(file= paste0("../modelOutput/figures/", country, "_cases_forecast_", filename, ".pdf"), p, width = 10)
+  save_plot(filename = file.path(countyDir, "casesForecast.png"), p)
 }
 #-----------------------------------------------------------------------------------------------
 make_forecast_plot()
