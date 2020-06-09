@@ -112,9 +112,17 @@ make_three_pannel_plot <- function(){
 }
 
 #---------------------------------------------------------------------------
+
+# todo: break down into 3 fn's - modular, man, modular
+
 make_plots <- function(data_country, covariates_country_long, 
                        filename2, country){
-  
+
+    countyDir <- file.path("../modelOutput/static", country)
+    dir.create(countyDir, showWarnings = FALSE)
+
+    ## p1
+
     data_cases_95 <- data.frame(data_country$time, data_country$predicted_min, 
                                 data_country$predicted_max)
     names(data_cases_95) <- c("time", "cases_min", "cases_max")
@@ -127,11 +135,12 @@ make_plots <- function(data_country, covariates_country_long,
     levels(data_cases$key) <- c("ninetyfive", "fifty")
     
     p1 <- ggplot(data_country) +
+        ggtitle(paste0(country, " County Daily Cases")) + 
         geom_bar(data = data_country, aes(x = time, y = reported_cases), 
                 fill = "coral4", stat='identity', alpha=0.5) + 
         geom_ribbon(data = data_cases, 
                     aes(x = time, ymin = cases_min, ymax = cases_max, fill = key)) +
-        xlab("") +
+        xlab("Time") +
         ylab("Cases") +
         scale_x_date(date_breaks = "weeks", labels = date_format("%e %b")) + 
         scale_fill_manual(name = "", labels = c("50%", "95%"),
@@ -139,9 +148,14 @@ make_plots <- function(data_country, covariates_country_long,
                                     alpha("deepskyblue4", 0.45))) + 
         theme_pubr() + 
         theme(axis.text.x = element_text(angle = 45, hjust = 1), 
+            plot.title = element_text(hjust = 0.5),
             legend.position = "None") + 
         guides(fill=guide_legend(ncol=1))
-    
+
+    save_plot(filename = file.path(countyDir, "cases.png"), p1)
+
+    ### p2
+
     data_deaths_95 <- data.frame(data_country$time, data_country$death_min, 
                                 data_country$death_max)
     names(data_deaths_95) <- c("time", "death_min", "death_max")
@@ -153,14 +167,14 @@ make_plots <- function(data_country, covariates_country_long,
     data_deaths <- rbind(data_deaths_95, data_deaths_50)
     levels(data_deaths$key) <- c("ninetyfive", "fifty")
     
-    
     p2 <-   ggplot(data_country, aes(x = time)) +
+        ggtitle(paste0(country, " County Daily Deaths")) +
         geom_bar(data = data_country, aes(y = deaths, fill = "reported"),
                 fill = "coral4", stat='identity', alpha=0.5) +
         geom_ribbon(
         data = data_deaths,
         aes(ymin = death_min, ymax = death_max, fill = key)) +
-        xlab("") +
+        xlab("Time") +
         ylab("Deaths") +
         scale_x_date(date_breaks = "weeks", labels = date_format("%e %b")) +
         scale_fill_manual(name = "", labels = c("50%", "95%"),
@@ -168,9 +182,14 @@ make_plots <- function(data_country, covariates_country_long,
                                     alpha("deepskyblue4", 0.45))) + 
         theme_pubr() + 
         theme(axis.text.x = element_text(angle = 45, hjust = 1), 
+            plot.title = element_text(hjust = 0.5),
             legend.position = "None") + 
         guides(fill=guide_legend(ncol=1))
+
+    save_plot(filename = file.path(countyDir, "deaths.png"), p2)
     
+    ### p3
+
     plot_labels <- c("lockdown")
     
     # Plotting interventions
@@ -186,6 +205,7 @@ make_plots <- function(data_country, covariates_country_long,
     levels(data_rt$key) <- c("ninetyfive", "fifth")
     
     p3 <- ggplot(data_country) +
+        ggtitle(paste0(country, " County Estimated Rt")) +
         geom_stepribbon(data = data_rt, aes(x = time, ymin = rt_min, ymax = rt_max, 
                                             group = key,
                                             fill = key)) +
@@ -200,7 +220,7 @@ make_plots <- function(data_country, covariates_country_long,
                                                     group = key, 
                                                     shape = key, 
                                                     col = key), size = 2) +
-        xlab("") +
+        xlab("Time") +
         ylab(expression(R[t])) +
         scale_fill_manual(name = "", labels = c("50%", "95%"),
                         values = c(alpha("seagreen", 0.75), alpha("seagreen", 0.5))) + 
@@ -211,19 +231,16 @@ make_plots <- function(data_country, covariates_country_long,
                     limits = c(data_country$time[1], 
                                 data_country$time[length(data_country$time)])) + 
         theme_pubr() + 
-        theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
-        theme(legend.position="right")
+        theme(axis.text.x = element_text(angle = 45, hjust = 1),
+                    plot.title = element_text(hjust = 0.5),
+                    legend.position="right")
+
+    save_plot(filename = file.path(countyDir, "Rt.png"), p3)
     
-    title <- ggdraw() + 
-        draw_label(paste0(country, " County Daily Counts and Rt"), fontface='bold')
-
-    p <- plot_grid(p1, p2, p3, ncol = 3, rel_widths = c(1, 1, 2))
-    p <- plot_grid(title, p, ncol=1, rel_heights=c(0.1, 1)) # rel_heights values control title margins
-
-    # dir.create(file.path(mainDir, subDir), showWarnings = FALSE)
-    countyDir <- file.path("../modelOutput/static", country)
-    dir.create(countyDir, showWarnings = FALSE)
-    save_plot(filename = file.path(countyDir, "three_panel.png"), p, base_width = 14)
+    # title <- ggdraw() + draw_label(paste0(country, " County Daily Counts and Rt"), fontface='bold')
+    # p <- plot_grid(p1, p2, p3, ncol = 3, rel_widths = c(1, 1, 2))
+    # p <- plot_grid(title, p, ncol=1, rel_heights=c(0.1, 1)) # rel_heights values control title margins
+    # save_plot(filename = file.path(countyDir, "three_panel.png"), p, base_width = 14)
 }
 
 make_three_pannel_plot()
