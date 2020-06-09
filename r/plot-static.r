@@ -24,11 +24,27 @@ library(cowplot)
 source("utils/geom-stepribbon.r")
 #---------------------------------------------------------------------------
 make_three_pannel_plot <- function(){
-    
+
   filename2 <- "five_county_big/us_base-1028756.Rdata"
   load(paste0("../modelOutput/results/", filename2))
 
   codeToName <- unique(data.frame("code" = d$countryterritoryCode, "name" = d$countriesAndTerritories))
+
+  ### final Rt via bayesplot (?) ->
+  dimensions <- dim(out$Rt)
+  Rt = (as.matrix(out$Rt[,dimensions[2],]))
+  colnames(Rt) <- codeToName$name
+  # colnames(Rt) = countries
+  g = mcmc_intervals(Rt,prob = .9) + 
+    ggtitle("Rt as of June 1st", "with 90% posterior credible intervals") +
+    # with 90% posterior credible intervals
+    xlab("Rt") +
+    ylab("County") + 
+    theme(plot.title = element_text(hjust = 0.5), plot.subtitle = element_text(hjust = 0.5)) # center title and subtitle
+
+  ggsave(sprintf("../modelOutput/static/Rt_June_1.png"),g,width=4,height=6)
+
+  ###
 
   for(i in 1:length(countries)){
 
