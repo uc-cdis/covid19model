@@ -220,14 +220,10 @@ make_plots <- function(data_country, covariates_country_long,
     p <- plot_grid(p1, p2, p3, ncol = 3, rel_widths = c(1, 1, 2))
     p <- plot_grid(title, p, ncol=1, rel_heights=c(0.1, 1)) # rel_heights values control title margins
 
-    save_plot(filename = paste0("../modelOutput/static/", country, "_three_panel.pdf"), 
-                p, base_width = 14)
-
-
+    # dir.create(file.path(mainDir, subDir), showWarnings = FALSE)
+    countyDir <- file.path("../modelOutput/static", country)
+    dir.create(countyDir, showWarnings = FALSE)
+    save_plot(filename = file.path(countyDir, "three_panel.pdf"), p, base_width = 14)
 }
-
-#-----------------------------------------------------------------------------------------------
-#filename <- "base-joint-1236305.pbs.Rdata"
-# make_three_pannel_plot(filename)
 
 make_three_pannel_plot()
