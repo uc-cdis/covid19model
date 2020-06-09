@@ -132,7 +132,7 @@ make_plots <- function(data_country, covariates_country_long,
         geom_ribbon(data = data_cases, 
                     aes(x = time, ymin = cases_min, ymax = cases_max, fill = key)) +
         xlab("") +
-        ylab("Daily Cases") +
+        ylab("Cases") +
         scale_x_date(date_breaks = "weeks", labels = date_format("%e %b")) + 
         scale_fill_manual(name = "", labels = c("50%", "95%"),
                         values = c(alpha("deepskyblue4", 0.55), 
@@ -161,7 +161,7 @@ make_plots <- function(data_country, covariates_country_long,
         data = data_deaths,
         aes(ymin = death_min, ymax = death_max, fill = key)) +
         xlab("") +
-        ylab("Daily Deaths") +
+        ylab("Deaths") +
         scale_x_date(date_breaks = "weeks", labels = date_format("%e %b")) +
         scale_fill_manual(name = "", labels = c("50%", "95%"),
                         values = c(alpha("deepskyblue4", 0.55), 
@@ -215,7 +215,7 @@ make_plots <- function(data_country, covariates_country_long,
         theme(legend.position="right")
     
     title <- ggdraw() + 
-        draw_label(paste0(country, " County"), fontface='bold')
+        draw_label(paste0(country, " County Daily Counts and Rt"), fontface='bold')
 
     p <- plot_grid(p1, p2, p3, ncol = 3, rel_widths = c(1, 1, 2))
     p <- plot_grid(title, p, ncol=1, rel_heights=c(0.1, 1)) # rel_heights values control title margins
