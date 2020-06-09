@@ -213,10 +213,10 @@ make_plots <- function(data_country, covariates_country_long,
         theme(legend.position="right")
     
     title <- ggdraw() + 
-        draw_label(paste0(country, "County Daily Counts and Rt"), fontface='bold')
+        draw_label(paste0(country, " County Daily Counts and Rt"), fontface='bold')
 
     p <- plot_grid(p1, p2, p3, ncol = 3, rel_widths = c(1, 1, 2))
-    plot_grid(title, p, ncol=1, rel_heights=c(0.1, 1)) # rel_heights values control title margins
+    p <- plot_grid(title, p, ncol=1, rel_heights=c(0.1, 1)) # rel_heights values control title margins
 
     save_plot(filename = paste0("../modelOutput/static/", country, "_three_panel.pdf"), 
                 p, base_width = 14)
