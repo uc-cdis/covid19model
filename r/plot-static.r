@@ -223,7 +223,7 @@ make_plots <- function(data_country, covariates_country_long,
     # dir.create(file.path(mainDir, subDir), showWarnings = FALSE)
     countyDir <- file.path("../modelOutput/static", country)
     dir.create(countyDir, showWarnings = FALSE)
-    save_plot(filename = file.path(countyDir, "three_panel.pdf"), p, base_width = 14)
+    save_plot(filename = file.path(countyDir, "three_panel.png"), p, base_width = 14)
 }
 
 make_three_pannel_plot()
