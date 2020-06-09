@@ -22,6 +22,7 @@ make_forecast_plot <- function(){
 
   # for generating initial viz
   # comment this out later..
+  print("NOTICE: Generating static images for five_county_big sim")
   filename <- "five_county_big/us_base-1028756.Rdata"
   
   load(paste0("../modelOutput/results/", filename))
@@ -123,6 +124,7 @@ make_two_plots <- function(data_country, data_country_forecast, filename, countr
   data_deaths_all <- rbind(data_deaths, data_deaths_forecast)
   
   p <- ggplot(data_country) +
+    ggtitle(paste0(country, " County Daily Deaths Forecast")) + 
     geom_bar(data = data_country, aes(x = time, y = deaths), 
              fill = "coral4", stat='identity', alpha=0.5) + 
     geom_line(data = data_country, aes(x = time, y = estimated_deaths), 
@@ -145,16 +147,17 @@ make_two_plots <- function(data_country, data_country_forecast, filename, countr
     #                 labels = c("Confirmed deaths", "Predicted deaths"),
     #                 values = c("coral4", "deepskyblue4")) + 
     xlab("Date") +
-    ylab("Daily number of deaths\n") + 
+    ylab("Deaths\n") + 
     scale_x_date(date_breaks = "weeks", labels = date_format("%e %b")) + 
     scale_y_continuous(trans='log10', labels=comma) + 
     coord_cartesian(ylim = c(1, 100000), expand = FALSE) + 
     theme_pubr() + 
-    theme(axis.text.x = element_text(angle = 45, hjust = 1)) + 
-    guides(fill=guide_legend(ncol=1, reverse = TRUE)) + 
-    annotate(geom="text", x=data_country$time[length(data_country$time)]+8, 
-             y=10000, label="Forecast",
-             color="black")
+    theme(axis.text.x = element_text(angle = 45, hjust = 1),
+      plot.title = element_text(hjust = 0.5)) + 
+    guides(fill=guide_legend(ncol=1, reverse = TRUE)) # + 
+    # annotate(geom="text", x=data_country$time[length(data_country$time)]+8, 
+    #          y=10000, label="Forecast",
+    #          color="black")
   
   # ggsave(file= paste0("../modelOutput/figures/", country, "_deaths_forecast_", filename, ".pdf"), p, width = 10)
   save_plot(filename = file.path(countyDir, "deathsForecast.png"), p)
@@ -175,6 +178,7 @@ make_two_plots <- function(data_country, data_country_forecast, filename, countr
   data_cases_all <- rbind(data_cases, data_cases_forecast)
   
   p <- ggplot(data_country) +
+    ggtitle(paste0(country, " County Daily Cases Forecast")) + 
     geom_bar(data = data_country, aes(x = time, y = reported_cases), 
              fill = "coral4", stat='identity', alpha=0.5) + 
     geom_line(data = data_country, aes(x = time, y = predicted_cases), 
@@ -193,22 +197,20 @@ make_two_plots <- function(data_country, data_country_forecast, filename, countr
                 fill = "black", alpha=0.35) +
     geom_vline(xintercept = data_cases$time[length(data_cases$time)], 
                col = "black", linetype = "dashed", alpha = 0.5) + 
-    #scale_fill_manual(name = "", 
-    #                 labels = c("Confirmed deaths", "Predicted deaths"),
-    #                 values = c("coral4", "deepskyblue4")) + 
     xlab("Date") +
-    ylab("Daily number of cases\n") + 
+    ylab("Cases\n") + 
     scale_x_date(date_breaks = "weeks", labels = date_format("%e %b")) + 
     scale_y_continuous(trans='log10', labels=comma) + 
     # may need to change ylim if not big enough 
     coord_cartesian(ylim = c(1, 100000), expand = FALSE) + 
     theme_pubr() + 
-    theme(axis.text.x = element_text(angle = 45, hjust = 1)) + 
-    guides(fill=guide_legend(ncol=1, reverse = TRUE)) + 
+    theme(axis.text.x = element_text(angle = 45, hjust = 1),
+      plot.title = element_text(hjust = 0.5)) + 
+    guides(fill=guide_legend(ncol=1, reverse = TRUE)) # + 
     # might need to touch this - what's with the hardcoded 8?
-    annotate(geom="text", x=data_country$time[length(data_country$time)]+8, 
-             y=10000, label="Forecast",
-             color="black")
+    # annotate(geom="text", x=data_country$time[length(data_country$time)]+8, 
+    #          y=10000, label="Forecast",
+    #          color="black")
   
   # ggsave(file= paste0("../modelOutput/figures/", country, "_cases_forecast_", filename, ".pdf"), p, width = 10)
   save_plot(filename = file.path(countyDir, "casesForecast.png"), p)
