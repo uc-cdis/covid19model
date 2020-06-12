@@ -19,18 +19,11 @@ make_forecast_plot <- function(){
   
   args <- commandArgs(trailingOnly = TRUE)
   filename <- args[1]
-
-  # for generating initial viz
-  # comment this out later..
-  print("NOTICE: Generating static images for five_county_big sim")
-  filename <- "five_county_big/us_base-1028756.Rdata"
   
   load(paste0("../modelOutput/results/", filename))
 
   codeToName <- unique(data.frame("code" = d$countryterritoryCode, "name" = d$countriesAndTerritories))
   
-  # td: don't hardcode number of countries (here: 11)
-  # for(i in 1:11){
   for(i in 1:length(countries)){
     N <- length(dates[[i]])
 
@@ -84,7 +77,7 @@ make_forecast_plot <- function(){
                                "rt_max" = rt_ui)
     
     times <- as_date(as.character(dates[[i]]))
-    times_forecast <- times[length(times)] + 0:(N2 - N) # td: another hardcoded 7 - the number of days to forecast
+    times_forecast <- times[length(times)] + 0:(N2 - N) # the number of days to forecast
     data_country_forecast <- data.frame("time" = times_forecast,
                                         "country" = rep(country, N2 - N + 1), # p sure this works
                                         "estimated_deaths_forecast" = estimated_deaths_forecast,
@@ -106,8 +99,7 @@ make_forecast_plot <- function(){
 
 make_two_plots <- function(data_country, data_country_forecast, filename, country){
 
-  # for static - change later
-  countyDir <- file.path("../modelOutput/static", country)
+  countyDir <- file.path("../modelOutput", country)
   dir.create(countyDir, showWarnings = FALSE)
   
   data_deaths <- data_country %>%
@@ -212,7 +204,6 @@ make_two_plots <- function(data_country, data_country_forecast, filename, countr
     #          y=10000, label="Forecast",
     #          color="black")
   
-  # ggsave(file= paste0("../modelOutput/figures/", country, "_cases_forecast_", filename, ".pdf"), p, width = 10)
   save_plot(filename = file.path(countyDir, "casesForecast.png"), p)
 }
 #-----------------------------------------------------------------------------------------------
