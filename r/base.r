@@ -296,9 +296,13 @@ filename <- paste0(StanModel, '-', JOBID)
 # ggsave(sprintf("../modelOutput/results/%s-covars-final-rt.pdf",filename),g,width=4,height=6)
 
 
+# fixme: don't force other scripts to load R data -> unnecessary overhead
+# import viz routine, call those functions here -> way, way better
+# still save the R data and fit though, for backup, etc.
+
+
 # dev'ing - once plot-static works, replace plot-3-panel 
 # system(paste0("Rscript plot-3-panel.r ", filename,'.Rdata'))
 system(paste0("Rscript plot-static.r ", filename,'.Rdata')) 
-
 system(paste0("Rscript plot-forecast.r ", filename,'.Rdata')) ## icl: to run this code you will need to adjust manual values of forecast required
 system(paste0("Rscript plot-explore.r ", filename,'.Rdata'))
