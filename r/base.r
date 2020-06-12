@@ -288,6 +288,9 @@ g = (mcmc_intervals(Rt,prob = .9))
 ggsave(sprintf("../modelOutput/results/%s-covars-final-rt.pdf",filename),g,width=4,height=6)
 
 
-system(paste0("Rscript plot-3-panel.r ", filename,'.Rdata'))
+# dev'ing - once plot-static works, replace plot-3-panel 
+# system(paste0("Rscript plot-3-panel.r ", filename,'.Rdata'))
+system(paste0("Rscript plot-static.r ", filename,'.Rdata')) 
+
 system(paste0("Rscript plot-forecast.r ", filename,'.Rdata')) ## icl: to run this code you will need to adjust manual values of forecast required
 system(paste0("Rscript plot-explore.r ", filename,'.Rdata'))

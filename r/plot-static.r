@@ -17,29 +17,25 @@ source("utils/geom-stepribbon.r")
 #---------------------------------------------------------------------------
 make_three_pannel_plot <- function(){
 
-  filename2 <- "five_county_big/us_base-1028756.Rdata"
-
-  # args <- commandArgs(trailingOnly = TRUE)
-  # filename2 <- args[1]
+  args <- commandArgs(trailingOnly = TRUE)
+  filename2 <- args[1]
 
   load(paste0("../modelOutput/results/", filename2))
   print(sprintf("loading: %s",paste0("../modelOutput/results/",filename2)))
 
   codeToName <- unique(data.frame("code" = d$countryterritoryCode, "name" = d$countriesAndTerritories))
 
+  lastObs <- tail(dates[[0]], 1)
+
   ### final Rt via bayesplot
   dimensions <- dim(out$Rt)
   Rt = (as.matrix(out$Rt[,dimensions[2],]))
   colnames(Rt) <- codeToName$name
-  # colnames(Rt) = countries
   g = mcmc_intervals(Rt,prob = .9) + 
-    ggtitle("Rt as of June 1st", "with 90% posterior credible intervals") +
-    # with 90% posterior credible intervals
-    xlab("Rt") +
-    ylab("County") + 
+    ggtitle(sprintf("Rt as of %s", lastObs), "with 90% posterior credible intervals") +
+    xlab("Rt") + ylab("County") + 
     theme(plot.title = element_text(hjust = 0.5), plot.subtitle = element_text(hjust = 0.5)) # center title and subtitle
-
-  ggsave(sprintf("../modelOutput/static/Rt_June_1.png"),g,width=6,height=4)
+  ggsave(sprintf("../modelOutput/Rt_All.png"),g,width=6,height=4)
 
   ###
 
@@ -88,7 +84,7 @@ make_three_pannel_plot <- function(){
     covariates_country_long$value <- as_date(covariates_country_long$value) 
     covariates_country_long$country <- rep(country, length(covariates_country_long$value))
     
-    data_country <- data.frame("time" = as_date(as.character(dates[[i]])), # conversions seem unnecessary -> check
+    data_country <- data.frame("time" = as_date(as.character(dates[[i]])), 
                                "country" = rep(country, length(dates[[i]])),
                                "reported_cases" = reported_cases[[i]], 
                                "reported_cases_c" = cumsum(reported_cases[[i]]), 
@@ -131,7 +127,7 @@ make_three_pannel_plot <- function(){
 make_plots <- function(data_country, covariates_country_long, 
                        filename2, country){
 
-    countyDir <- file.path("../modelOutput/static", country)
+    countyDir <- file.path("../modelOutput", country)
     dir.create(countyDir, showWarnings = FALSE)
 
     ## p1
@@ -248,12 +244,7 @@ make_plots <- function(data_country, covariates_country_long,
                     plot.title = element_text(hjust = 0.5),
                     legend.position="right")
 
-    save_plot(filename = file.path(countyDir, "Rt.png"), p3)
-    
-    # title <- ggdraw() + draw_label(paste0(country, " County Daily Counts and Rt"), fontface='bold')
-    # p <- plot_grid(p1, p2, p3, ncol = 3, rel_widths = c(1, 1, 2))
-    # p <- plot_grid(title, p, ncol=1, rel_heights=c(0.1, 1)) # rel_heights values control title margins
-    # save_plot(filename = file.path(countyDir, "three_panel.png"), p, base_width = 14)
+    save_plot(filename = file.path(countyDir, "Rt.png"), p3)    
 }
 
 make_three_pannel_plot()
