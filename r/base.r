@@ -147,7 +147,21 @@ for(Country in countries) {
     # for now, hardcoding that IL lockdown was lifted on Friday, May 29th
     # for simplicity.. June 1st -> really fix this
     endLockdown <- "6/1/20"
-    d1[covariate] <- ((as.Date(d1$dateRep, format='%m/%d/%y') >= as.Date(covariates1[1,covariate])) & (as.Date(d1$dateRep, format='%m/%d/%y') < as.Date(endLockdown, format='%m/%d/%y')))*1  # icl: should this be > or >=?
+
+    # 0 -> 1 (lockdown doesn't end -> not good)
+    # d1[covariate] <- (as.Date(d1$dateRep, format='%m/%d/%y') >= as.Date(covariates1[1,covariate]))*1  # icl: should this be > or >=?
+
+
+    # 0 -> 1 -> 0 (lockdown ends, step function jumps all the way back up to pre-lockdown Rt -> not good)
+    # d1[covariate] <- ((as.Date(d1$dateRep, format='%m/%d/%y') >= as.Date(covariates1[1,covariate])) & (as.Date(d1$dateRep, format='%m/%d/%y') < as.Date(endLockdown, format='%m/%d/%y')))*1  # icl: should this be > or >=?
+
+
+    # 0 -> 1 -> decay ... -> 0
+    # indicator variable "slides" out of lockdown
+    j <- match(endLockdown, d1$dateRep)
+    lockdown <- (as.Date(d1$dateRep, format='%m/%d/%y') >= as.Date(covariates1[1,covariate])) * 1
+    lockdown[j:length(lockdown)] <- seq(1,0,-0.023) # -> this is the rate s.t. at the end of June we'll be back at 70% pre-lockdown Rt
+    d1[covariate] <- lockdown
   }
 
   # dates[[as.character(Country)]] = d1$date
