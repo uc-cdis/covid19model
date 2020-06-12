@@ -16,6 +16,19 @@ print(sprintf("Running MCMC routine with %d iterations", nStanIterations))
 # case-mortality table
 d <- read.csv("../modelInput/ILCaseAndMortalityV1.csv")
 
+###
+# HERE! -> specify a date through which to run the model
+# i.e., specify day of last observation
+# say it's June 8th, but we only want to run through June 1st, because the model hasn't been adjusted for lifting lockdown yet
+# want to easily do this -> can easily do this -> just select columns with date <= target date
+# something a la:
+# validationObs <- countyObs[as.Date(countyObs$dateRep, format = "%m/%d/%y") > lastObs, ]
+# dateCutoff <- "6/1/20"
+# dateCutoff <- as.Date(dateCutoff, format = "%m/%d/%y")
+# print(sprintf("date cutoff: %s",  dateCutoff))
+# d <- d[as.Date(d$dateRep, format = "%m/%d/%y") <= lastObs, ]
+###
+
 d$countryterritoryCode <- sapply(d$countryterritoryCode, as.character)
 
 # drop counties with fewer than cutoff cumulative deaths or cases
@@ -23,8 +36,8 @@ cumCaseAndDeath <- aggregate(cbind(d$deaths), by=list(Category=d$countryterritor
 
 dropCounties <- subset(cumCaseAndDeath, V1 < minimumReportedDeaths)$Category
 d <- subset(d, !(countryterritoryCode %in% dropCounties))
+# print(sprintf("nCounties with more than %d deaths before %s: %d", minimumReportedDeaths, dateCutoff, length(unique(d$countryterritoryCode))))
 print(sprintf("nCounties with more than %d deaths: %d", minimumReportedDeaths, length(unique(d$countryterritoryCode))))
-
 
 # 84017031 -> ID for Cook County
 # 84017043 -> ID for DuPage County
