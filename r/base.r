@@ -301,9 +301,7 @@ filename <- paste0(StanModel, '-', JOBID)
 # still save the R data and fit though, for backup, etc.
 
 
-# dev'ing - once plot-static works, replace plot-3-panel 
-# system(paste0("Rscript plot-3-panel.r ", filename,'.Rdata'))
-system(paste0("Rscript plot-static.r ", filename,'.Rdata')) 
+system(paste0("Rscript plot-trend.r ", filename,'.Rdata')) 
 system(paste0("Rscript plot-forecast.r ", filename,'.Rdata')) ## icl: to run this code you will need to adjust manual values of forecast required
 
 # suppressing for now
