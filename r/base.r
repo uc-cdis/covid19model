@@ -145,7 +145,8 @@ for(Country in countries) {
     # make this dynamic -> add column to covariates table - an "end date" for an intervention
     # or somehow convey a date-range
     # for now, hardcoding that IL lockdown was lifted on Friday, May 29th
-    endLockdown <- "5/29/20"
+    # for simplicity.. June 1st -> really fix this
+    endLockdown <- "6/1/20"
     d1[covariate] <- ((as.Date(d1$dateRep, format='%m/%d/%y') >= as.Date(covariates1[1,covariate])) & (as.Date(d1$dateRep, format='%m/%d/%y') < as.Date(endLockdown, format='%m/%d/%y')))*1  # icl: should this be > or >=?
   }
 
