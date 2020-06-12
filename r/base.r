@@ -75,11 +75,6 @@ dates = list()
 reported_cases = list()
 deaths_by_country = list()
 
-# note: I believe the serial interval caps at 100 days
-# as soon as we have more than 100 days of data (i.e., in less than two weeks)
-# the script will start failing because it will try to pull
-# values from the serial interval greater than 100 (>>>?) -> double check
-
 stan_data = list(M=length(countries),
                 N=NULL,
                 p=p,
@@ -146,7 +141,12 @@ for(Country in countries) {
   
   for (ii in 1:ncol(covariates1)) {
     covariate = names(covariates1)[ii]
-    d1[covariate] <- (as.Date(d1$dateRep, format='%m/%d/%y') >= as.Date(covariates1[1,covariate]))*1  # icl: should this be > or >=?
+    # HERE - PLEASE fixme - hardcoding this now, just to run the model right now
+    # make this dynamic -> add column to covariates table - an "end date" for an intervention
+    # or somehow convey a date-range
+    # for now, hardcoding that IL lockdown was lifted on Friday, May 29th
+    endLockdown <- "5/29/20"
+    d1[covariate] <- ((as.Date(d1$dateRep, format='%m/%d/%y') >= as.Date(covariates1[1,covariate])) & (as.Date(d1$dateRep, format='%m/%d/%y') < as.Date(endLockdown, format='%m/%d/%y')))*1  # icl: should this be > or >=?
   }
 
   # dates[[as.character(Country)]] = d1$date
