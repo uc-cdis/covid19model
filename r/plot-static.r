@@ -25,17 +25,17 @@ make_three_pannel_plot <- function(){
 
   codeToName <- unique(data.frame("code" = d$countryterritoryCode, "name" = d$countriesAndTerritories))
 
-  lastObs <- tail(dates[[0]], 1)
+  lastObs <- tail(dates[[1]], 1)
 
   ### final Rt via bayesplot
   dimensions <- dim(out$Rt)
   Rt = (as.matrix(out$Rt[,dimensions[2],]))
   colnames(Rt) <- codeToName$name
   g = mcmc_intervals(Rt,prob = .9) + 
-    ggtitle(sprintf("Rt as of %s", lastObs), "with 90% posterior credible intervals") +
+    ggtitle(sprintf("Rt as of %s", format(lastObs, "%a %B %d")), "with 90% posterior credible intervals") +
     xlab("Rt") + ylab("County") + 
     theme(plot.title = element_text(hjust = 0.5), plot.subtitle = element_text(hjust = 0.5)) # center title and subtitle
-  ggsave(sprintf("../modelOutput/Rt_All.png"),g,width=6,height=4)
+  ggsave(sprintf("../modelOutput/figures/Rt_All.png"),g,width=6,height=4)
 
   ###
 
@@ -127,7 +127,7 @@ make_three_pannel_plot <- function(){
 make_plots <- function(data_country, covariates_country_long, 
                        filename2, country){
 
-    countyDir <- file.path("../modelOutput", country)
+    countyDir <- file.path("../modelOutput/figures", country)
     dir.create(countyDir, showWarnings = FALSE)
 
     ## p1

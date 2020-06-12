@@ -305,4 +305,6 @@ filename <- paste0(StanModel, '-', JOBID)
 # system(paste0("Rscript plot-3-panel.r ", filename,'.Rdata'))
 system(paste0("Rscript plot-static.r ", filename,'.Rdata')) 
 system(paste0("Rscript plot-forecast.r ", filename,'.Rdata')) ## icl: to run this code you will need to adjust manual values of forecast required
-system(paste0("Rscript plot-explore.r ", filename,'.Rdata'))
+
+# suppressing for now
+# system(paste0("Rscript plot-explore.r ", filename,'.Rdata'))

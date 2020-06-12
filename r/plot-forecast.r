@@ -99,7 +99,7 @@ make_forecast_plot <- function(){
 
 make_two_plots <- function(data_country, data_country_forecast, filename, country){
 
-  countyDir <- file.path("../modelOutput", country)
+  countyDir <- file.path("../modelOutput/figures", country)
   dir.create(countyDir, showWarnings = FALSE)
   
   data_deaths <- data_country %>%
