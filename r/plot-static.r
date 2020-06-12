@@ -1,11 +1,3 @@
-# this code is for generating the final Rt and 3-panel plots
-# it's scratch space, for now
-# will get it pretty, then replace current viz. routine with this, and delete this file
-
-# immediate objective:
-# --> make nice the "final Rt" and "3-panel" images for the five_county_big sim
-# --> these images will be shared as static content on the commons site
-
 library(ggplot2)
 library(tidyr)
 library(dplyr)
@@ -26,11 +18,16 @@ source("utils/geom-stepribbon.r")
 make_three_pannel_plot <- function(){
 
   filename2 <- "five_county_big/us_base-1028756.Rdata"
+
+  # args <- commandArgs(trailingOnly = TRUE)
+  # filename2 <- args[1]
+
   load(paste0("../modelOutput/results/", filename2))
+  print(sprintf("loading: %s",paste0("../modelOutput/results/",filename2)))
 
   codeToName <- unique(data.frame("code" = d$countryterritoryCode, "name" = d$countriesAndTerritories))
 
-  ### final Rt via bayesplot (?) ->
+  ### final Rt via bayesplot
   dimensions <- dim(out$Rt)
   Rt = (as.matrix(out$Rt[,dimensions[2],]))
   colnames(Rt) <- codeToName$name
@@ -42,7 +39,7 @@ make_three_pannel_plot <- function(){
     ylab("County") + 
     theme(plot.title = element_text(hjust = 0.5), plot.subtitle = element_text(hjust = 0.5)) # center title and subtitle
 
-  ggsave(sprintf("../modelOutput/static/Rt_June_1.png"),g,width=4,height=6)
+  ggsave(sprintf("../modelOutput/static/Rt_June_1.png"),g,width=6,height=4)
 
   ###
 
