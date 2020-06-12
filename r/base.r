@@ -267,25 +267,33 @@ save(fit,prediction,dates,reported_cases,deaths_by_country,countries,estimated.d
 
 # icl: to visualize results
 
-library(bayesplot)
+# library(bayesplot)
 filename <- paste0(StanModel, '-', JOBID)
 
-plot_labels <- c("Lockdown")
-alpha = (as.matrix(out$alpha))
-colnames(alpha) = plot_labels
-g = (mcmc_intervals(alpha, prob = .9))
-ggsave(sprintf("../modelOutput/results/%s-covars-alpha-log.pdf",filename),g,width=4,height=6)
-g = (mcmc_intervals(alpha, prob = .9,transformations = function(x) exp(-x)))
-ggsave(sprintf("../modelOutput/results/%s-covars-alpha.pdf",filename),g,width=4,height=6)
-mu = (as.matrix(out$mu))
-colnames(mu) = countries
-g = (mcmc_intervals(mu,prob = .9))
-ggsave(sprintf("../modelOutput/results/%s-covars-mu.pdf",filename),g,width=4,height=6)
-dimensions <- dim(out$Rt)
-Rt = (as.matrix(out$Rt[,dimensions[2],]))
-colnames(Rt) = countries
-g = (mcmc_intervals(Rt,prob = .9))
-ggsave(sprintf("../modelOutput/results/%s-covars-final-rt.pdf",filename),g,width=4,height=6)
+# plot_labels <- c("Lockdown")
+
+# log(alpha)
+# alpha = (as.matrix(out$alpha))
+# colnames(alpha) = plot_labels
+# g = (mcmc_intervals(alpha, prob = .9))
+# ggsave(sprintf("../modelOutput/results/%s-covars-alpha-log.pdf",filename),g,width=4,height=6)
+
+# alpha
+# g = (mcmc_intervals(alpha, prob = .9,transformations = function(x) exp(-x)))
+# ggsave(sprintf("../modelOutput/results/%s-covars-alpha.pdf",filename),g,width=4,height=6)
+
+# R0
+# mu = (as.matrix(out$mu))
+# colnames(mu) = countries
+# g = (mcmc_intervals(mu,prob = .9))
+# ggsave(sprintf("../modelOutput/results/%s-covars-mu.pdf",filename),g,width=4,height=6)
+
+# Rt -> better viz code in plot-static.r
+# dimensions <- dim(out$Rt)
+# Rt = (as.matrix(out$Rt[,dimensions[2],]))
+# colnames(Rt) = countries
+# g = (mcmc_intervals(Rt,prob = .9))
+# ggsave(sprintf("../modelOutput/results/%s-covars-final-rt.pdf",filename),g,width=4,height=6)
 
 
 # dev'ing - once plot-static works, replace plot-3-panel 
