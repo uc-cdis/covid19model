@@ -215,7 +215,8 @@ make_plots <- function(data_country, covariates_country_long,
     
     p3 <- ggplot(data_country) +
         ggtitle(paste0(country, " County Estimated Rt")) +
-        geom_stepribbon(data = data_rt, aes(x = time, ymin = rt_min, ymax = rt_max, 
+        geom_stepribbon(data = data_rt, aes(x = time, # xmax = as_date("06/01/20"), # testing..
+                                            ymin = rt_min, ymax = rt_max, 
                                             group = key,
                                             fill = key)) +
         geom_hline(yintercept = 1, color = 'black', size = 0.1) + 
@@ -229,7 +230,8 @@ make_plots <- function(data_country, covariates_country_long,
                                                     group = key, 
                                                     shape = key, 
                                                     col = key), size = 2) +
-        xlab("Time") +
+        xlab("Time") + 
+        # xlim(NA, as_date("06/01/20")) + # HERE! -> cutoff Rt plot at June 1st; for first viz
         ylab(expression(R[t])) +
         scale_fill_manual(name = "", labels = c("50%", "95%"),
                         values = c(alpha("seagreen", 0.75), alpha("seagreen", 0.5))) + 
@@ -238,7 +240,8 @@ make_plots <- function(data_country, covariates_country_long,
         scale_colour_discrete(name = "Interventions", labels = plot_labels) + 
         scale_x_date(date_breaks = "weeks", labels = date_format("%e %b"), 
                     limits = c(data_country$time[1], 
-                                data_country$time[length(data_country$time)])) + 
+                                as_date("06/01/20", format="%m/%d/%y"))) + # HERE! cutoff Rt plot at June 1st
+                                # data_country$time[length(data_country$time)])) + 
         theme_pubr() + 
         theme(axis.text.x = element_text(angle = 45, hjust = 1),
                     plot.title = element_text(hjust = 0.5),
