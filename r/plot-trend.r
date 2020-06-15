@@ -25,11 +25,15 @@ make_three_pannel_plot <- function(){
 
   codeToName <- unique(data.frame("code" = d$countryterritoryCode, "name" = d$countriesAndTerritories))
 
-  lastObs <- tail(dates[[1]], 1)
+  # lastObs <- tail(dates[[1]], 1)
+  lastObs <- as.Date("06/01/2020", format="%m/%d/%y")
+
+  cd <- dates[[1]]
+  cd <- cd[cd > lastObs]
 
   ### final Rt via bayesplot
   dimensions <- dim(out$Rt)
-  Rt = (as.matrix(out$Rt[,dimensions[2],]))
+  Rt = (as.matrix(out$Rt[,dimensions[2] - length(cd),])) # HERE! cutting off at June 1st  - remove later
   colnames(Rt) <- codeToName$name
   g = mcmc_intervals(Rt,prob = .9) + 
     ggtitle(sprintf("Rt as of %s", format(lastObs, "%a %B %d")), "with 90% posterior credible intervals") +
