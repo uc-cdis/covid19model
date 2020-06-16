@@ -30,6 +30,8 @@ d <- read.csv("../modelInput/ILCaseAndMortalityV1.csv")
 ###
 
 d$countryterritoryCode <- sapply(d$countryterritoryCode, as.character)
+# trim US code prefix
+d$countryterritoryCode <- sub("840", "", d$countryterritoryCode)
 
 # drop counties with fewer than cutoff cumulative deaths or cases
 cumCaseAndDeath <- aggregate(cbind(d$deaths), by=list(Category=d$countryterritoryCode), FUN=sum)
@@ -37,6 +39,8 @@ cumCaseAndDeath <- aggregate(cbind(d$deaths), by=list(Category=d$countryterritor
 dropCounties <- subset(cumCaseAndDeath, V1 < minimumReportedDeaths)$Category
 d <- subset(d, !(countryterritoryCode %in% dropCounties))
 # print(sprintf("nCounties with more than %d deaths before %s: %d", minimumReportedDeaths, dateCutoff, length(unique(d$countryterritoryCode))))
+
+# HERE! -> write/save county NAME and FIPS -> see Pauline's message
 print(sprintf("nCounties with more than %d deaths: %d", minimumReportedDeaths, length(unique(d$countryterritoryCode))))
 
 # 84017031 -> ID for Cook County
