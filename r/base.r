@@ -43,6 +43,10 @@ d <- subset(d, !(countryterritoryCode %in% dropCounties))
 # HERE! -> write/save county NAME and FIPS -> see Pauline's message
 print(sprintf("nCounties with more than %d deaths: %d", minimumReportedDeaths, length(unique(d$countryterritoryCode))))
 
+# write list of counties used in this simulation
+CountyCodeList <- unique(d$countryterritoryCode)
+write.table(CountyCodeList, "../modelOutput/figures/CountyCodeList.txt", row.names=FALSE, col.names=FALSE)
+
 # 84017031 -> ID for Cook County
 # 84017043 -> ID for DuPage County
 # HERE -> testing running the model, bigger simulation, just for Cook and DuPage counties
