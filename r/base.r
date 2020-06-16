@@ -54,6 +54,7 @@ countries <- unique(d$countryterritoryCode)
 # weighted fatality table
 cfr.by.country = read.csv("../modelInput/ILWeightedFatalityV1.csv")
 cfr.by.country$country = as.character(cfr.by.country[,3])
+cfr.by.country$country <-  sub("840", "", cfr.by.country$country) # cutoff US prefix code - note: maybe this should be in the python etl, not here
 
 # serial interval discrete gamma distribution
 serial.interval = read.csv("../modelInput/ILSerialIntervalV1.csv") # new table
@@ -63,6 +64,8 @@ serial.interval = read.csv("../modelInput/ILSerialIntervalV1.csv") # new table
 # e.g., if there are 3 different interventions in the model, then there are 3 covariates here in the code
 covariates = read.csv("../modelInput/ILInterventionsV1.csv", stringsAsFactors = FALSE)
 covariates$Country <- sapply(covariates$Country, as.character)
+covariates$Country <-  sub("840", "", covariates$Country) # cutoff US prefix code - note: maybe this should be in the python etl, not here
+
 p <- ncol(covariates) - 2
 forecast = 0
 
