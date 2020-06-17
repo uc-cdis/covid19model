@@ -199,11 +199,20 @@ def makeCaseMortalityTable(dirPath):
     # populate geoID with Town also, just to populate it
     df["geoId"] = df["countriesAndTerritories"]
 
-    # reorder the columns to match Euro table
-    # fixme - don't need to read in their table -> just have this column order as config
-    # <EU>
-    EuroCaseAndMortality = pd.read_csv("../modelInput/data/EU/COVID-19-up-to-date.csv", encoding="ISO-8859-1")
-    df = df[list(EuroCaseAndMortality)]
+    # reorder the columns to match Euro table # probably don't hardcode this -> make proper config file (?)
+    CaseMortalityColumnOrder = [
+        'dateRep', 
+        'day', 
+        'month', 
+        'year', 
+        'cases', 
+        'deaths', 
+        'countriesAndTerritories', 
+        'geoId', 
+        'countryterritoryCode', 
+        'popData2018'
+    ]
+    df = df[CaseMortalityColumnOrder]
 
     print("--- saving transformed case and mortality data  ---")
 
@@ -329,6 +338,13 @@ def makeIFRTable(dirPath, population_df):
     ILInputIFR["Region, subregion, country or area *"] = ILInputIFR["country"]
     ILInputIFR["Unnamed: 0"] = ILInputIFR.index
     # reorder to match their order
+
+    ## remove
+    print("\n\t---->HERE!")
+    print(list(ifr))
+    print("\n\t----")    
+    ## 
+
     ILInputIFR = ILInputIFR[list(ifr)] # <EU>
 
     print("--- saving IFR table ---")
