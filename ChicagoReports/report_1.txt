@@ -1,0 +1,51 @@
+# 84017031 -> ID for Cook County
+
+"big sim"
+
+Wednesday, June 3rd
+
+Experiment:
+    - covid case and mortality data run through this past Monday, June 1st
+    - ran the model for all IL counties with greater than 10 cumulative reported deaths
+    - this yielded results for 25 counties
+    - ran the stan model with 8000 iterations, 4000 warmup, 8 chains
+    - on my laptop, this simulation took ~2.8 hours
+
+Visualizations:
+    1. 3-panel and forecast plots for Cook county
+    2. final Rt by county plot
+    3. the explore plots
+
+Comments:
+    - almost all counties have fewer than 100 cumulative reported deaths
+
+    - in particular, about 16 counties have fewer than 50 cumulative reported deaths
+
+    - for these counties with a small number of observations,
+    we see corresponding large 90% confidence bands around estimates of final Rt
+
+    - notice that for Cook county (ID 84017031 - i.e., the fourth from the top in the Rt plot)
+    we have a very small confidence band - indeed the smallest confidence band,
+    because Cook county has the greatest number of observations
+
+    - running the STAN model yielded warnings about lack of convergence.
+    These convergence issues are due in large part (perhaps entirely)
+    to the small number of observations available for most counties, as explained above.
+    As time passes and we obtain more and more observations,
+    the simulation will exhibit better and better convergence behavior.
+
+    - even with big confidence bands, the majority of counties have a final Rt of less than 1
+
+    - Cook county has a mean final Rt of slightly bigger than 1,
+    though it is very close to 1 and the tight 90% confidence band does extend to slightly below 1.
+
+    - daily reported deaths appear to dip once every seven days.
+    this is more than likely an artifact of data collection/reporting over the weekend.
+    we could apply a simple smoothing/correction method to see if that improves the fit of the model
+
+    - reduction in Rt is negatively correlated with reported deaths.
+    that is, the greater the number of cumulative reported deaths within a county,
+    the smaller the reduction in Rt.
+    my guess explanation for this is that
+    for counties with a small number of observations,
+    the model tends to default to a large reduction in Rt
