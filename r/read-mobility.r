@@ -7,17 +7,27 @@ library(data.table)
 
 ### from: https://github.com/ImperialCollegeLondon/covid19model/blob/v6.0/usa/code/utils/read-data-usa.r ###
 
-GFNAME_states <<- "usa/data/states.csv"
-GFNAME_global_mobility_report <<- 'usa/data/Global_Mobility_Report.csv'
 
+# should be fine
 read_google_mobility <- function(){
+
+  # okay
+  GFNAME_states <<- "usa/data/states.csv"
+  # ["state", "abbreviation"] -> don't need this : https://github.com/ImperialCollegeLondon/covid19model/blob/v6.0/usa/data/states.csv
   states <- read.csv(GFNAME_states, stringsAsFactors = FALSE)
   names(states) <- c("sub_region_1", "code")
+
+  # okay
+  # read in IL report
+  GFNAME_global_mobility_report <<- 'usa/data/Global_Mobility_Report.csv'
   google_mobility <- read.csv(GFNAME_global_mobility_report, stringsAsFactors = FALSE)
   google_mobility <- google_mobility[which(google_mobility$country_region_code == "US"),]
-  #Remove county level data
-  google_mobility <- google_mobility[which(google_mobility$sub_region_2 == ""),]
-  google_mobility <- left_join(google_mobility, states, by = c("sub_region_1"))
+
+  # okay
+  # Remove county level data # no dog
+  # google_mobility <- google_mobility[which(google_mobility$sub_region_2 == ""),]
+  # google_mobility <- left_join(google_mobility, states, by = c("sub_region_1"))
+
   # Format the google mobility data
   google_mobility$date = as.Date(google_mobility$date, format = '%Y-%m-%d')
   google_mobility[, c(6:11)] <- google_mobility[, c(6:11)]/100
@@ -30,35 +40,6 @@ read_google_mobility <- function(){
 }
 
 ##########
-
-### from: https://github.com/ImperialCollegeLondon/covid19model/blob/v6.0/base-usa.r#L85-L108 ###
-
-# Read google mobility
-mobility <- read_google_mobility()
-# At times google has mobility na for some days in that cae you will need to impute those values
-# else code will fail 
-# read predictions of future days from foursquare
-# if you need predictions from foursquare please run file mobility-regression.r in
-# the folder usa/code/utils/mobility-reg
-google_pred <- read.csv('usa/data/google-mobility-forecast.csv', stringsAsFactors = FALSE)
-google_pred$date <- as.Date(google_pred$date, format = '%Y-%m-%d') 
-google_pred$sub_region_2 <- ""
-google_pred$country_region <- "United States"
-google_pred$country_region_code <- "US"
-colnames(google_pred)[colnames(google_pred) == 'state'] <- 'sub_region_1'
-if (max(google_pred$date) > max(mobility$date)){
-  google_pred <- google_pred[google_pred$date > max(mobility$date),]
-  # reading mapping of states of csv
-  un<-unique(mobility$sub_region_1)
-  states_code = read.csv('usa/data/states.csv', stringsAsFactors = FALSE)
-  google_pred$code = "!!"
-  for(i in 1:length(un)){
-    google_pred$code[google_pred$sub_region_1==un[i]] = states_code$Abbreviation[states_code$State==un[i]]
-  }
-  mobility <- rbind(as.data.frame(mobility),as.data.frame(google_pred[,colnames(mobility)]))
-}
-
-###
 
 ### https://github.com/ImperialCollegeLondon/covid19model/blob/v6.0/base-usa.r#L125-L133
 
@@ -88,6 +69,7 @@ library(stringr)
 
 
 # fixme
+# pretty good progress
 process_covariates <- function(states, mobility, death_data,
                                num_days_sim, interventions, formula, 
                                formula_partial_regional, formula_partial_state){
@@ -116,7 +98,7 @@ process_covariates <- function(states, mobility, death_data,
   covariate_list_partial_regional <- list()
   covariate_list_partial_state <- list()
   
-  k=1 # ?
+  k=1 # ? -> just a counter
 
   for(State in states) {
 
@@ -133,46 +115,27 @@ process_covariates <- function(states, mobility, death_data,
     # include transit
     transit_usage <- rep(1, (N + forecast_length))
 
-    # creating features # fixme
+    # creating features -> only want "partial_state"
     df_features <- create_features(len_mobility, padded_covariates, transit_usage)
-    features <- model.matrix(formula, df_features)
-    features_partial_regional <- model.matrix(formula_partial_regional, df_features)
+    # features <- model.matrix(formula, df_features)
+    # features_partial_regional <- model.matrix(formula_partial_regional, df_features)
     features_partial_state <- model.matrix(formula_partial_state, df_features)
     
-    covariate_list[[k]] <- features
-    covariate_list_partial_regional[[k]] <- features_partial_regional
+    # covariate_list[[k]] <- features
+    # covariate_list_partial_regional[[k]] <- features_partial_regional
     covariate_list_partial_state[[k]] <- features_partial_state
+
     k <- k+1
     
     ## Append data to stan data
-    stan_data$y <- c(stan_data$y, data_state$daily_cases[1]) # just the index case!
-    stan_data$EpidemicStart <- c(stan_data$EpidemicStart, index1 + 1 - index2)
-    stan_data$pop <- c(stan_data$pop, pop_state)
-    stan_data$f <- cbind(stan_data$f,f)
-    stan_data$deaths <- cbind(stan_data$deaths, deaths)
-    stan_data$cases <- cbind(stan_data$cases, cases)
-    stan_data$N2 <- num_days_sim
-    stan_data$N <- c(stan_data$N, N)
-    stan_data$Region <- c(stan_data$Region, data_state$region_code[1])
-    stan_data$Pop_density <- c(stan_data$Pop_density, log(data_state$pop_density[1]))
-    
-    # Saves other data for each state
-    dates[[State]] <- data_state$date
-    reported_cases[[State]] <- data_state$daily_cases
-    reported_deaths[[State]] <- data_state$daily_deaths
+    # stan_data$Pop_density <- c(stan_data$Pop_density, log(data_state$pop_density[1]))    
   }
   
   
   stan_data$P = dim(features)[2]
   stan_data$X = array(NA, dim = c(stan_data$M , stan_data$N2 ,stan_data$P ))
-  stan_data$P_partial_regional = dim(features_partial_regional)[2]
+  # stan_data$P_partial_regional = dim(features_partial_regional)[2]
   stan_data$P_partial_state = dim(features_partial_state)[2]
-  if(stan_data$P_partial_regional==0){
-    stan_data$X_partial_regional = array(0, dim = c(stan_data$M , stan_data$N2, 1))
-  }
-  else{
-    stan_data$X_partial_regional = array(NA, dim = c(stan_data$M , stan_data$N2 ,stan_data$P_partial_regional))
-  }
   if(stan_data$P_partial_state==0){
     stan_data$X_partial_state = array(0, dim = c(stan_data$M , stan_data$N2, 1))
   }
@@ -180,28 +143,30 @@ process_covariates <- function(states, mobility, death_data,
     stan_data$X_partial_state = array(NA, dim = c(stan_data$M , stan_data$N2 ,stan_data$P_partial_state))
   }
   
+  # I want my covariates for partial_state ..
+
   for (i in 1:stan_data$M){
-    stan_data$X[i,,] = covariate_list[[i]]
-    if(stan_data$P_partial_regional != 0)
-      stan_data$X_partial_regional[i,,] = covariate_list_partial_regional[[i]]
+    # stan_data$X[i,,] = covariate_list[[i]]
+    # if(stan_data$P_partial_regional != 0)
+      # stan_data$X_partial_regional[i,,] = covariate_list_partial_regional[[i]]
     if(stan_data$P_partial_state != 0)
       stan_data$X_partial_state[i,,] = covariate_list_partial_state[[i]]
   }
-  if(stan_data$P_partial_regional == 0)
-    stan_data$P_partial_regional = 1
-  if(stan_data$P_partial_state == 0)
-    stan_data$P_partial_state = 1
-  stan_data$Pop_density <- scale(stan_data$Pop_density )[,1]
-  stan_data$Q <- max(stan_data$Region)
-  stan_data$W <- ceiling(stan_data$N2/7)
+
+  # population density is already in here (?) sweet.
+
+  # stan_data$Pop_density <- scale(stan_data$Pop_density )[,1]
+
+  stan_data$W <- ceiling(stan_data$N2/7) 
   stan_data$week_index <- matrix(1,stan_data$M,stan_data$N2)
   for(state.i in 1:stan_data$M) {
     stan_data$week_index[state.i,] <- rep(2:(stan_data$W+1),each=7)[1:stan_data$N2]
-    last_ar_week = which(dates[[state.i]]==max(death_data$date) -28)
+    last_ar_week = which(dates[[state.i]]==max(death_data$date) - 28)
     stan_data$week_index[state.i,last_ar_week:ncol(stan_data$week_index)] <-  stan_data$week_index[state.i,last_ar_week]
   }
-  return(list("stan_data" = stan_data, "dates" = dates, "reported_cases" = reported_cases, 
-              "reported_deaths" = reported_deaths))
+
+  return(list("stan_data" = stan_data))
+
 }
 
 # fixme
@@ -277,3 +242,86 @@ create_features <- function(len_mobility, padded_covariates, transit_usage){
                                             na.rm=TRUE))
             )
 }
+
+### <main>
+### from: https://github.com/ImperialCollegeLondon/covid19model/blob/v6.0/base-usa.r#L85-L108 ###
+
+# Read google mobility
+mobility <- read_google_mobility()
+
+# At times google has mobility na for some days in that cae you will need to impute those values
+# else code will fail 
+# read predictions of future days from foursquare
+# if you need predictions from foursquare please run file mobility-regression.r in
+# the folder usa/code/utils/mobility-reg
+google_pred <- read.csv('usa/data/google-mobility-forecast.csv', stringsAsFactors = FALSE)
+google_pred$date <- as.Date(google_pred$date, format = '%Y-%m-%d') 
+google_pred$sub_region_2 <- ""
+google_pred$country_region <- "United States"
+google_pred$country_region_code <- "US"
+colnames(google_pred)[colnames(google_pred) == 'state'] <- 'sub_region_1'
+
+if (max(google_pred$date) > max(mobility$date)){
+
+  google_pred <- google_pred[google_pred$date > max(mobility$date),]
+
+  # reading mapping of states of csv
+  un <- unique(mobility$sub_region_1)
+
+  states_code = read.csv('usa/data/states.csv', stringsAsFactors = FALSE)
+  google_pred$code = "!!"
+
+  # m: replacing state codes with their abbreviations -> not sure we need this for counties? -> may need an analog
+  for(i in 1:length(un)){
+    google_pred$code[google_pred$sub_region_1==un[i]] = states_code$Abbreviation[states_code$State==un[i]]
+  }
+
+  mobility <- rbind(as.data.frame(mobility),as.data.frame(google_pred[,colnames(mobility)]))
+}
+
+## --- ##
+
+max_date <- max(mobility$date)
+death_data <- death_data[which(death_data$date <= max_date),]
+
+# read interventions
+interventions <- readRDS('usa/data/covariates.RDS')
+# read interventions lifted date
+interventions_lifted <- readRDS('usa/data/covariates_ended.RDS')
+# Number of days to forecast
+forecast <- 0
+# Maximum number of days to simulate
+num_days_sim <- (max(death_data$date) - min(death_data$date) + 1 + forecast)[[1]]
+formula = as.formula(args[2])
+formula_partial_regional = as.formula(args[3])
+formula_partial_state = as.formula(args[4])
+processed_data <- process_covariates(states = states, 
+                                     mobility = mobility,
+                                     death_data = death_data , 
+                                     ifr_by_state = ifr_by_state, 
+                                     num_days_sim = num_days_sim, 
+                                     interventions = interventions, 
+                                     interventions_lifted = interventions_lifted,
+                                     formula = formula, formula_partial_regional = formula_partial_regional,
+                                     formula_partial_state = formula_partial_state)
+stan_data <- processed_data$stan_data
+
+dates <- processed_data$dates
+reported_deaths <- processed_data$reported_deaths
+reported_cases <- processed_data$reported_cases
+options(mc.cores = parallel::detectCores())
+rstan_options(auto_write = TRUE)
+m <- stan_model(paste0('usa/code/stan-models/',StanModel,'.stan'))
+JOBID = Sys.getenv("PBS_JOBID")
+if(JOBID == "")
+  JOBID = as.character(abs(round(rnorm(1) * 1000000)))
+print(sprintf("Jobid = %s",JOBID))
+if(DEBUG) {
+  fit = sampling(m,data=stan_data,iter=40,warmup=20,chains=2)
+} else if (FULL) {
+  fit = sampling(m,data=stan_data,iter=1800,warmup=1000,chains=5,thin=1,control = list(adapt_delta = 0.95, max_treedepth = 15))
+} else { 
+  fit = sampling(m,data=stan_data,iter=100,warmup=50,chains=4,thin=1,control = list(adapt_delta = 0.95, max_treedepth = 10))
+}
+
+###
