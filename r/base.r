@@ -77,29 +77,25 @@ forecast = 0
 # --> a hardcoded seven represents the number of covariates (i.e., interventions)
 # --> should be dynamic, just computed from the table of interventions
 
-# icl: Increase this for a further forecast
-# N2 = 75 
-# err if N2 is less than number of days of data for a given cluster -> e.g., Chicago has ~90, threw err for N2 == 75
-# see: N2 before correction - also serial interval note
-N2 = 75 # changed -> fixed the error; so when N2 has to get updated, the script fails
+# N2 is Number of time points with data plus forecast
+N2 = 0
+
 dates = list()
 reported_cases = list()
 deaths_by_country = list()
 
 stan_data = list(M=length(countries),
-                N=NULL,
+                N=NULL, # Number of time points with data
                 p=p,
-                # x1=poly(1:N2,2)[,1], # N2 before correction -> causes errors
-                # x2=poly(1:N2,2)[,2], # N2 before correction
                 y=NULL,
                 covariate1=NULL, # -> lockdown -> presently the only intervention in the IL model 
                 deaths=NULL,
                 f=NULL,
-                N0=6, # icl: N0 = 6 to make it consistent with Rayleigh # ? td: check this
+                N0=6, # Number of days in seeding
                 cases=NULL,
                 LENGTHSCALE=p, # this is the number of covariates (i.e., the number of interventions)
-                # SI=serial.interval$fit[1:N2], # N2 before correction
-                EpidemicStart = NULL)
+                EpidemicStart = NULL # Date to start epidemic in each county
+                )
 
 # new - adjust N2 before main procesesing routine - i.e., adjust N2 so that it's uniform across all counties
 # fixme: can definitely make this more efficient, or at least wrap it into a function
@@ -119,8 +115,6 @@ for(Country in countries) {
   N = length(tmp$cases)  
   if(N2 - N < 0) {
     print(sprintf("raising N2 from %d to %d", N2, N))
-    # testing..
-    # N2 = N
     N2 = N + 7
   }
 }
@@ -223,8 +217,6 @@ for(Country in countries) {
     stan_data$N = as.array(stan_data$N)
   }
 }
-
-# stan_data$covariate7 = 0 # icl: models should only take 6 covariates # -> ?
 
 stan_data$y = t(stan_data$y)
 options(mc.cores = parallel::detectCores())
