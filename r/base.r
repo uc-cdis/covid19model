@@ -39,19 +39,11 @@ cumCaseAndDeath <- aggregate(cbind(d$deaths), by=list(Category=d$countryterritor
 dropCounties <- subset(cumCaseAndDeath, V1 < minimumReportedDeaths)$Category
 d <- subset(d, !(countryterritoryCode %in% dropCounties))
 # print(sprintf("nCounties with more than %d deaths before %s: %d", minimumReportedDeaths, dateCutoff, length(unique(d$countryterritoryCode))))
-
-# HERE! -> write/save county NAME and FIPS -> see Pauline's message
 print(sprintf("nCounties with more than %d deaths: %d", minimumReportedDeaths, length(unique(d$countryterritoryCode))))
 
 # write list of counties used in this simulation
 CountyCodeList <- unique(d$countryterritoryCode)
 write.table(CountyCodeList, "../modelOutput/figures/CountyCodeList.txt", row.names=FALSE, col.names=FALSE)
-
-# 84017031 -> ID for Cook County
-# 84017043 -> ID for DuPage County
-# HERE -> testing running the model, bigger simulation, just for Cook and DuPage counties
-# comment this line out to run the sim for all IL counties
-# d <- subset(d, countryterritoryCode %in% list("84017031", "84017043"))
 
 countries <- unique(d$countryterritoryCode)
 
@@ -73,12 +65,65 @@ covariates$Country <-  sub("840", "", covariates$Country) # cutoff US prefix cod
 p <- ncol(covariates) - 2
 forecast = 0
 
-# NOTE: 7 (6?) is the NUMBER OF COVARIATES in the original model -> see comment "icl: models should only take 6 covariates"
-# --> a hardcoded seven represents the number of covariates (i.e., interventions)
-# --> should be dynamic, just computed from the table of interventions
-
 # N2 is Number of time points with data plus forecast
 N2 = 0
+
+# >>>>>>>>>>>>>>> MOBILITY >>>>>>>>>>>>>>>
+
+# Read google mobility
+mobility <- read_google_mobility()
+
+# Read predicted mobility
+google_pred <- read.csv('usa/data/google-mobility-forecast.csv', stringsAsFactors = FALSE)
+google_pred$date <- as.Date(google_pred$date, format = '%Y-%m-%d') 
+google_pred$country_region <- "United States"
+google_pred$country_region_code <- "US"
+colnames(google_pred)[colnames(google_pred) == 'state'] <- 'sub_region_1'
+
+# some processing here # fixme
+if (max(google_pred$date) > max(mobility$date)){
+
+  google_pred <- google_pred[google_pred$date > max(mobility$date),]
+
+  # reading mapping of states of csv
+  un <- unique(mobility$sub_region_1)
+
+  # NOTE: sub_region_2 is county, and looks like this: "Cook County"
+
+  states_code = read.csv('usa/data/states.csv', stringsAsFactors = FALSE)
+  google_pred$code = "!!"
+
+  # m: replacing state codes with their abbreviations -> not sure we need this for counties? -> may need an analog
+  for(i in 1:length(un)){
+    google_pred$code[google_pred$sub_region_1==un[i]] = states_code$Abbreviation[states_code$State==un[i]]
+  }
+
+  mobility <- rbind(as.data.frame(mobility),as.data.frame(google_pred[,colnames(mobility)]))
+}
+
+## --- ##
+
+## HERE! -> smoothing death data: https://github.com/ImperialCollegeLondon/covid19model/blob/v6.0/usa/code/utils/read-data-usa.r#L37-L40
+## -------> https://github.com/ImperialCollegeLondon/covid19model/blob/v6.0/usa/code/utils/read-data-usa.r#L24-L27
+## --> something to try, for sure
+
+max_date <- max(mobility$date)
+# death_data <- death_data[which(death_data$date <= max_date),] # why this?
+
+## need to take a close look @ this -> looks fine ##
+# see: https://stackoverflow.com/questions/8055508/in-r-formulas-why-do-i-have-to-use-the-i-function-on-power-terms-like-y-i
+formula_partial_state = '~ -1 + averageMobility + I(transit * transit_use) + residential'
+
+processed_data <- process_covariates(states = states, mobility = mobility,
+                                     formula_partial_state = formula_partial_state
+                                     )
+stan_data <- processed_data$stan_data
+
+dates <- processed_data$dates
+reported_deaths <- processed_data$reported_deaths
+reported_cases <- processed_data$reported_cases
+
+# <<<<<<<<<<<<<<< MOBILITY <<<<<<<<<<<<<<<<<<
 
 dates = list()
 reported_cases = list()
