@@ -116,6 +116,7 @@ formula_partial_state = '~ -1 + averageMobility + I(transit * transit_use) + res
 
 ## >>>>>>>>>> "proces covariates" function body >>>>>>>>>>>>
 ## integrate into county loop, set stan data in loop and immediately following
+## HERE! -> Thursday Morning
 
 covariate_list_partial_state <- list()
 
