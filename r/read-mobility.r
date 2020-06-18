@@ -70,29 +70,17 @@ library(stringr)
 
 # fixme
 # pretty good progress
-process_covariates <- function(states, mobility, death_data,
-                               num_days_sim, interventions, formula, 
+process_covariates <- function(states, mobility, death_data, formula, 
                                formula_partial_regional, formula_partial_state){
     
   # don't need any of this
   dates <- list()
   reported_cases <- list()
   reported_deaths <- list()
-  stan_data <- list(M = length(states), # Number of states
-                    N0 = 6, # Number of days in seeding
-                    N = NULL, # Number of time points with data
-                    N2 = NULL, # Number of time points with data plus forecast
-                    cases = NULL, # daily cases
-                    deaths =  NULL, # daily deaths
-                    f = NULL, # Hazard times survival
+  stan_data <- list(
                     X = NULL, # Covariates
-                    P = NULL, # Number of covariates
-                    SI = serial_interval$fit[1:num_days_sim], # Serial interval fit
-                    EpidemicStart = NULL, # Date to start epidemic in each state
-                    pop = NULL,
-                    Q = NULL,
-                    Region = NULL,
-                    Pop_density = NULL) # state population
+                    # Pop_density = NULL
+                    )
   
   covariate_list <- list()
   covariate_list_partial_regional <- list()
@@ -105,7 +93,6 @@ process_covariates <- function(states, mobility, death_data,
     # Selects mobility data for each state
     covariates_state <- mobility[which(mobility$code == State),]    
         
-    # Format the interventions
     # Find minimum date for the data
     min_date <- min(data_state$date)
     num_pad <- (min(covariates_state$date) - min_date[[1]])[[1]]
@@ -256,7 +243,6 @@ mobility <- read_google_mobility()
 # the folder usa/code/utils/mobility-reg
 google_pred <- read.csv('usa/data/google-mobility-forecast.csv', stringsAsFactors = FALSE)
 google_pred$date <- as.Date(google_pred$date, format = '%Y-%m-%d') 
-google_pred$sub_region_2 <- ""
 google_pred$country_region <- "United States"
 google_pred$country_region_code <- "US"
 colnames(google_pred)[colnames(google_pred) == 'state'] <- 'sub_region_1'
@@ -284,25 +270,28 @@ if (max(google_pred$date) > max(mobility$date)){
 max_date <- max(mobility$date)
 death_data <- death_data[which(death_data$date <= max_date),]
 
-# read interventions
-interventions <- readRDS('usa/data/covariates.RDS')
-# read interventions lifted date
-interventions_lifted <- readRDS('usa/data/covariates_ended.RDS')
-# Number of days to forecast
-forecast <- 0
-# Maximum number of days to simulate
-num_days_sim <- (max(death_data$date) - min(death_data$date) + 1 + forecast)[[1]]
+# Maximum number of days to simulate (check - pretty sure this is just N2)
+num_days_sim <- (max(death_data$date) - min(death_data$date) + 1)[[1]]
+
+## need to look @ this ##
+args = c(
+    'base-usa',
+    '~ -1 + averageMobility + I(transit * transit_use) + residential',
+    '~ 1 +  averageMobility',
+    '~ -1 + I(transit * transit_use)'
+)
+
+StanModel = args[1]
+
 formula = as.formula(args[2])
 formula_partial_regional = as.formula(args[3])
 formula_partial_state = as.formula(args[4])
+
 processed_data <- process_covariates(states = states, 
                                      mobility = mobility,
-                                     death_data = death_data , 
-                                     ifr_by_state = ifr_by_state, 
-                                     num_days_sim = num_days_sim, 
-                                     interventions = interventions, 
-                                     interventions_lifted = interventions_lifted,
-                                     formula = formula, formula_partial_regional = formula_partial_regional,
+                                     death_data = death_data, 
+                                     formula = formula, 
+                                     formula_partial_regional = formula_partial_regional,
                                      formula_partial_state = formula_partial_state)
 stan_data <- processed_data$stan_data
 
