@@ -41,6 +41,8 @@ d <- subset(d, !(countryterritoryCode %in% dropCounties))
 # print(sprintf("nCounties with more than %d deaths before %s: %d", minimumReportedDeaths, dateCutoff, length(unique(d$countryterritoryCode))))
 print(sprintf("nCounties with more than %d deaths: %d", minimumReportedDeaths, length(unique(d$countryterritoryCode))))
 
+codeToName <- unique(data.frame("countyCode" = d$countryterritoryCode, "countyName" = d$countriesAndTerritories))
+
 # write list of counties used in this simulation
 CountyCodeList <- unique(d$countryterritoryCode)
 write.table(CountyCodeList, "../modelOutput/figures/CountyCodeList.txt", row.names=FALSE, col.names=FALSE)
@@ -70,8 +72,34 @@ N2 = 0
 
 # >>>>>>>>>>>>>>> MOBILITY >>>>>>>>>>>>>>>
 
+# should be fine
+read_google_mobility <- function(countries, codeToName){
+
+  # read in IL report
+  ILMobilityReport <<- '../modelInput/mobility/IL_Mobility_Report.csv'
+  google_mobility <- read.csv(ILMobilityReport, stringsAsFactors = FALSE)
+
+  # derive "countyName" column
+  google_mobility$countyName <- sub(" County", "", google_mobility$sub_region_2)
+
+  # set county code in there -> > names(codeToName) > [1] "countyCode" "countyName"
+  # new column -> "countyCode"
+  google_mobility <- google_mobility[google_mobility$countyCode %in% countries,]
+  google_mobility <- left_join(google_mobility, codeToName, by = c("countyName"))
+
+  # Format the google mobility data
+  google_mobility$date = as.Date(google_mobility$date, format = '%Y-%m-%d')
+  google_mobility[, c(6:11)] <- google_mobility[, c(6:11)]/100
+  google_mobility[, c(6:10)] <- google_mobility[, c(6:10)] * -1
+  names(google_mobility) <- c("country_region_code", "country_region", "sub_region_1", "sub_region_2",
+                              "date", "retail.recreation", "grocery.pharmacy", "parks", "transitstations",
+                              "workplace", "residential", "code")
+  
+  return(google_mobility)
+}
+
 # Read google mobility
-mobility <- read_google_mobility()
+mobility <- read_google_mobility(countries, codeToName)
 
 # Read predicted mobility
 google_pred <- read.csv('usa/data/google-mobility-forecast.csv', stringsAsFactors = FALSE)

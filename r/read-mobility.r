@@ -14,31 +14,6 @@ library(data.table)
 
 ### from: https://github.com/ImperialCollegeLondon/covid19model/blob/v6.0/usa/code/utils/read-data-usa.r ###
 
-# should be fine
-read_google_mobility <- function(countries, codeToName){
-
-  # read in IL report
-  ILMobilityReport <<- '../modelInput/mobility/IL_Mobility_Report.csv'
-  google_mobility <- read.csv(ILMobilityReport, stringsAsFactors = FALSE)
-
-  # derive "countyName" column
-  google_mobility$countyName <- sub(" County", "", google_mobility$sub_region_2)
-
-  # set county code in there -> > names(codeToName) > [1] "countyCode" "countyName"
-  # new column -> "countyCode"
-  google_mobility <- google_mobility[google_mobility$countyCode %in% countries,]
-  google_mobility <- left_join(google_mobility, codeToName, by = c("countyName"))
-
-  # Format the google mobility data
-  google_mobility$date = as.Date(google_mobility$date, format = '%Y-%m-%d')
-  google_mobility[, c(6:11)] <- google_mobility[, c(6:11)]/100
-  google_mobility[, c(6:10)] <- google_mobility[, c(6:10)] * -1
-  names(google_mobility) <- c("country_region_code", "country_region", "sub_region_1", "sub_region_2",
-                              "date", "retail.recreation", "grocery.pharmacy", "parks", "transitstations",
-                              "workplace", "residential", "code")
-  
-  return(google_mobility)
-}
 
 ##########
 
