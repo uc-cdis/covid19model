@@ -5,8 +5,14 @@ library(dplyr)
 library(data.table)
 
 
-### from: https://github.com/ImperialCollegeLondon/covid19model/blob/v6.0/usa/code/utils/read-data-usa.r ###
+### VERY important!
+# At times google has mobility na for some days in that cae you will need to impute those values
+# else code will fail 
+# read predictions of future days from foursquare
+# if you need predictions from foursquare please run file mobility-regression.r in
+# the folder usa/code/utils/mobility-reg
 
+### from: https://github.com/ImperialCollegeLondon/covid19model/blob/v6.0/usa/code/utils/read-data-usa.r ###
 
 # should be fine
 read_google_mobility <- function(){
@@ -70,27 +76,15 @@ library(stringr)
 
 # fixme
 # pretty good progress
-process_covariates <- function(states, mobility, death_data, formula, 
-                               formula_partial_regional, formula_partial_state){
+process_covariates <- function(states, mobility, death_data, formula_partial_state){
     
-  # don't need any of this
-  dates <- list()
-  reported_cases <- list()
-  reported_deaths <- list()
-  stan_data <- list(
-                    X = NULL, # Covariates
-                    # Pop_density = NULL
-                    )
-  
-  covariate_list <- list()
-  covariate_list_partial_regional <- list()
   covariate_list_partial_state <- list()
   
   k=1 # ? -> just a counter
 
   for(State in states) {
 
-    # Selects mobility data for each state
+    # Selects mobility data for each state # COUNTY
     covariates_state <- mobility[which(mobility$code == State),]    
         
     # Find minimum date for the data
@@ -104,45 +98,18 @@ process_covariates <- function(states, mobility, death_data, formula,
 
     # creating features -> only want "partial_state"
     df_features <- create_features(len_mobility, padded_covariates, transit_usage)
-    # features <- model.matrix(formula, df_features)
-    # features_partial_regional <- model.matrix(formula_partial_regional, df_features)
-    features_partial_state <- model.matrix(formula_partial_state, df_features)
-    
-    # covariate_list[[k]] <- features
-    # covariate_list_partial_regional[[k]] <- features_partial_regional
+    features_partial_state <- model.matrix(formula_partial_state, df_features)    
     covariate_list_partial_state[[k]] <- features_partial_state
 
-    k <- k+1
-    
-    ## Append data to stan data
-    # stan_data$Pop_density <- c(stan_data$Pop_density, log(data_state$pop_density[1]))    
+    k <- k+1    
   }
   
-  
-  stan_data$P = dim(features)[2]
-  stan_data$X = array(NA, dim = c(stan_data$M , stan_data$N2 ,stan_data$P ))
-  # stan_data$P_partial_regional = dim(features_partial_regional)[2]
   stan_data$P_partial_state = dim(features_partial_state)[2]
-  if(stan_data$P_partial_state==0){
-    stan_data$X_partial_state = array(0, dim = c(stan_data$M , stan_data$N2, 1))
-  }
-  else{
-    stan_data$X_partial_state = array(NA, dim = c(stan_data$M , stan_data$N2 ,stan_data$P_partial_state))
-  }
+  stan_data$X_partial_state = array(NA, dim = c(stan_data$M , stan_data$N2 ,stan_data$P_partial_state))
   
-  # I want my covariates for partial_state ..
-
   for (i in 1:stan_data$M){
-    # stan_data$X[i,,] = covariate_list[[i]]
-    # if(stan_data$P_partial_regional != 0)
-      # stan_data$X_partial_regional[i,,] = covariate_list_partial_regional[[i]]
-    if(stan_data$P_partial_state != 0)
-      stan_data$X_partial_state[i,,] = covariate_list_partial_state[[i]]
+    stan_data$X_partial_state[i,,] = covariate_list_partial_state[[i]]
   }
-
-  # population density is already in here (?) sweet.
-
-  # stan_data$Pop_density <- scale(stan_data$Pop_density )[,1]
 
   stan_data$W <- ceiling(stan_data$N2/7) 
   stan_data$week_index <- matrix(1,stan_data$M,stan_data$N2)
@@ -274,25 +241,13 @@ death_data <- death_data[which(death_data$date <= max_date),]
 num_days_sim <- (max(death_data$date) - min(death_data$date) + 1)[[1]]
 
 ## need to look @ this ##
-args = c(
-    'base-usa',
-    '~ -1 + averageMobility + I(transit * transit_use) + residential',
-    '~ 1 +  averageMobility',
-    '~ -1 + I(transit * transit_use)'
-)
-
-StanModel = args[1]
-
-formula = as.formula(args[2])
-formula_partial_regional = as.formula(args[3])
-formula_partial_state = as.formula(args[4])
+formula_partial_state = '~ -1 + averageMobility + I(transit * transit_use) + residential'
 
 processed_data <- process_covariates(states = states, 
                                      mobility = mobility,
                                      death_data = death_data, 
-                                     formula = formula, 
-                                     formula_partial_regional = formula_partial_regional,
-                                     formula_partial_state = formula_partial_state)
+                                     formula_partial_state = formula_partial_state
+                                     )
 stan_data <- processed_data$stan_data
 
 dates <- processed_data$dates
