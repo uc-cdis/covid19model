@@ -135,6 +135,8 @@ mobility <- read_google_mobility(countries=countries, codeToName=codeToName)
 
 # / # / # / good through here # / # / # /
 
+##### >>>>>>> next block >>>>>>>>> ##########
+
 # Read predicted mobility
 google_pred <- read.csv('usa/data/google-mobility-forecast.csv', stringsAsFactors = FALSE)
 google_pred$date <- as.Date(google_pred$date, format = '%Y-%m-%d') 
@@ -162,6 +164,8 @@ if (max(google_pred$date) > max(mobility$date)){
 
   mobility <- rbind(as.data.frame(mobility),as.data.frame(google_pred[,colnames(mobility)]))
 }
+
+##### <<<<<<<<< next block <<<<<<<<< ##########
 
 ## --- ##
 
