@@ -101,6 +101,8 @@ read_google_mobility <- function(countries, codeToName){
 # Read google mobility
 mobility <- read_google_mobility(countries, codeToName)
 
+# / # / # / - should be good up to here! test.
+
 # Read predicted mobility
 google_pred <- read.csv('usa/data/google-mobility-forecast.csv', stringsAsFactors = FALSE)
 google_pred$date <- as.Date(google_pred$date, format = '%Y-%m-%d') 
