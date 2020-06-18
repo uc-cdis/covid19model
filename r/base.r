@@ -114,14 +114,52 @@ max_date <- max(mobility$date)
 # see: https://stackoverflow.com/questions/8055508/in-r-formulas-why-do-i-have-to-use-the-i-function-on-power-terms-like-y-i
 formula_partial_state = '~ -1 + averageMobility + I(transit * transit_use) + residential'
 
-processed_data <- process_covariates(states = states, mobility = mobility,
-                                     formula_partial_state = formula_partial_state
-                                     )
-stan_data <- processed_data$stan_data
+## >>>>>>>>>> "proces covariates" function body >>>>>>>>>>>>
+## integrate into county loop, set stan data in loop and immediately following
 
-dates <- processed_data$dates
-reported_deaths <- processed_data$reported_deaths
-reported_cases <- processed_data$reported_cases
+covariate_list_partial_state <- list()
+
+k=1 # ? -> just a counter
+
+for(State in states) {
+
+  # Selects mobility data for each state # COUNTY
+  covariates_state <- mobility[which(mobility$code == State),]    
+      
+  # Find minimum date for the data
+  min_date <- min(data_state$date)
+  num_pad <- (min(covariates_state$date) - min_date[[1]])[[1]]
+  len_mobility <- ncol(covariates_state)
+  padded_covariates <- pad_mobility(len_mobility, num_pad, min_date, covariates_state, forecast_length, data_state, State)
+
+  # include transit
+  transit_usage <- rep(1, (N + forecast_length))
+
+  # creating features -> only want "partial_state"
+  df_features <- create_features(len_mobility, padded_covariates, transit_usage)
+  features_partial_state <- model.matrix(formula_partial_state, df_features)    
+  covariate_list_partial_state[[k]] <- features_partial_state
+
+  k <- k+1    
+}
+
+stan_data$P_partial_state = dim(features_partial_state)[2]
+stan_data$X_partial_state = array(NA, dim = c(stan_data$M , stan_data$N2 ,stan_data$P_partial_state))
+
+for (i in 1:stan_data$M){
+  stan_data$X_partial_state[i,,] = covariate_list_partial_state[[i]]
+}
+
+stan_data$W <- ceiling(stan_data$N2/7) 
+stan_data$week_index <- matrix(1,stan_data$M,stan_data$N2)
+for(state.i in 1:stan_data$M) {
+  stan_data$week_index[state.i,] <- rep(2:(stan_data$W+1),each=7)[1:stan_data$N2]
+  last_ar_week = which(dates[[state.i]]==max(death_data$date) - 28)
+  stan_data$week_index[state.i,last_ar_week:ncol(stan_data$week_index)] <-  stan_data$week_index[state.i,last_ar_week]
+}
+
+## <<<<<<<<<<< "process covariates" function body <<<<<<<<<<<<<
+
 
 # <<<<<<<<<<<<<<< MOBILITY <<<<<<<<<<<<<<<<<<
 
@@ -203,9 +241,13 @@ for(Country in countries) {
   N = length(d1$cases)
   print(sprintf("%s has %d days of data",Country,N))
   
-  # at least a seven day forecast
+  # at least a seven day forecast 
   # testing this
-  forecast <- max(N2 - N, 7)
+  # forecast <- max(N2 - N, 7)
+
+  # fix it at 7 -> uniform forecast across counties..
+  forecast <- 7
+
   
   h = rep(0,forecast+N) # discrete hazard rate from time t = 1, ..., 100
   mean1 = 5.1; cv1 = 0.86; # infection to onset
@@ -268,31 +310,7 @@ options(mc.cores = parallel::detectCores())
 rstan_options(auto_write = TRUE)
 m = stan_model(paste0('../stan/',StanModel,'.stan'))
 
-## here -> fix this whole section - parameterize, make it better - so ugly right now
-
-# for now, doing it this way
 fit = sampling(m,data=stan_data,iter=nStanIterations,warmup=nStanIterations/2,chains=8,thin=4,control = list(adapt_delta = 0.90, max_treedepth = 10))
-
-# td: handle HMC convergence; see paper; consult with Phil.
-# fit = sampling(m,data=stan_data,iter=4000,warmup=2000,chains=8,thin=4,control = list(adapt_delta = 0.90, max_treedepth = 10))
-
-# big sim
-# 25 counties -> 2.75 hrs
-# 5 counties -> 20min
-# fit = sampling(m,data=stan_data,iter=8000,warmup=4000,chains=8,thin=4,control = list(adapt_delta = 0.90, max_treedepth = 10))
-
-# bigger sim
-# 5 counties -> 66min -> pretty good
-# 9 counties -> 106min
-# fit = sampling(m,data=stan_data,iter=24000,warmup=12000,chains=8,thin=4,control = list(adapt_delta = 0.90, max_treedepth = 10))
-
-# here -> just for testing that the code works
-# fit = sampling(m,data=stan_data,iter=10,warmup=5,chains=2,thin=1,control = list(adapt_delta = 0.90, max_treedepth = 10))
-
-# here -> upping the reps
-# fit = sampling(m,data=stan_data, thin=1, control = list(adapt_delta = 0.90, max_treedepth = 10))
-
-#### simulation is finished 
 
 out = rstan::extract(fit)
 prediction = out$prediction
@@ -310,42 +328,11 @@ save(fit,prediction,dates,reported_cases,deaths_by_country,countries,estimated.d
 
 #### now -> visualize model results -> ####
 
-# icl: to visualize results
-
-# library(bayesplot)
-filename <- paste0(StanModel, '-', JOBID)
-
-# plot_labels <- c("Lockdown")
-
-# log(alpha)
-# alpha = (as.matrix(out$alpha))
-# colnames(alpha) = plot_labels
-# g = (mcmc_intervals(alpha, prob = .9))
-# ggsave(sprintf("../modelOutput/results/%s-covars-alpha-log.pdf",filename),g,width=4,height=6)
-
-# alpha
-# g = (mcmc_intervals(alpha, prob = .9,transformations = function(x) exp(-x)))
-# ggsave(sprintf("../modelOutput/results/%s-covars-alpha.pdf",filename),g,width=4,height=6)
-
-# R0
-# mu = (as.matrix(out$mu))
-# colnames(mu) = countries
-# g = (mcmc_intervals(mu,prob = .9))
-# ggsave(sprintf("../modelOutput/results/%s-covars-mu.pdf",filename),g,width=4,height=6)
-
-# Rt -> better viz code in plot-static.r
-# dimensions <- dim(out$Rt)
-# Rt = (as.matrix(out$Rt[,dimensions[2],]))
-# colnames(Rt) = countries
-# g = (mcmc_intervals(Rt,prob = .9))
-# ggsave(sprintf("../modelOutput/results/%s-covars-final-rt.pdf",filename),g,width=4,height=6)
-
-
 # fixme: don't force other scripts to load R data -> unnecessary overhead
 # import viz routine, call those functions here -> way, way better
 # still save the R data and fit though, for backup, etc.
 
-
+filename <- paste0(StanModel, '-', JOBID)
 system(paste0("Rscript plot-trend.r ", filename,'.Rdata')) 
 system(paste0("Rscript plot-forecast.r ", filename,'.Rdata')) ## icl: to run this code you will need to adjust manual values of forecast required
 
