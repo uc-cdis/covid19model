@@ -114,54 +114,6 @@ max_date <- max(mobility$date)
 # see: https://stackoverflow.com/questions/8055508/in-r-formulas-why-do-i-have-to-use-the-i-function-on-power-terms-like-y-i
 formula_partial_state = '~ -1 + averageMobility + I(transit * transit_use) + residential'
 
-## >>>>>>>>>> "proces covariates" function body >>>>>>>>>>>>
-## integrate into county loop, set stan data in loop and immediately following
-## HERE! -> Thursday Morning
-
-covariate_list_partial_state <- list()
-
-k=1 # ? -> just a counter
-
-for(State in states) {
-
-  # Selects mobility data for each state # COUNTY
-  covariates_state <- mobility[which(mobility$code == State),]    
-      
-  # Find minimum date for the data
-  min_date <- min(data_state$date)
-  num_pad <- (min(covariates_state$date) - min_date[[1]])[[1]]
-  len_mobility <- ncol(covariates_state)
-  padded_covariates <- pad_mobility(len_mobility, num_pad, min_date, covariates_state, forecast_length, data_state, State)
-
-  # include transit
-  transit_usage <- rep(1, (N + forecast_length))
-
-  # creating features -> only want "partial_state"
-  df_features <- create_features(len_mobility, padded_covariates, transit_usage)
-  features_partial_state <- model.matrix(formula_partial_state, df_features)    
-  covariate_list_partial_state[[k]] <- features_partial_state
-
-  k <- k+1    
-}
-
-stan_data$P_partial_state = dim(features_partial_state)[2]
-stan_data$X_partial_state = array(NA, dim = c(stan_data$M , stan_data$N2 ,stan_data$P_partial_state))
-
-for (i in 1:stan_data$M){
-  stan_data$X_partial_state[i,,] = covariate_list_partial_state[[i]]
-}
-
-stan_data$W <- ceiling(stan_data$N2/7) 
-stan_data$week_index <- matrix(1,stan_data$M,stan_data$N2)
-for(state.i in 1:stan_data$M) {
-  stan_data$week_index[state.i,] <- rep(2:(stan_data$W+1),each=7)[1:stan_data$N2]
-  last_ar_week = which(dates[[state.i]]==max(death_data$date) - 28)
-  stan_data$week_index[state.i,last_ar_week:ncol(stan_data$week_index)] <-  stan_data$week_index[state.i,last_ar_week]
-}
-
-## <<<<<<<<<<< "process covariates" function body <<<<<<<<<<<<<
-
-
 # <<<<<<<<<<<<<<< MOBILITY <<<<<<<<<<<<<<<<<<
 
 dates = list()
@@ -207,7 +159,32 @@ for(Country in countries) {
 
 print(sprintf("uniform N2: %d", N2))
 
+covariate_list_partial_state <- list()
+
+# State in states; k is their counter
+k <- 1
 for(Country in countries) {
+
+  ########### cut -> fixme ##############
+
+  # Selects mobility data for each state # COUNTY
+  covariates_state <- mobility[which(mobility$code == State),]    
+      
+  # Find minimum date for the data
+  min_date <- min(data_state$date)
+  num_pad <- (min(covariates_state$date) - min_date[[1]])[[1]]
+  len_mobility <- ncol(covariates_state)
+  padded_covariates <- pad_mobility(len_mobility, num_pad, min_date, covariates_state, forecast_length, data_state, State)
+
+  # include transit
+  transit_usage <- rep(1, (N + forecast_length))
+
+  # creating features -> only want "partial_state"
+  df_features <- create_features(len_mobility, padded_covariates, transit_usage)
+  features_partial_state <- model.matrix(formula_partial_state, df_features)    
+  covariate_list_partial_state[[k]] <- features_partial_state
+
+  ########### cut ##############
 
   CFR=cfr.by.country$weighted_fatality[cfr.by.country$country == Country]
 
@@ -304,7 +281,29 @@ for(Country in countries) {
   if(length(stan_data$N) == 1) {
     stan_data$N = as.array(stan_data$N)
   }
+
+  k <- k+1
+
 }
+
+############ cut -> fixme #############
+
+stan_data$P_partial_state = dim(features_partial_state)[2]
+stan_data$X_partial_state = array(NA, dim = c(stan_data$M , stan_data$N2 ,stan_data$P_partial_state))
+
+for (i in 1:stan_data$M){
+  stan_data$X_partial_state[i,,] = covariate_list_partial_state[[i]]
+}
+
+stan_data$W <- ceiling(stan_data$N2/7) 
+stan_data$week_index <- matrix(1,stan_data$M,stan_data$N2)
+for(state.i in 1:stan_data$M) {
+  stan_data$week_index[state.i,] <- rep(2:(stan_data$W+1),each=7)[1:stan_data$N2]
+  last_ar_week = which(dates[[state.i]]==max(death_data$date) - 28)
+  stan_data$week_index[state.i,last_ar_week:ncol(stan_data$week_index)] <-  stan_data$week_index[state.i,last_ar_week]
+}
+
+########### cut ##############
 
 stan_data$y = t(stan_data$y)
 options(mc.cores = parallel::detectCores())
