@@ -76,7 +76,7 @@ N2 = 0
 
 # >>>>>>>>>>>>>>> MOBILITY >>>>>>>>>>>>>>>
 
-# should be fine
+# good
 read_google_mobility <- function(countries, codeToName){
 
   # read in IL report
@@ -133,7 +133,7 @@ read_google_mobility <- function(countries, codeToName){
 # Read google mobility
 mobility <- read_google_mobility(countries=countries, codeToName=codeToName)
 
-# / # / # / - should be good up to here! test.
+# / # / # / good through here # / # / # /
 
 # Read predicted mobility
 google_pred <- read.csv('usa/data/google-mobility-forecast.csv', stringsAsFactors = FALSE)
