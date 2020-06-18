@@ -235,17 +235,14 @@ if (max(google_pred$date) > max(mobility$date)){
 ## --- ##
 
 max_date <- max(mobility$date)
-death_data <- death_data[which(death_data$date <= max_date),]
-
-# Maximum number of days to simulate (check - pretty sure this is just N2)
-num_days_sim <- (max(death_data$date) - min(death_data$date) + 1)[[1]]
+# death_data <- death_data[which(death_data$date <= max_date),]
 
 ## need to look @ this ##
 formula_partial_state = '~ -1 + averageMobility + I(transit * transit_use) + residential'
 
 processed_data <- process_covariates(states = states, 
                                      mobility = mobility,
-                                     death_data = death_data, 
+                                     # death_data = death_data, 
                                      formula_partial_state = formula_partial_state
                                      )
 stan_data <- processed_data$stan_data
