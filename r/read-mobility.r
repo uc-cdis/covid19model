@@ -23,11 +23,9 @@ read_google_mobility <- function(){
   states <- read.csv(GFNAME_states, stringsAsFactors = FALSE)
   names(states) <- c("sub_region_1", "code")
 
-  # okay
   # read in IL report
-  GFNAME_global_mobility_report <<- 'usa/data/Global_Mobility_Report.csv'
-  google_mobility <- read.csv(GFNAME_global_mobility_report, stringsAsFactors = FALSE)
-  google_mobility <- google_mobility[which(google_mobility$country_region_code == "US"),]
+  ILMobilityReport <<- '../modelInput/mobility/IL_Mobility_Report.csv'
+  google_mobility <- read.csv(ILMobilityReport, stringsAsFactors = FALSE)
 
   # okay
   # Remove county level data # no dog
