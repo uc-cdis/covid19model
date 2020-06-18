@@ -4,6 +4,10 @@ library(lubridate)
 library(gdata)
 library(EnvStats)
 
+library(tidyr)
+library(stringr)
+library(dplyr)
+
 # Rscript base.r us_base 150 4000 
 args = commandArgs(trailingOnly=TRUE)
 StanModel = args[1]
@@ -14,7 +18,7 @@ print(sprintf("Only running on counties with at least %d total reported deaths",
 print(sprintf("Running MCMC routine with %d iterations", nStanIterations))
 
 # case-mortality table
-d <- read.csv("../modelInput/ILCaseAndMortalityV1.csv")
+d <- read.csv("../modelInput/ILCaseAndMortalityV1.csv", stringsAsFactors = FALSE)
 
 ###
 # HERE! -> specify a date through which to run the model
@@ -84,22 +88,50 @@ read_google_mobility <- function(countries, codeToName){
 
   # set county code in there -> > names(codeToName) > [1] "countyCode" "countyName"
   # new column -> "countyCode"
-  google_mobility <- google_mobility[google_mobility$countyCode %in% countries,]
   google_mobility <- left_join(google_mobility, codeToName, by = c("countyName"))
+  google_mobility <- google_mobility[google_mobility$countyCode %in% countries,]
 
   # Format the google mobility data
   google_mobility$date = as.Date(google_mobility$date, format = '%Y-%m-%d')
-  google_mobility[, c(6:11)] <- google_mobility[, c(6:11)]/100
-  google_mobility[, c(6:10)] <- google_mobility[, c(6:10)] * -1
-  names(google_mobility) <- c("country_region_code", "country_region", "sub_region_1", "sub_region_2",
-                              "date", "retail.recreation", "grocery.pharmacy", "parks", "transitstations",
-                              "workplace", "residential", "code")
+
+  scoreCols <- c(
+    "retail_and_recreation_percent_change_from_baseline",
+    "grocery_and_pharmacy_percent_change_from_baseline",
+    "parks_percent_change_from_baseline",
+    "transit_stations_percent_change_from_baseline", 
+    "workplaces_percent_change_from_baseline", 
+    "residential_percent_change_from_baseline"
+  )
+
+  # transform raw percentage numbers to [0,1] (e.g., -45 -> .45)
+  google_mobility[, scoreCols] <- google_mobility[, scoreCols]/100
+  google_mobility[, scoreCols] <- google_mobility[, scoreCols] * -1
+  
+  # drop unnecessary columns
+  google_mobility <- google_mobility[,8:ncol(google_mobility)]
+
+  # rename columns
+  renameMap <- c(
+    "retail.recreation" = "retail_and_recreation_percent_change_from_baseline",
+    "grocery.pharmacy" = "grocery_and_pharmacy_percent_change_from_baseline",
+    "parks" = "parks_percent_change_from_baseline",
+    "transitstations" = "transit_stations_percent_change_from_baseline",
+    "workplace" = "workplaces_percent_change_from_baseline",
+    "residential" = "residential_percent_change_from_baseline"
+  )
+  google_mobility <- rename(google_mobility, all_of(renameMap))
+
+  # reorder cols
+  colOrder <- c("date", "countyCode", "countyName",
+                "retail.recreation", "grocery.pharmacy", "parks", 
+                "transitstations", "workplace", "residential")
+  google_mobility <- google_mobility[colOrder]              
   
   return(google_mobility)
 }
 
 # Read google mobility
-mobility <- read_google_mobility(countries, codeToName)
+mobility <- read_google_mobility(countries=countries, codeToName=codeToName)
 
 # / # / # / - should be good up to here! test.
 
