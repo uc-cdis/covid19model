@@ -35,7 +35,6 @@ forecast_googleMob<-function(countries, codeToName){
   # notice: visit data is only by state, not by county -> this is okay
   # just apply the same state-level signal to every county
   # just need to generate a functional table at this point
-  
   google_cleaned <- google_data %>% 
           select(date,state=sub_region_1,retail.recreation,grocery.pharmacy,parks,transitstations,workplace,residential) %>% 
           filter(state!="")
@@ -63,9 +62,11 @@ forecast_googleMob<-function(countries, codeToName){
   google_end_id = (mobility_data %>% filter(date==last_google) %>% summarise(last(id)))[[1,1]]
   dates = mobility_data$date
   mobility_data = mobility_data %>% select(c(-date,-categoryid))
-  
+
   # revisit imputation
   mobility_data=mobility_data %>% fill(names(mobility_data),.direction = 'updown')
+
+  ## >> error here << ##
 
   # retail.recreation
   task = TaskRegr$new(id = "retail.recreation", backend = as.data.frame(mobility_data %>%
@@ -82,7 +83,9 @@ forecast_googleMob<-function(countries, codeToName){
   learner$train(task, row_ids = train_set)
   prediction = learner$predict(task, row_ids = test_set)
   mobility_data[test_set,"retail.recreation"] = prediction$response
-  
+
+  ## >> error here << ##
+
   # grocery.pharmacy    
   task = TaskRegr$new(id = "grocery.pharmacy", backend = as.data.frame(mobility_data %>%
                                                                           select(c(-"retail.recreation",-"parks",-"transitstations",-"workplace",-"residential"))),
