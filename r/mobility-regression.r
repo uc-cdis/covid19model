@@ -27,12 +27,16 @@ forecast_googleMob<-function(countries, codeToName){
   # [29] "Residences"                  "School"                      "Shops & Services"            "Skiing"                     
   # [33] "Spiritual Center"            "Sports"                      "Travel & Transport"    
 
-  #### here ####
-
   sfsq <- new_foursquare %>% 
           filter(categoryname!="Skiing",demo=="All") %>% 
           select(c(-demo,-county,-p50Duration)) # revisit p50
-  
+
+  #### here ####
+
+  # notice: visit data is only by state, not by county -> this is okay
+  # just apply the same state-level signal to every county
+  # just need to generate a functional table at this point
+
   google_cleaned <- google_data %>% 
           select(date,state=sub_region_1,retail.recreation,grocery.pharmacy,parks,transitstations,workplace,residential) %>% 
           filter(state!="")
