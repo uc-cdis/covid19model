@@ -43,6 +43,61 @@ library(EnvStats)
 library(scales)
 library(stringr)
 
+# good
+read_google_mobility <- function(countries, codeToName){
+
+  # read in IL report
+  ILMobilityReport <<- '../modelInput/mobility/IL_Mobility_Report.csv'
+  google_mobility <- read.csv(ILMobilityReport, stringsAsFactors = FALSE)
+
+  # derive "countyName" column
+  google_mobility$countyName <- sub(" County", "", google_mobility$sub_region_2)
+
+  # set county code in there -> > names(codeToName) > [1] "countyCode" "countyName"
+  # new column -> "countyCode"
+  google_mobility <- left_join(google_mobility, codeToName, by = c("countyName"))
+  google_mobility <- google_mobility[google_mobility$countyCode %in% countries,]
+
+  # Format the google mobility data
+  google_mobility$date = as.Date(google_mobility$date, format = '%Y-%m-%d')
+
+  scoreCols <- c(
+    "retail_and_recreation_percent_change_from_baseline",
+    "grocery_and_pharmacy_percent_change_from_baseline",
+    "parks_percent_change_from_baseline",
+    "transit_stations_percent_change_from_baseline", 
+    "workplaces_percent_change_from_baseline", 
+    "residential_percent_change_from_baseline"
+  )
+
+  # transform raw percentage numbers to [0,1] (e.g., -45 -> .45)
+  google_mobility[, scoreCols] <- google_mobility[, scoreCols]/100
+  google_mobility[, scoreCols] <- google_mobility[, scoreCols] * -1
+  
+  # drop unnecessary columns
+  google_mobility <- google_mobility[,8:ncol(google_mobility)]
+
+  # rename columns
+  renameMap <- c(
+    "retail.recreation" = "retail_and_recreation_percent_change_from_baseline",
+    "grocery.pharmacy" = "grocery_and_pharmacy_percent_change_from_baseline",
+    "parks" = "parks_percent_change_from_baseline",
+    "transitstations" = "transit_stations_percent_change_from_baseline",
+    "workplace" = "workplaces_percent_change_from_baseline",
+    "residential" = "residential_percent_change_from_baseline"
+  )
+  google_mobility <- rename(google_mobility, all_of(renameMap))
+
+  # reorder cols
+  colOrder <- c("date", "countyCode", "countyName",
+                "retail.recreation", "grocery.pharmacy", "parks", 
+                "transitstations", "workplace", "residential")
+  google_mobility <- google_mobility[colOrder]              
+  
+  return(google_mobility)
+}
+
+
 
 # fixme
 # pretty good progress
