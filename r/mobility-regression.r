@@ -67,27 +67,23 @@ forecast_googleMob<-function(countries, codeToName){
   # revisit imputation
   mobility_data=mobility_data %>% fill(names(mobility_data),.direction = 'updown')
 
-  ### >>> here >>> ###
-
+  # retail.recreation
   task = TaskRegr$new(id = "retail.recreation", backend = as.data.frame(mobility_data %>%
           select(c(-"grocery.pharmacy",-"parks",-"transitstations",-"workplace",-"residential"))), target = "retail.recreation")
-  learner=lrn("regr.ranger")
+  learner = lrn("regr.ranger")
   train_set = c(1:train_end_id)
   test_set = c((train_end_id+1):google_end_id)
   learner$train(task, row_ids = train_set)
   prediction = learner$predict(task, row_ids = test_set)
   abs(prediction$truth-prediction$response)
-  df_lastweek=data.frame(id=prediction$row_ids,retail.recreation=(abs(prediction$truth-prediction$response)) )
+  df_lastweek = data.frame(id=prediction$row_ids,retail.recreation=(abs(prediction$truth-prediction$response)))
   train_set = c(1:google_end_id)
   test_set = setdiff(seq_len(task$nrow), train_set)
   learner$train(task, row_ids = train_set)
   prediction = learner$predict(task, row_ids = test_set)
-  mobility_data[test_set,"retail.recreation"]=prediction$response
+  mobility_data[test_set,"retail.recreation"] = prediction$response
   
-  
-  c("retail.recreation","grocery.pharmacy","parks","transitstations","workplace","residential")
-  
-  
+  # grocery.pharmacy    
   task = TaskRegr$new(id = "grocery.pharmacy", backend = as.data.frame(mobility_data %>%
                                                                           select(c(-"retail.recreation",-"parks",-"transitstations",-"workplace",-"residential"))),
                       target ="grocery.pharmacy")
@@ -104,9 +100,7 @@ forecast_googleMob<-function(countries, codeToName){
   prediction = learner$predict(task, row_ids = test_set)
   mobility_data[test_set,"grocery.pharmacy"]=prediction$response
   
-
-  c("retail.recreation","grocery.pharmacy","parks","transitstations","workplace","residential")
-  
+  # parks  
   task = TaskRegr$new(id = "parks", backend = as.data.frame(mobility_data %>%
                                                               select(c(-"retail.recreation",-"grocery.pharmacy",-"transitstations",-"workplace",-"residential"))),
                       target ="parks")
@@ -123,7 +117,7 @@ forecast_googleMob<-function(countries, codeToName){
   prediction = learner$predict(task, row_ids = test_set)
   mobility_data[test_set,"parks"]=prediction$response
   
-
+  # transitstations
   task = TaskRegr$new(id = "transitstations", backend = as.data.frame(mobility_data %>%
                                                                         select(c(-"retail.recreation",-"grocery.pharmacy",-"parks",-"workplace",-"residential"))),
                       target ="transitstations")
@@ -140,10 +134,8 @@ forecast_googleMob<-function(countries, codeToName){
   prediction = learner$predict(task, row_ids = test_set)
   
   mobility_data[test_set,"transitstations"]=prediction$response
-  
-  
-  c("retail.recreation","grocery.pharmacy","parks","transitstations","workplace","residential")
-  
+
+  # workplace  
   task = TaskRegr$new(id = "workplace", backend = as.data.frame(mobility_data %>%
                                                                   select(c(-"retail.recreation",-"grocery.pharmacy",-"parks",-"transitstations",-"residential"))),
                       target ="workplace")
@@ -160,6 +152,7 @@ forecast_googleMob<-function(countries, codeToName){
   prediction = learner$predict(task, row_ids = test_set)
   mobility_data[test_set,"workplace"]=prediction$response
 
+  # residential
   task = TaskRegr$new(id = "residential", backend = as.data.frame(mobility_data %>%
                                                                   select(c(-"retail.recreation",-"grocery.pharmacy",-"parks",-"transitstations",-"workplace"))),
                       target ="residential")
@@ -179,7 +172,6 @@ forecast_googleMob<-function(countries, codeToName){
   mobility_data$date=dates
   
   # error analysis
-  c("retail.recreation","grocery.pharmacy","parks","transitstations","workplace","residential")
   df_raw_error=copy(df_lastweek)
   print("Error last week")
   print(df_raw_error %>% summarise(retail.recreation=mean(retail.recreation),
@@ -205,4 +197,4 @@ f<-forecast_googleMob(countries=countries, codeToName=codeToName)
 #colnames(df_lastweek) <- paste("err", colnames(df_lastweek), sep = "_")
   
 google_forecast <- f %>% select(state,retail.recreation,grocery.pharmacy,parks,transitstations,workplace,residential,date)
-write.csv(google_forecast, "usa/data/google-mobility-forecast.csv", row.names = FALSE)
+write.csv(google_forecast, "google-mobility-forecast.csv", row.names = FALSE)
