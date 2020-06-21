@@ -46,9 +46,11 @@ library(stringr)
 # good
 read_google_mobility <- function(countries, codeToName){
 
-  # read in IL report
-  ILMobilityReport <<- '../modelInput/mobility/IL_Mobility_Report.csv'
+  # read in global report, subset to IL
+  GlobalMobilityReport <<- '../modelInput/mobility/Global_Mobility_Report.csv'
   google_mobility <- read.csv(ILMobilityReport, stringsAsFactors = FALSE)
+  google_mobility <- google_mobility[google_mobility$country_region == "United States", ]
+  google_mobility <- google_mobility[google_mobility$sub_region_1 == "Illinois", ]
 
   # derive "countyName" column
   google_mobility$countyName <- sub(" County", "", google_mobility$sub_region_2)
