@@ -36,7 +36,7 @@ forecast_googleMob<-function(countries, codeToName){
   # notice: visit data is only by state, not by county -> this is okay
   # just apply the same state-level signal to every county
   # just need to generate a functional table at this point
-
+  
   google_cleaned <- google_data %>% 
           select(date,state=sub_region_1,retail.recreation,grocery.pharmacy,parks,transitstations,workplace,residential) %>% 
           filter(state!="")
