@@ -48,7 +48,7 @@ read_google_mobility <- function(countries, codeToName){
 
   # read in global report, subset to IL
   GlobalMobilityReport <<- '../modelInput/mobility/Global_Mobility_Report.csv'
-  google_mobility <- read.csv(ILMobilityReport, stringsAsFactors = FALSE)
+  google_mobility <- read.csv(GlobalMobilityReport, stringsAsFactors = FALSE)
   google_mobility <- google_mobility[google_mobility$country_region == "United States", ]
   google_mobility <- google_mobility[google_mobility$sub_region_1 == "Illinois", ]
 
@@ -77,7 +77,8 @@ read_google_mobility <- function(countries, codeToName){
   google_mobility[, scoreCols] <- google_mobility[, scoreCols] * -1
   
   # drop unnecessary columns - keep "sub_region_1", which is the state
-  google_mobility <- google_mobility[,c(4,8:ncol(google_mobility))]
+  dropCols <- c("country_region_code", "country_region", "sub_region_2", "iso_3166_2_code", "census_fips_code")
+  google_mobility <- google_mobility[, -which(names(google_mobility) %in% dropCols)]
 
   # rename columns
   renameMap <- c(
@@ -88,14 +89,15 @@ read_google_mobility <- function(countries, codeToName){
     "workplace" = "workplaces_percent_change_from_baseline",
     "residential" = "residential_percent_change_from_baseline"
   )
+
   google_mobility <- rename(google_mobility, all_of(renameMap))
 
   # reorder cols
   colOrder <- c("date", "sub_region_1", "countyCode", "countyName",
                 "retail.recreation", "grocery.pharmacy", "parks", 
                 "transitstations", "workplace", "residential")
-  google_mobility <- google_mobility[colOrder]              
-  
+  google_mobility <- google_mobility[colOrder]                
+
   return(google_mobility)
 }
 
