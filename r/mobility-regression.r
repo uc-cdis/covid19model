@@ -52,25 +52,23 @@ forecast_googleMob<-function(countries, codeToName){
   last_google = ymd((mobility_data %>% filter(!is.na(retail.recreation)) %>% summarise(last(date)))[[1,1]])
   train_stop = last_google-6
   
-  # foursquare broken then -> HERE! double check this..
+  # foursquare broken then # should be fine
   mobility_data = mobility_data %>% filter(date!=ymd("2020-04-19"))
   
-  # need to rmove date for mlr 
-  mobility_data=mobility_data %>% arrange(date)
-  mobility_data$id=c(1:nrow(mobility_data))
+  # need to remove date for mlr 
+  mobility_data = mobility_data %>% arrange(date)
+  mobility_data$id = c(1:nrow(mobility_data))
   
-  train_end_id=(mobility_data %>% filter(date==train_stop) %>% summarise(last(id)))[[1,1]]
-  google_end_id=(mobility_data %>% filter(date==last_google) %>% summarise(last(id)))[[1,1]]
-  dates=mobility_data$date
-  mobility_data=mobility_data %>% select(c(-date,-categoryid))
+  train_end_id = (mobility_data %>% filter(date==train_stop) %>% summarise(last(id)))[[1,1]]
+  google_end_id = (mobility_data %>% filter(date==last_google) %>% summarise(last(id)))[[1,1]]
+  dates = mobility_data$date
+  mobility_data = mobility_data %>% select(c(-date,-categoryid))
   
-  # revisit imputaiton
+  # revisit imputation
   mobility_data=mobility_data %>% fill(names(mobility_data),.direction = 'updown')
-  
-  
-  ## todo remove 
-  names(google_cleaned)
- 
+
+  ### >>> here >>> ###
+
   task = TaskRegr$new(id = "retail.recreation", backend = as.data.frame(mobility_data %>%
           select(c(-"grocery.pharmacy",-"parks",-"transitstations",-"workplace",-"residential"))), target = "retail.recreation")
   learner=lrn("regr.ranger")
