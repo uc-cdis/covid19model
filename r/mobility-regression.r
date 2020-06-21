@@ -70,41 +70,21 @@ forecast_googleMob<-function(countries, codeToName){
   tmp <- sapply(mobility_data, class)
   mobility_data[tmp == "list"] <- sapply(mobility_data[tmp == "list"], function(l) l[1])
 
-  ## >> error here << ##
-
   # retail.recreation
-
-  print("1")
   task = TaskRegr$new(id = "retail.recreation", backend = as.data.frame(mobility_data %>%
           select(c(-"grocery.pharmacy",-"parks",-"transitstations",-"workplace",-"residential"))), target = "retail.recreation")
-
-  print("2")
   learner = lrn("regr.ranger")
   train_set = c(1:train_end_id)
   test_set = c((train_end_id+1):google_end_id)
-
-  print("3")
   learner$train(task, row_ids = train_set)
-
-  print("4")
   prediction = learner$predict(task, row_ids = test_set)
   abs(prediction$truth-prediction$response)
-
-  print("5")
   df_lastweek = data.frame(id=prediction$row_ids,retail.recreation=(abs(prediction$truth-prediction$response)))
   train_set = c(1:google_end_id)
   test_set = setdiff(seq_len(task$nrow), train_set)
-
-  print("6")
   learner$train(task, row_ids = train_set)
-
-  print("7")
   prediction = learner$predict(task, row_ids = test_set)
   mobility_data[test_set,"retail.recreation"] = prediction$response
-
-  print("8")
-
-  ## >> error here << ##
 
   # grocery.pharmacy    
   task = TaskRegr$new(id = "grocery.pharmacy", backend = as.data.frame(mobility_data %>%
