@@ -10,12 +10,13 @@ source("./read-mobility.r")
 
 forecast_googleMob<-function(countries, codeToName){
   # read data
-    # google
-      google_data <- read_google_mobility(countries, codeToName)
-  
-    # new foursquare data 
-      new_foursquare = read_csv("./visit-data/visitdata-grouped.csv")
-      new_foursquare$categoryname=as.factor(new_foursquare$categoryname)
+
+  # google
+  google_data <- read_google_mobility(countries, codeToName)
+
+  # new foursquare data 
+  new_foursquare = read_csv("./visit-data/visitdata-grouped.csv")
+  new_foursquare$categoryname=as.factor(new_foursquare$categoryname)
 
   # c("Airport" ,  "Arts & Entertainment"        "Banks"                      
   # [5] "Beach"                       "Big Box Stores"              "Bus"                         "Colleges & Universities"    
@@ -31,8 +32,6 @@ forecast_googleMob<-function(countries, codeToName){
           filter(categoryname!="Skiing",demo=="All") %>% 
           select(c(-demo,-county,-p50Duration)) # revisit p50
 
-  #### here ####
-
   # notice: visit data is only by state, not by county -> this is okay
   # just apply the same state-level signal to every county
   # just need to generate a functional table at this point
@@ -40,21 +39,21 @@ forecast_googleMob<-function(countries, codeToName){
   google_cleaned <- google_data %>% 
           select(date,state=sub_region_1,retail.recreation,grocery.pharmacy,parks,transitstations,workplace,residential) %>% 
           filter(state!="")
-  
+
   mobility_data <- left_join(sfsq,google_cleaned, by = c("state" = "state", "date" = "date"))
   
   #mobility_data <- mobility_data %>% #  filter(!(state %in% c("Alaska", "District of Columbia", "Hawaii")))
   mobility_data <- mobility_data %>%     
-          pivot_wider(names_from =categoryname , values_from = c(avgDuration,visits))
+          pivot_wider(names_from = categoryname , values_from = c(avgDuration,visits))
   mobility_data$state <- as.factor(mobility_data$state)
-  names(mobility_data)<-make.names(names(mobility_data),unique = TRUE)
-  
+  names(mobility_data)<- make.names(names(mobility_data),unique = TRUE)
+
   # check fit on last week
-  last_google=ymd((mobility_data %>% filter(!is.na(retail.recreation)) %>%summarise(last(date)))[[1,1]])
-  train_stop=last_google-6
+  last_google = ymd((mobility_data %>% filter(!is.na(retail.recreation)) %>% summarise(last(date)))[[1,1]])
+  train_stop = last_google-6
   
-  # foursquare broken then
-  mobility_data=mobility_data %>% filter(date!=ymd("2020-04-19"))
+  # foursquare broken then -> HERE! double check this..
+  mobility_data = mobility_data %>% filter(date!=ymd("2020-04-19"))
   
   # need to rmove date for mlr 
   mobility_data=mobility_data %>% arrange(date)
