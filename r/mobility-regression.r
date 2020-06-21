@@ -69,12 +69,20 @@ forecast_googleMob<-function(countries, codeToName){
   ## >> error here << ##
 
   # retail.recreation
+  print("1")
+
+  ## this is the first error line
   task = TaskRegr$new(id = "retail.recreation", backend = as.data.frame(mobility_data %>%
           select(c(-"grocery.pharmacy",-"parks",-"transitstations",-"workplace",-"residential"))), target = "retail.recreation")
+  ## 
+  
+  print("2")
   learner = lrn("regr.ranger")
   train_set = c(1:train_end_id)
   test_set = c((train_end_id+1):google_end_id)
+  print("3")
   learner$train(task, row_ids = train_set)
+  print("4")
   prediction = learner$predict(task, row_ids = test_set)
   abs(prediction$truth-prediction$response)
   df_lastweek = data.frame(id=prediction$row_ids,retail.recreation=(abs(prediction$truth-prediction$response)))
