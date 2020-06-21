@@ -14,7 +14,7 @@ forecast_googleMob<-function(countries, codeToName){
       google_data <- read_google_mobility(countries, codeToName)
   
     # new foursquare data 
-      new_foursquare = read_csv("usa/code/utils/mobility-reg/visitdata-grouped.csv")
+      new_foursquare = read_csv("./visit-data/visitdata-grouped.csv")
       new_foursquare$categoryname=as.factor(new_foursquare$categoryname)
 
   # c("Airport" ,  "Arts & Entertainment"        "Banks"                      
@@ -26,7 +26,9 @@ forecast_googleMob<-function(countries, codeToName){
   # [25] "Nightlife Spots"             "Office"                      "Outdoors & Recreation"       "Professional & Other Places"
   # [29] "Residences"                  "School"                      "Shops & Services"            "Skiing"                     
   # [33] "Spiritual Center"            "Sports"                      "Travel & Transport"    
-  
+
+  #### here ####
+
   sfsq <- new_foursquare %>% 
           filter(categoryname!="Skiing",demo=="All") %>% 
           select(c(-demo,-county,-p50Duration)) # revisit p50
