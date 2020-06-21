@@ -74,8 +74,8 @@ read_google_mobility <- function(countries, codeToName){
   google_mobility[, scoreCols] <- google_mobility[, scoreCols]/100
   google_mobility[, scoreCols] <- google_mobility[, scoreCols] * -1
   
-  # drop unnecessary columns
-  google_mobility <- google_mobility[,8:ncol(google_mobility)]
+  # drop unnecessary columns - keep "sub_region_1", which is the state
+  google_mobility <- google_mobility[,c(4,8:ncol(google_mobility))]
 
   # rename columns
   renameMap <- c(
@@ -89,7 +89,7 @@ read_google_mobility <- function(countries, codeToName){
   google_mobility <- rename(google_mobility, all_of(renameMap))
 
   # reorder cols
-  colOrder <- c("date", "countyCode", "countyName",
+  colOrder <- c("date", "sub_region_1", "countyCode", "countyName",
                 "retail.recreation", "grocery.pharmacy", "parks", 
                 "transitstations", "workplace", "residential")
   google_mobility <- google_mobility[colOrder]              
@@ -99,7 +99,7 @@ read_google_mobility <- function(countries, codeToName){
 
 
 
-# fixme
+# fixme - eventually remove this - only here for reference - incorporated into main loop in base.r
 # pretty good progress
 process_covariates <- function(states, mobility, death_data, formula_partial_state){
     
@@ -221,73 +221,3 @@ create_features <- function(len_mobility, padded_covariates, transit_usage){
                                             na.rm=TRUE))
             )
 }
-
-### <main>
-### from: https://github.com/ImperialCollegeLondon/covid19model/blob/v6.0/base-usa.r#L85-L108 ###
-
-# Read google mobility
-mobility <- read_google_mobility()
-
-# At times google has mobility na for some days in that cae you will need to impute those values
-# else code will fail 
-# read predictions of future days from foursquare
-# if you need predictions from foursquare please run file mobility-regression.r in
-# the folder usa/code/utils/mobility-reg
-google_pred <- read.csv('usa/data/google-mobility-forecast.csv', stringsAsFactors = FALSE)
-google_pred$date <- as.Date(google_pred$date, format = '%Y-%m-%d') 
-google_pred$country_region <- "United States"
-google_pred$country_region_code <- "US"
-colnames(google_pred)[colnames(google_pred) == 'state'] <- 'sub_region_1'
-
-if (max(google_pred$date) > max(mobility$date)){
-
-  google_pred <- google_pred[google_pred$date > max(mobility$date),]
-
-  # reading mapping of states of csv
-  un <- unique(mobility$sub_region_1)
-
-  states_code = read.csv('usa/data/states.csv', stringsAsFactors = FALSE)
-  google_pred$code = "!!"
-
-  # m: replacing state codes with their abbreviations -> not sure we need this for counties? -> may need an analog
-  for(i in 1:length(un)){
-    google_pred$code[google_pred$sub_region_1==un[i]] = states_code$Abbreviation[states_code$State==un[i]]
-  }
-
-  mobility <- rbind(as.data.frame(mobility),as.data.frame(google_pred[,colnames(mobility)]))
-}
-
-## --- ##
-
-max_date <- max(mobility$date)
-# death_data <- death_data[which(death_data$date <= max_date),]
-
-## need to look @ this ##
-formula_partial_state = '~ -1 + averageMobility + I(transit * transit_use) + residential'
-
-processed_data <- process_covariates(states = states, 
-                                     mobility = mobility,
-                                     # death_data = death_data, 
-                                     formula_partial_state = formula_partial_state
-                                     )
-stan_data <- processed_data$stan_data
-
-dates <- processed_data$dates
-reported_deaths <- processed_data$reported_deaths
-reported_cases <- processed_data$reported_cases
-options(mc.cores = parallel::detectCores())
-rstan_options(auto_write = TRUE)
-m <- stan_model(paste0('usa/code/stan-models/',StanModel,'.stan'))
-JOBID = Sys.getenv("PBS_JOBID")
-if(JOBID == "")
-  JOBID = as.character(abs(round(rnorm(1) * 1000000)))
-print(sprintf("Jobid = %s",JOBID))
-if(DEBUG) {
-  fit = sampling(m,data=stan_data,iter=40,warmup=20,chains=2)
-} else if (FULL) {
-  fit = sampling(m,data=stan_data,iter=1800,warmup=1000,chains=5,thin=1,control = list(adapt_delta = 0.95, max_treedepth = 15))
-} else { 
-  fit = sampling(m,data=stan_data,iter=100,warmup=50,chains=4,thin=1,control = list(adapt_delta = 0.95, max_treedepth = 10))
-}
-
-###
