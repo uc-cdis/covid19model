@@ -35,7 +35,7 @@ forecast_googleMob<-function(countries, codeToName){
   # just apply the same state-level signal to every county
   # just need to generate a functional table at this point
   google_cleaned <- google_data %>% 
-          select(date,state=sub_region_1,countyCode,countyName,retail.recreation,grocery.pharmacy,parks,transitstations,workplace,residential) %>% 
+          select(date,state=sub_region_1,retail.recreation,grocery.pharmacy,parks,transitstations,workplace,residential) %>% 
           filter(state!="")
 
   print("google last obs:")
@@ -199,9 +199,11 @@ d$countryterritoryCode <- sub("840", "", d$countryterritoryCode)
 codeToName <- unique(data.frame("countyCode" = d$countryterritoryCode, "countyName" = d$countriesAndTerritories))
 countries <- unique(d$countryterritoryCode)
 
-f<-forecast_googleMob(countries=countries, codeToName=codeToName)
+f <- forecast_googleMob(countries=countries, codeToName=codeToName)
 
-#colnames(df_lastweek) <- paste("err", colnames(df_lastweek), sep = "_")
-  
+# replicate statewide prediction by county -> this can be MUCH more nuanced, but for now - just get something working
+codeToName$state <- "Illinois"
+f <- left_join(codeToName, f, "state" = "state")
+
 google_forecast <- f %>% select(state,countyCode,countyName,retail.recreation,grocery.pharmacy,parks,transitstations,workplace,residential,date)
 write.csv(google_forecast, "../modelInput/mobility/google-mobility-forecast.csv", row.names = FALSE)
