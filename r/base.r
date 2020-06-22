@@ -79,16 +79,16 @@ N2 = 0
 source("./read-mobility.r")
 mobility <- read_google_mobility(countries=countries, codeToName=codeToName)
 
-# / # / # / good through here # / # / # /
-
 ##### >>>>>>> next block >>>>>>>>> ##########
 
 # Read predicted mobility
-google_pred <- read.csv('usa/data/google-mobility-forecast.csv', stringsAsFactors = FALSE)
+google_pred <- read.csv('../modelInput/mobility/google-mobility-forecast.csv', stringsAsFactors = FALSE)
 google_pred$date <- as.Date(google_pred$date, format = '%Y-%m-%d') 
 google_pred$country_region <- "United States"
 google_pred$country_region_code <- "US"
 colnames(google_pred)[colnames(google_pred) == 'state'] <- 'sub_region_1'
+
+# / # / # / good through here # / # / # /
 
 # some processing here # fixme
 if (max(google_pred$date) > max(mobility$date)){
