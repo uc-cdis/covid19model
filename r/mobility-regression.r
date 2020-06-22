@@ -39,6 +39,11 @@ forecast_googleMob<-function(countries, codeToName){
           select(date,state=sub_region_1,retail.recreation,grocery.pharmacy,parks,transitstations,workplace,residential) %>% 
           filter(state!="")
 
+  print("google last obs:")
+  print(tail(google_cleaned$date, 1))
+  print("visitdata last obs:")
+  print(tail(sfsq$date, 1))
+
   mobility_data <- left_join(sfsq,google_cleaned, by = c("state" = "state", "date" = "date"))
   
   #mobility_data <- mobility_data %>% #  filter(!(state %in% c("Alaska", "District of Columbia", "Hawaii")))
