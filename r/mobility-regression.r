@@ -203,5 +203,5 @@ f<-forecast_googleMob(countries=countries, codeToName=codeToName)
 
 #colnames(df_lastweek) <- paste("err", colnames(df_lastweek), sep = "_")
   
-google_forecast <- f %>% select(state,retail.recreation,grocery.pharmacy,parks,transitstations,workplace,residential,date)
+google_forecast <- f %>% select(state,countyCode,countyName,retail.recreation,grocery.pharmacy,parks,transitstations,workplace,residential,date)
 write.csv(google_forecast, "../modelInput/mobility/google-mobility-forecast.csv", row.names = FALSE)

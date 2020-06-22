@@ -86,8 +86,8 @@ mobility <- read_google_mobility(countries=countries, codeToName=codeToName)
 # Read predicted mobility
 google_pred <- read.csv('../modelInput/mobility/google-mobility-forecast.csv', stringsAsFactors = FALSE)
 google_pred$date <- as.Date(google_pred$date, format = '%Y-%m-%d') 
-google_pred$country_region <- "United States"
-google_pred$country_region_code <- "US"
+# google_pred$country_region <- "United States"
+# google_pred$country_region_code <- "US"
 colnames(google_pred)[colnames(google_pred) == 'state'] <- 'sub_region_1'
 
 # Append predicted mobility
@@ -153,8 +153,6 @@ k <- 1
 for(Country in countries) {
 
   ########### cut -> fixme ##############
-
-
 
   # Selects mobility data for each state # COUNTY
   covariates_state <- mobility[which(mobility$code == State),]    
@@ -295,6 +293,7 @@ for(state.i in 1:stan_data$M) {
 ########### cut ##############
 
 stan_data$y = t(stan_data$y)
+
 options(mc.cores = parallel::detectCores())
 rstan_options(auto_write = TRUE)
 m = stan_model(paste0('../stan/',StanModel,'.stan'))
