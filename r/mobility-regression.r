@@ -200,10 +200,5 @@ codeToName <- unique(data.frame("countyCode" = d$countryterritoryCode, "countyNa
 countries <- unique(d$countryterritoryCode)
 
 f <- forecast_googleMob(countries=countries, codeToName=codeToName)
-
-# replicate statewide prediction by county -> this can be MUCH more nuanced, but for now - just get something working
-codeToName$state <- "Illinois"
-f <- left_join(codeToName, f, "state" = "state")
-
-google_forecast <- f %>% select(state,countyCode,countyName,retail.recreation,grocery.pharmacy,parks,transitstations,workplace,residential,date)
+google_forecast <- f %>% select(state,retail.recreation,grocery.pharmacy,parks,transitstations,workplace,residential,date)
 write.csv(google_forecast, "../modelInput/mobility/google-mobility-forecast.csv", row.names = FALSE)

@@ -85,9 +85,13 @@ mobility <- read_google_mobility(countries=countries, codeToName=codeToName)
 
 # Read predicted mobility
 google_pred <- read.csv('../modelInput/mobility/google-mobility-forecast.csv', stringsAsFactors = FALSE)
-google_pred <- google_pred[google_pred$countyCode %in% countries, ]
 google_pred$date <- as.Date(google_pred$date, format = '%Y-%m-%d') 
 colnames(google_pred)[colnames(google_pred) == 'state'] <- 'sub_region_1'
+
+# replicate statewide prediction by county -> this can be MUCH more nuanced, but for now - just get something working
+stateAndCounty <- codeToName
+stateAndCounty$state <- "Illinois"
+google_pred <- left_join(stateAndCounty, google_pred, "state" = "state")
 
 # Append predicted mobility
 if (max(google_pred$date) > max(mobility$date)){
