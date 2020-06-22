@@ -92,7 +92,7 @@ if (max(google_pred$date) > max(mobility$date)){
   mobility <- rbind(as.data.frame(mobility),as.data.frame(google_pred[,colnames(mobility)]))
 }
 
-## --- ##
+# / # / # / good through here # / # / # /
 
 ## HERE! -> smoothing death data: https://github.com/ImperialCollegeLondon/covid19model/blob/v6.0/usa/code/utils/read-data-usa.r#L37-L40
 ## -------> https://github.com/ImperialCollegeLondon/covid19model/blob/v6.0/usa/code/utils/read-data-usa.r#L24-L27
