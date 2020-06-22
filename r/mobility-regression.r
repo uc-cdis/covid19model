@@ -35,7 +35,7 @@ forecast_googleMob<-function(countries, codeToName){
   # just apply the same state-level signal to every county
   # just need to generate a functional table at this point
   google_cleaned <- google_data %>% 
-          select(date,state=sub_region_1,retail.recreation,grocery.pharmacy,parks,transitstations,workplace,residential) %>% 
+          select(date,state=sub_region_1,countyCode,countyName,retail.recreation,grocery.pharmacy,parks,transitstations,workplace,residential) %>% 
           filter(state!="")
 
   print("google last obs:")
