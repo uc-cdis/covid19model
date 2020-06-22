@@ -16,6 +16,10 @@ print(sprintf("Running stan model %s",StanModel))
 print(sprintf("Only running on counties with at least %d total reported deaths", minimumReportedDeaths))
 print(sprintf("Running MCMC routine with %d iterations", nStanIterations))
 
+## smoothing death data: https://github.com/ImperialCollegeLondon/covid19model/blob/v6.0/usa/code/utils/read-data-usa.r#L37-L40
+## -> https://github.com/ImperialCollegeLondon/covid19model/blob/v6.0/usa/code/utils/read-data-usa.r#L24-L27
+## -> something to try, for sure
+
 # case-mortality table
 d <- read.csv("../modelInput/ILCaseAndMortalityV1.csv", stringsAsFactors = FALSE)
 
@@ -73,7 +77,7 @@ forecast = 0
 # N2 is Number of time points with data plus forecast
 N2 = 0
 
-# >>>>>>>>>>>>>>> MOBILITY >>>>>>>>>>>>>>>
+# >>>>>>>>>>>>>>> MOBILITY >>>>>>>>>>>>>>> #
 
 # Read google mobility
 source("./read-mobility.r")
@@ -92,20 +96,15 @@ if (max(google_pred$date) > max(mobility$date)){
   mobility <- rbind(as.data.frame(mobility),as.data.frame(google_pred[,colnames(mobility)]))
 }
 
-# / # / # / good through here # / # / # /
-
-## HERE! -> smoothing death data: https://github.com/ImperialCollegeLondon/covid19model/blob/v6.0/usa/code/utils/read-data-usa.r#L37-L40
-## -------> https://github.com/ImperialCollegeLondon/covid19model/blob/v6.0/usa/code/utils/read-data-usa.r#L24-L27
-## --> something to try, for sure
-
 max_date <- max(mobility$date)
-# death_data <- death_data[which(death_data$date <= max_date),] # why this?
+d <- d[as.Date(d$dateRep, format = "%m/%d/%y") <= max_date, ]
+print(sprintf("MAX DATE : %s", max_date))
 
 ## need to take a close look @ this -> looks fine ##
 # see: https://stackoverflow.com/questions/8055508/in-r-formulas-why-do-i-have-to-use-the-i-function-on-power-terms-like-y-i
 formula_partial_state = '~ -1 + averageMobility + I(transit * transit_use) + residential'
 
-# <<<<<<<<<<<<<<< MOBILITY <<<<<<<<<<<<<<<<<<
+# <<<<<<<<<<<<<<< MOBILITY <<<<<<<<<<<<<<<<<< #
 
 dates = list()
 reported_cases = list()
@@ -157,6 +156,9 @@ k <- 1
 for(Country in countries) {
 
   ########### cut -> fixme ##############
+
+  # / # / # / good through here # / # / # /
+
 
   # Selects mobility data for each state # COUNTY
   covariates_state <- mobility[which(mobility$code == State),]    
