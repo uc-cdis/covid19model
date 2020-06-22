@@ -5,7 +5,6 @@ library(tidyverse)
 library(visdat)
 library(mlr3verse)
 
-# source("usa/code/utils/read-data-usa.r")
 source("./read-mobility.r")
 
 forecast_googleMob<-function(countries, codeToName){
@@ -15,7 +14,7 @@ forecast_googleMob<-function(countries, codeToName){
   google_data <- read_google_mobility(countries, codeToName)
 
   # new foursquare data 
-  new_foursquare = read_csv("./visit-data/visitdata-grouped.csv")
+  new_foursquare = read_csv("../modelInput/mobility/visit-data/visitdata-grouped.csv")
   new_foursquare$categoryname=as.factor(new_foursquare$categoryname)
 
   # c("Airport" ,  "Arts & Entertainment"        "Banks"                      
@@ -205,4 +204,4 @@ f<-forecast_googleMob(countries=countries, codeToName=codeToName)
 #colnames(df_lastweek) <- paste("err", colnames(df_lastweek), sep = "_")
   
 google_forecast <- f %>% select(state,retail.recreation,grocery.pharmacy,parks,transitstations,workplace,residential,date)
-write.csv(google_forecast, "google-mobility-forecast.csv", row.names = FALSE)
+write.csv(google_forecast, "../modelInput/mobility/google-mobility-forecast.csv", row.names = FALSE)
