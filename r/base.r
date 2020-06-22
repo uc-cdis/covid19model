@@ -114,7 +114,7 @@ stan_data = list(M=length(countries),
                 N=NULL, # Number of time points with data
                 p=p,
                 y=NULL,
-                covariate1=NULL, # -> lockdown -> presently the only intervention in the IL model 
+                # covariate1=NULL, # -> lockdown -> presently the only intervention in the IL model 
                 deaths=NULL,
                 f=NULL,
                 N0=6, # Number of days in seeding
@@ -123,9 +123,8 @@ stan_data = list(M=length(countries),
                 EpidemicStart = NULL # Date to start epidemic in each county
                 )
 
-# new - adjust N2 before main procesesing routine - i.e., adjust N2 so that it's uniform across all counties
-# fixme: can definitely make this more efficient, or at least wrap it into a function
-# note: N2 is the length of time window to simulate - must be the same across counties
+# N2 is the length of time window to simulate
+# adjust N2 before main procesesing routine - i.e., adjust N2 so that it's uniform across all counties
 for(Country in countries) {
 
   tmp=d[d$countryterritoryCode==Country,]
@@ -145,9 +144,7 @@ for(Country in countries) {
   }
 }
 
-# HERE! -> refactor, remove comments
-
-print(sprintf("uniform N2: %d", N2))
+# / # / # / good through here # / # / # /
 
 covariate_list_partial_state <- list()
 
@@ -157,7 +154,6 @@ for(Country in countries) {
 
   ########### cut -> fixme ##############
 
-  # / # / # / good through here # / # / # /
 
 
   # Selects mobility data for each state # COUNTY
