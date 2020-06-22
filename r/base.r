@@ -86,8 +86,6 @@ mobility <- read_google_mobility(countries=countries, codeToName=codeToName)
 # Read predicted mobility
 google_pred <- read.csv('../modelInput/mobility/google-mobility-forecast.csv', stringsAsFactors = FALSE)
 google_pred$date <- as.Date(google_pred$date, format = '%Y-%m-%d') 
-# google_pred$country_region <- "United States"
-# google_pred$country_region_code <- "US"
 colnames(google_pred)[colnames(google_pred) == 'state'] <- 'sub_region_1'
 
 # Append predicted mobility
