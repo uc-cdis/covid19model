@@ -79,8 +79,6 @@ N2 = 0
 source("./read-mobility.r")
 mobility <- read_google_mobility(countries=countries, codeToName=codeToName)
 
-##### >>>>>>> next block >>>>>>>>> ##########
-
 # Read predicted mobility
 google_pred <- read.csv('../modelInput/mobility/google-mobility-forecast.csv', stringsAsFactors = FALSE)
 google_pred$date <- as.Date(google_pred$date, format = '%Y-%m-%d') 
@@ -88,30 +86,11 @@ google_pred$country_region <- "United States"
 google_pred$country_region_code <- "US"
 colnames(google_pred)[colnames(google_pred) == 'state'] <- 'sub_region_1'
 
-# / # / # / good through here # / # / # /
-
-# some processing here # fixme
+# Append predicted mobility
 if (max(google_pred$date) > max(mobility$date)){
-
   google_pred <- google_pred[google_pred$date > max(mobility$date),]
-
-  # reading mapping of states of csv
-  un <- unique(mobility$sub_region_1)
-
-  # NOTE: sub_region_2 is county, and looks like this: "Cook County"
-
-  states_code = read.csv('usa/data/states.csv', stringsAsFactors = FALSE)
-  google_pred$code = "!!"
-
-  # m: replacing state codes with their abbreviations -> not sure we need this for counties? -> may need an analog
-  for(i in 1:length(un)){
-    google_pred$code[google_pred$sub_region_1==un[i]] = states_code$Abbreviation[states_code$State==un[i]]
-  }
-
   mobility <- rbind(as.data.frame(mobility),as.data.frame(google_pred[,colnames(mobility)]))
 }
-
-##### <<<<<<<<< next block <<<<<<<<< ##########
 
 ## --- ##
 
