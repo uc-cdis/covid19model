@@ -44,7 +44,7 @@ library(scales)
 library(stringr)
 
 # good
-read_google_mobility <- function(countries, codeToName){
+read_google_mobility <- function(countries, codeToName, regression){
 
   # read in global report, subset to IL
   GlobalMobilityReport <<- '../modelInput/mobility/Global_Mobility_Report.csv'
@@ -52,13 +52,18 @@ read_google_mobility <- function(countries, codeToName){
   google_mobility <- google_mobility[google_mobility$country_region == "United States", ]
   google_mobility <- google_mobility[google_mobility$sub_region_1 == "Illinois", ]
 
-  # derive "countyName" column
-  google_mobility$countyName <- sub(" County", "", google_mobility$sub_region_2)
+  if (regression){
+    # no county-level data allowed for regression routine
+    google_mobility <- google_mobility[which(google_mobility$sub_region_2 == ""),]
+  } else {
+    # derive "countyName" column
+    google_mobility$countyName <- sub(" County", "", google_mobility$sub_region_2)
 
-  # set county code in there -> > names(codeToName) > [1] "countyCode" "countyName"
-  # new column -> "countyCode"
-  google_mobility <- left_join(google_mobility, codeToName, by = c("countyName"))
-  google_mobility <- google_mobility[google_mobility$countyCode %in% countries,]
+    # set county code in there -> > names(codeToName) > [1] "countyCode" "countyName"
+    # new column -> "countyCode"
+    google_mobility <- left_join(google_mobility, codeToName, by = c("countyName"))
+    google_mobility <- google_mobility[google_mobility$countyCode %in% countries,]
+  }
 
   # Format the google mobility data
   google_mobility$date = as.Date(google_mobility$date, format = '%Y-%m-%d')
@@ -93,9 +98,16 @@ read_google_mobility <- function(countries, codeToName){
   google_mobility <- rename(google_mobility, all_of(renameMap))
 
   # reorder cols
-  colOrder <- c("date", "sub_region_1", "countyCode", "countyName",
-                "retail.recreation", "grocery.pharmacy", "parks", 
-                "transitstations", "workplace", "residential")
+  if (regression) {
+    # no county code or name
+    colOrder <- c("date", "sub_region_1",
+                  "retail.recreation", "grocery.pharmacy", "parks", 
+                  "transitstations", "workplace", "residential")
+  } else {
+    colOrder <- c("date", "sub_region_1", "countyCode", "countyName",
+                  "retail.recreation", "grocery.pharmacy", "parks", 
+                  "transitstations", "workplace", "residential")
+  }
   google_mobility <- google_mobility[colOrder]                
 
   return(google_mobility)
