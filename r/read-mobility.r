@@ -44,7 +44,7 @@ library(scales)
 library(stringr)
 
 # good
-read_google_mobility <- function(countries, codeToName, regression){
+read_google_mobility <- function(countries, codeToName, regression=FALSE){
 
   # read in global report, subset to IL
   GlobalMobilityReport <<- '../modelInput/mobility/Global_Mobility_Report.csv'
