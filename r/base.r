@@ -258,7 +258,7 @@ for(Country in countries) {
 
 }
 
-############ cut -> fixme #############
+# >>>>>>>>>>> mobility >>>>>>>>>>>>> #
 
 stan_data$P_partial_county = dim(features_partial_county)[2]
 stan_data$X_partial_county = array(NA, dim = c(stan_data$M , stan_data$N2 ,stan_data$P_partial_county))
@@ -277,7 +277,7 @@ for(state.i in 1:stan_data$M) {
   stan_data$week_index[state.i,last_ar_week:ncol(stan_data$week_index)] <-  stan_data$week_index[state.i,last_ar_week]
 }
 
-########### cut ##############
+# <<<<<<<<<<< mobility <<<<<<<<<<<<< #
 
 stan_data$y = t(stan_data$y)
 
