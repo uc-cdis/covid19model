@@ -172,26 +172,6 @@ for(Country in countries) {
   d1=d1[index2:nrow(d1),]
   stan_data$EpidemicStart = c(stan_data$EpidemicStart,index1+1-index2)
 
-  ########### cut -> fixme ##############
-
-  # Selects mobility data for each county
-  covariates_county <- mobility[which(mobility$countyCode == Country),]    
-
-  # Find minimum date for the data
-  min_date <- min(d1$date)
-  num_pad <- (min(covariates_county$date) - min_date[[1]])[[1]]
-  len_mobility <- ncol(covariates_county)
-  padded_covariates <- pad_mobility(len_mobility, num_pad, min_date, covariates_county, forecast_length, d1, Country)
-
-  # include transit
-  transit_usage <- rep(1, (N + forecast_length))
-
-  # creating features -> only want "partial_state"
-  df_features <- create_features(len_mobility, padded_covariates, transit_usage)
-  features_partial_state <- model.matrix(formula_partial_state, df_features)    
-  covariate_list_partial_state[[k]] <- features_partial_state
-
-  ########### cut ##############
 
   
   # dates[[as.character(Country)]] = d1$date
@@ -207,6 +187,28 @@ for(Country in countries) {
 
   # fix it at 7 -> uniform forecast across counties..
   forecast <- 7
+
+  ########### cut -> fixme ##############
+
+  # Selects mobility data for each county
+  covariates_county <- mobility[which(mobility$countyCode == Country),]    
+
+  # Find minimum date for the data
+  min_date <- min(d1$date)
+  num_pad <- (min(covariates_county$date) - min_date[[1]])[[1]]
+  len_mobility <- ncol(covariates_county)
+  padded_covariates <- pad_mobility(len_mobility, num_pad, min_date, covariates_county, forecast, d1, Country)
+
+  # include transit
+  transit_usage <- rep(1, (N + forecast))
+
+  # creating features -> only want "partial_state"
+  df_features <- create_features(len_mobility, padded_covariates, transit_usage)
+  features_partial_state <- model.matrix(formula_partial_state, df_features)    
+  covariate_list_partial_state[[k]] <- features_partial_state
+
+  ########### cut ##############
+
 
   
   h = rep(0,forecast+N) # discrete hazard rate from time t = 1, ..., 100
