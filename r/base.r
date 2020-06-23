@@ -128,7 +128,6 @@ stan_data = list(M=length(countries),
                 N=NULL, # Number of time points with data
                 p=p,
                 y=NULL,
-                # covariate1=NULL, # -> lockdown -> presently the only intervention in the IL model 
                 deaths=NULL,
                 f=NULL,
                 N0=6, # Number of days in seeding
@@ -271,7 +270,9 @@ for(Country in countries) {
 
 # >>>>>>>>>>> mobility >>>>>>>>>>>>> #
 
+# newSTAN - ok
 stan_data$P_partial_county = dim(features_partial_county)[2]
+# newSTAN - ok
 stan_data$X_partial_county = array(NA, dim = c(stan_data$M , stan_data$N2 ,stan_data$P_partial_county))
 
 # NOTE: mapped *_partial_state -> *_partial_county
@@ -280,7 +281,9 @@ for (i in 1:stan_data$M){
   stan_data$X_partial_county[i,,] = covariate_list_partial_county[[i]]
 }
 
+# newSTAN - ok
 stan_data$W <- ceiling(stan_data$N2/7) 
+# newSTAN - ok
 stan_data$week_index <- matrix(1,stan_data$M,stan_data$N2)
 for(j in 1:stan_data$M) {
   stan_data$week_index[j,] <- rep(2:(stan_data$W+1),each=7)[1:stan_data$N2]
