@@ -86,7 +86,9 @@ mobility <- read_google_mobility(countries=countries, codeToName=codeToName)
 # basic impute values for NA in google mobility
 # see: https://github.com/ImperialCollegeLondon/covid19model/blob/v6.0/base-usa.r#L87-L88
 for(i in 1:ncol(mobility)){
-  mobility[is.na(mobility[,i]), i] <- mean(mobility[,i], na.rm = TRUE)
+  if (is.numeric(mobility[,i])){
+    mobility[is.na(mobility[,i]), i] <- mean(mobility[,i], na.rm = TRUE)
+  }
 }
 
 # Read predicted mobility
@@ -283,10 +285,10 @@ for (i in 1:stan_data$M){
 
 stan_data$W <- ceiling(stan_data$N2/7) 
 stan_data$week_index <- matrix(1,stan_data$M,stan_data$N2)
-for(state.i in 1:stan_data$M) {
-  stan_data$week_index[state.i,] <- rep(2:(stan_data$W+1),each=7)[1:stan_data$N2]
-  last_ar_week = which(dates[[state.i]]==max(death_data$date) - 28)
-  stan_data$week_index[state.i,last_ar_week:ncol(stan_data$week_index)] <-  stan_data$week_index[state.i,last_ar_week]
+for(j in 1:stan_data$M) {
+  stan_data$week_index[j,] <- rep(2:(stan_data$W+1),each=7)[1:stan_data$N2]
+  last_ar_week = which(dates[[j]]==max(d$date) - 28)
+  stan_data$week_index[j,last_ar_week:ncol(stan_data$week_index)] <-  stan_data$week_index[j,last_ar_week]
 }
 
 # <<<<< next bit <<<<< #
