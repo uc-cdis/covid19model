@@ -229,7 +229,7 @@ pad_mobility <- function(len_mobility, num_pad, min_date, covariates_county, for
   return(padded_covariates)
 }
 
-# okay
+# should work
 create_features <- function(len_mobility, padded_covariates, transit_usage){
     return (data.frame(
                'transit_use' = transit_usage,
