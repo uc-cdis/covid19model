@@ -196,13 +196,20 @@ for(Country in countries) {
   num_pad <- (min(covariates_county$date) - min_date[[1]])[[1]]
   len_mobility <- ncol(covariates_county)
   
-  print("--------- N + forecast -------")
-  print(sprintf("-------- %d --------", N + forecast))
+  # print("--------- N + forecast -------")
+  # print(sprintf("-------- %d --------", N + forecast))
+
+
+  # HERE - error - there are sometimes NA values in the mobility data
+  # why?
+  # so far, only encountered in transit for one county
+  # but surely there will be others
+  # need to check 1. read_google_mobility and 2. impute mobility and 3. combine impute with observed mobility
+  print("_______ covariates_county _____")
+  print(sprintf("NA ??? --- > %s", any(is.na(covariates_county))))
+  print(sapply(covariates_county, function(x) any(is.na(x))))
   
   padded_covariates <- pad_mobility(len_mobility, num_pad, min_date, covariates_county, forecast, d1, Country)
-
-  print("_____ sapply padded ________")
-  print(sapply(padded_covariates, function(x) length(x)))
 
   # include transit
   transit_usage <- rep(1, (N + forecast))
@@ -210,17 +217,7 @@ for(Country in countries) {
   # creating features -> only want "partial_state"
   df_features <- create_features(len_mobility, padded_covariates, transit_usage)
 
-  print("_____ df_features ________")
-  print(sapply(df_features, function(x) length(x)))
-
-  # here's a problem
-  # some NA values in this df sometimes
-  # causes dimension problems, and other problems of course
-  print(sprintf("NA ??? --- > %s", any(is.na(df_features))))
-
   features_partial_county <- model.matrix(formula_partial_county, df_features)    
-
-  print(sprintf(" ______ dim(features_partial_county) : %d", dim(features_partial_county)))
 
   covariate_list_partial_county[[k]] <- features_partial_county
 
