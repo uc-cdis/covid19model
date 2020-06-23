@@ -7,9 +7,13 @@ data {
   int cases[N2,M]; // reported cases
   int deaths[N2, M]; // reported deaths -- the rows with i > N contain -1 and should be ignored
   matrix[N2, M] f; // h * s
-  matrix[N2, M] covariate1;
   int EpidemicStart[M];
   real SI[N2]; // fixed pre-calculated SI using emprical data from Neil
+  // new data for mobility //
+  int <lower=1> P_partial_county; // number of covariates for partial pooling (state-level effects)
+  matrix[N2, P_partial_county] X_partial_county[M];
+  int W; // number of weeks for weekly effects
+  int week_index[M,N2];
 }
 
 transformed data {
@@ -32,7 +36,10 @@ transformed parameters {
     matrix[N2, M] Rt = rep_matrix(0,N2,M);
     for (m in 1:M){
       prediction[1:N0,m] = rep_vector(y[m],N0); // learn the number of cases in the first N0 days
-        Rt[,m] = mu[m] * exp(covariate1[,m] * (-alpha[1])); // + GP[i]); // to_vector(x) * time_effect
+        // new Rt model
+        // handle alpha_state and weekly_effect
+        Rt[,m] = mu[m] * 2 * inv_logit(-X_partial_county[m] * alpha_state[m] 
+                                      -weekly_effect[week_index[m],m]);
       for (i in (N0+1):N2) {
         convolution=0;
         for(j in 1:(i-1)) {
