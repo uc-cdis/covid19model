@@ -37,8 +37,6 @@ transformed parameters {
     matrix[N2, M] Rt = rep_matrix(0,N2,M);
     for (m in 1:M){
       prediction[1:N0,m] = rep_vector(y[m],N0); // learn the number of cases in the first N0 days
-        // new Rt model
-        // handle alpha_county and weekly_effect
         Rt[,m] = mu[m] * 2 * inv_logit(-X_partial_county[m] * alpha_county[m] 
                                       -weekly_effect[week_index[m],m]);
       for (i in (N0+1):N2) {
