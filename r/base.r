@@ -213,6 +213,11 @@ for(Country in countries) {
   print("_____ df_features ________")
   print(sapply(df_features, function(x) length(x)))
 
+  # here's a problem
+  # some NA values in this df sometimes
+  # causes dimension problems, and other problems of course
+  print(sprintf("NA ??? --- > %s", any(is.na(df_features))))
+
   features_partial_county <- model.matrix(formula_partial_county, df_features)    
 
   print(sprintf(" ______ dim(features_partial_county) : %d", dim(features_partial_county)))
