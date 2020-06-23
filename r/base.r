@@ -151,7 +151,7 @@ for(Country in countries) {
 
 covariate_list_partial_county <- list()
 
-# State in states; k is their counter
+# k is their counter
 k <- 1
 for(Country in countries) {
 
@@ -172,8 +172,6 @@ for(Country in countries) {
   d1=d1[index2:nrow(d1),]
   stan_data$EpidemicStart = c(stan_data$EpidemicStart,index1+1-index2)
 
-
-  
   # dates[[as.character(Country)]] = d1$date
   dates[[Country]] = d1$date
 
@@ -188,7 +186,7 @@ for(Country in countries) {
   # fix it at 7 -> uniform forecast across counties..
   forecast <- 7
 
-  ########### cut -> fixme ##############
+  # >>>>>>>>>>> mobility >>>>>>>>>>>>> #
 
   # Selects mobility data for each county
   covariates_county <- mobility[which(mobility$countyCode == Country),]    
@@ -207,10 +205,8 @@ for(Country in countries) {
   features_partial_county <- model.matrix(formula_partial_county, df_features)    
   covariate_list_partial_county[[k]] <- features_partial_county
 
-  ########### cut ##############
+  # <<<<<<<<<<< mobility <<<<<<<<<<<<< #
 
-
-  
   h = rep(0,forecast+N) # discrete hazard rate from time t = 1, ..., 100
   mean1 = 5.1; cv1 = 0.86; # infection to onset
   mean2 = 18.8; cv2 = 0.45 # onset to death
@@ -239,7 +235,6 @@ for(Country in countries) {
   deaths=c(as.vector(as.numeric(d1$deaths)),rep(-1,forecast))
   cases=c(as.vector(as.numeric(d1$cases)),rep(-1,forecast))
   deaths_by_country[[Country]] = as.vector(as.numeric(d1$deaths))
-  
 
   ## icl: append data
   stan_data$N = c(stan_data$N,N)
