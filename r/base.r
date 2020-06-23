@@ -210,12 +210,10 @@ for(Country in countries) {
 
   # <<<<<<<<<<< mobility <<<<<<<<<<<<< #
 
-  print(1)
   h = rep(0,forecast+N) # discrete hazard rate from time t = 1, ..., 100
   mean1 = 5.1; cv1 = 0.86; # infection to onset
   mean2 = 18.8; cv2 = 0.45 # onset to death
 
-  print(2)
   # td: double check these comments
   # otherwise should be fine
   ## icl: assume that CFR is probability of dying given infection
@@ -223,25 +221,22 @@ for(Country in countries) {
   x2 = rgammaAlt(5e6,mean2,cv2) # icl: onset-to-death
   f = ecdf(x1+x2)
 
-  print(3)
   convolution = function(u) (CFR * f(u))
   h[1] = (convolution(1.5) - convolution(0)) 
-  print(4)
   for(i in 2:length(h)) {
     h[i] = (convolution(i+.5) - convolution(i-.5)) / (1-convolution(i-.5))
   }
-  print(5)
   s = rep(0,N2)
   s[1] = 1 
   for(i in 2:N2) {
     s[i] = s[i-1]*(1-h[i-1])
   }
-  print(6)
-  f = s * h
 
-  print(7)
+  # warning
+  # 1: In s * h :
+  # longer object length is not a multiple of shorter object length
+  f = s * h
   
-  # looks like 'y' may be the problem 
   y=c(as.vector(as.numeric(d1$cases)),rep(-1,forecast))
   reported_cases[[Country]] = as.vector(as.numeric(d1$cases))
   deaths=c(as.vector(as.numeric(d1$deaths)),rep(-1,forecast))
@@ -257,6 +252,12 @@ for(Country in countries) {
   stan_data$SI=serial.interval$fit[1:N2]
 
   stan_data$f = cbind(stan_data$f,f)
+
+  # warnings
+  # 2: In cbind(stan_data$deaths, deaths) :
+  # number of rows of result is not a multiple of vector length (arg 2)
+  # 3: In cbind(stan_data$cases, cases) :
+  # number of rows of result is not a multiple of vector length (arg 2)
   stan_data$deaths = cbind(stan_data$deaths,deaths)
   stan_data$cases = cbind(stan_data$cases,cases)
   
@@ -267,7 +268,6 @@ for(Country in countries) {
   }
 
   k <- k+1
-
 }
 
 # >>>>>>>>>>> mobility >>>>>>>>>>>>> #
@@ -277,7 +277,11 @@ stan_data$X_partial_county = array(NA, dim = c(stan_data$M , stan_data$N2 ,stan_
 
 # NOTE: mapped *_partial_state -> *_partial_county
 
+# Error in stan_data$X_partial_county[i, , ] <- covariate_list_partial_county[[i]] : 
+# number of items to replace is not a multiple of replacement length
 for (i in 1:stan_data$M){
+  # debug
+  print(i)
   stan_data$X_partial_county[i,,] = covariate_list_partial_county[[i]]
 }
 
