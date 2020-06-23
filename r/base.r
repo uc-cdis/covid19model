@@ -83,6 +83,12 @@ N2 = 0
 source("./read-mobility.r")
 mobility <- read_google_mobility(countries=countries, codeToName=codeToName)
 
+# basic impute values for NA in google mobility
+# see: https://github.com/ImperialCollegeLondon/covid19model/blob/v6.0/base-usa.r#L87-L88
+for(i in 1:ncol(mobility)){
+  mobility[is.na(mobility[,i]), i] <- mean(mobility[,i], na.rm = TRUE)
+}
+
 # Read predicted mobility
 google_pred <- read.csv('../modelInput/mobility/google-mobility-forecast.csv', stringsAsFactors = FALSE)
 google_pred$date <- as.Date(google_pred$date, format = '%Y-%m-%d') 
@@ -184,6 +190,8 @@ for(Country in countries) {
   forecast <- max(N2 - N, 7)
 
   # fix it at 7 -> uniform forecast across counties..
+  # can't do this - breaks routine as of now
+  # forecast doesn't even matter at this point
   # forecast <- 7
 
   # >>>>>>>>>>> mobility >>>>>>>>>>>>> #
@@ -195,20 +203,7 @@ for(Country in countries) {
   min_date <- min(d1$date)
   num_pad <- (min(covariates_county$date) - min_date[[1]])[[1]]
   len_mobility <- ncol(covariates_county)
-  
-  # print("--------- N + forecast -------")
-  # print(sprintf("-------- %d --------", N + forecast))
-
-
-  # HERE - error - there are sometimes NA values in the mobility data
-  # why?
-  # so far, only encountered in transit for one county
-  # but surely there will be others
-  # need to check 1. read_google_mobility and 2. impute mobility and 3. combine impute with observed mobility
-  print("_______ covariates_county _____")
-  print(sprintf("NA ??? --- > %s", any(is.na(covariates_county))))
-  print(sapply(covariates_county, function(x) any(is.na(x))))
-  
+    
   padded_covariates <- pad_mobility(len_mobility, num_pad, min_date, covariates_county, forecast, d1, Country)
 
   # include transit
@@ -216,9 +211,7 @@ for(Country in countries) {
 
   # creating features -> only want "partial_state"
   df_features <- create_features(len_mobility, padded_covariates, transit_usage)
-
   features_partial_county <- model.matrix(formula_partial_county, df_features)    
-
   covariate_list_partial_county[[k]] <- features_partial_county
 
   # <<<<<<<<<<< mobility <<<<<<<<<<<<< #
@@ -245,9 +238,6 @@ for(Country in countries) {
     s[i] = s[i-1]*(1-h[i-1])
   }
 
-  # warning
-  # 1: In s * h :
-  # longer object length is not a multiple of shorter object length
   f = s * h
   
   y=c(as.vector(as.numeric(d1$cases)),rep(-1,forecast))
@@ -266,11 +256,6 @@ for(Country in countries) {
 
   stan_data$f = cbind(stan_data$f,f)
 
-  # warnings
-  # 2: In cbind(stan_data$deaths, deaths) :
-  # number of rows of result is not a multiple of vector length (arg 2)
-  # 3: In cbind(stan_data$cases, cases) :
-  # number of rows of result is not a multiple of vector length (arg 2)
   stan_data$deaths = cbind(stan_data$deaths,deaths)
   stan_data$cases = cbind(stan_data$cases,cases)
   
@@ -290,22 +275,7 @@ stan_data$X_partial_county = array(NA, dim = c(stan_data$M , stan_data$N2 ,stan_
 
 # NOTE: mapped *_partial_state -> *_partial_county
 
-# dimensions (stan_data$N2 ,stan_data$P_partial_county)
-# don't match
-# dimensions(features_partial_county)
-#
-# guess: (N2) vs. (N + forecast) discrepency
-
-print("------- N2:")
-print(sprintf("----------- %d", N2))
-
-# Error in stan_data$X_partial_county[i, , ] <- covariate_list_partial_county[[i]] : 
-# number of items to replace is not a multiple of replacement length
 for (i in 1:stan_data$M){
-  # debug
-  print(i)
-  print(dim(stan_data$X_partial_county[i,,]))
-  print(dim(covariate_list_partial_county[[i]]))
   stan_data$X_partial_county[i,,] = covariate_list_partial_county[[i]]
 }
 
