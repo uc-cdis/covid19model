@@ -45,6 +45,9 @@ cumCaseAndDeath <- aggregate(cbind(d$deaths), by=list(Category=d$countryterritor
 dropCounties <- subset(cumCaseAndDeath, V1 < minimumReportedDeaths)$Category
 d <- subset(d, !(countryterritoryCode %in% dropCounties))
 
+d$date = as.Date(d$dateRep,format='%m/%d/%y')
+
+
 # print(sprintf("nCounties with more than %d deaths before %s: %d", minimumReportedDeaths, dateCutoff, length(unique(d$countryterritoryCode))))
 print(sprintf("nCounties with more than %d deaths: %d", minimumReportedDeaths, length(unique(d$countryterritoryCode))))
 
@@ -164,8 +167,6 @@ for(Country in countries) {
   CFR=cfr.by.country$weighted_fatality[cfr.by.country$country == Country]
 
   d1=d[d$countryterritoryCode==Country,]
-
-  d1$date = as.Date(d1$dateRep,format='%m/%d/%y')
 
   d1$t = decimal_date(d1$date) 
   d1=d1[order(d1$t),]
