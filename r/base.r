@@ -105,7 +105,7 @@ print(sprintf("MAX DATE : %s", max_date))
 
 ## need to take a close look @ this -> looks fine ##
 # see: https://stackoverflow.com/questions/8055508/in-r-formulas-why-do-i-have-to-use-the-i-function-on-power-terms-like-y-i
-formula_partial_county = '~ -1 + averageMobility + I(transit * transit_use) + residential'
+formula_partial_county = as.formula('~ -1 + averageMobility + I(transit * transit_use) + residential')
 
 # <<<<<<<<<<<<<<< MOBILITY <<<<<<<<<<<<<<<<<< #
 
@@ -192,20 +192,33 @@ for(Country in countries) {
   print(1)
 
   # Selects mobility data for each county
-  covariates_county <- mobility[which(mobility$countyCode == Country),]    
+  covariates_county <- mobility[which(mobility$countyCode == Country),]
+
+  print(2)
 
   # Find minimum date for the data
   min_date <- min(d1$date)
   num_pad <- (min(covariates_county$date) - min_date[[1]])[[1]]
   len_mobility <- ncol(covariates_county)
+  
+  print(3)
+
   padded_covariates <- pad_mobility(len_mobility, num_pad, min_date, covariates_county, forecast, d1, Country)
+
+  print(4)
 
   # include transit
   transit_usage <- rep(1, (N + forecast))
 
+  print(5)
+
   # creating features -> only want "partial_state"
   df_features <- create_features(len_mobility, padded_covariates, transit_usage)
+
+  print(6)
   features_partial_county <- model.matrix(formula_partial_county, df_features)    
+
+  print(7)
   covariate_list_partial_county[[k]] <- features_partial_county
 
   # <<<<<<<<<<< mobility <<<<<<<<<<<<< #
