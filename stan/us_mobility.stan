@@ -28,6 +28,7 @@ parameters {
   real<lower=0> phi;
   real<lower=0> tau;
   // new parameters
+  real<lower=0> gamma_county;
   matrix[W+1,M] weekly_effect;
   real<lower=0, upper=1> weekly_rho;
   real<lower=0, upper=1> weekly_rho1;
@@ -69,7 +70,7 @@ transformed parameters {
 }
 model {
   tau ~ exponential(0.03);
-  gamma_state ~ normal(0,.5);
+  gamma_county ~ normal(0,.5);
   weekly_sd ~ normal(0,0.2);
   weekly_rho ~ normal(0.8, 0.05);
   weekly_rho1 ~ normal(0.1, 0.05);
@@ -81,7 +82,7 @@ model {
   weekly_effect[2, ] ~ normal(0,weekly_sd *sqrt(1-pow(weekly_rho,2)-pow(weekly_rho1,2) - 2 * pow(weekly_rho,2) * weekly_rho1/(1-weekly_rho1)));
   weekly_effect[1, ] ~ normal(0, 0.01);
   for (q in 1:M){
-     alpha_county[q] ~ normal(0,gamma_state);
+     alpha_county[q] ~ normal(0,gamma_county);
   }
   phi ~ normal(0,5);
   kappa ~ normal(0,0.5);
