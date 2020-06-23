@@ -155,30 +155,7 @@ covariate_list_partial_state <- list()
 k <- 1
 for(Country in countries) {
 
-  ########### cut -> fixme ##############
-
-  # Selects mobility data for each state # COUNTY
-  covariates_state <- mobility[which(mobility$code == State),]    
-      
-  # Find minimum date for the data
-  min_date <- min(data_state$date)
-  num_pad <- (min(covariates_state$date) - min_date[[1]])[[1]]
-  len_mobility <- ncol(covariates_state)
-  padded_covariates <- pad_mobility(len_mobility, num_pad, min_date, covariates_state, forecast_length, data_state, State)
-
-  # include transit
-  transit_usage <- rep(1, (N + forecast_length))
-
-  # creating features -> only want "partial_state"
-  df_features <- create_features(len_mobility, padded_covariates, transit_usage)
-  features_partial_state <- model.matrix(formula_partial_state, df_features)    
-  covariate_list_partial_state[[k]] <- features_partial_state
-
-  ########### cut ##############
-
   CFR=cfr.by.country$weighted_fatality[cfr.by.country$country == Country]
-
-  covariates1 <- covariates[covariates$Country == Country, 3:ncol(covariates), drop=FALSE]
 
   d1=d[d$countryterritoryCode==Country,]
 
@@ -194,14 +171,29 @@ for(Country in countries) {
   print(sprintf("First non-zero cases is on day %d, and 30 days before 10 cumulative deaths is day %d",index,index2))
   d1=d1[index2:nrow(d1),]
   stan_data$EpidemicStart = c(stan_data$EpidemicStart,index1+1-index2)
-  
-  for (ii in 1:ncol(covariates1)) {
-    covariate = names(covariates1)[ii]
-    
-    # 0 -> 1 (lockdown doesn't end)
-    d1[covariate] <- (as.Date(d1$dateRep, format='%m/%d/%y') >= as.Date(covariates1[1,covariate]))*1  # icl: should this be > or >=?
-  }
 
+  ########### cut -> fixme ##############
+
+  # Selects mobility data for each county
+  covariates_county <- mobility[which(mobility$countyCode == Country),]    
+
+  # Find minimum date for the data
+  min_date <- min(d1$date)
+  num_pad <- (min(covariates_county$date) - min_date[[1]])[[1]]
+  len_mobility <- ncol(covariates_county)
+  padded_covariates <- pad_mobility(len_mobility, num_pad, min_date, covariates_county, forecast_length, d1, State)
+
+  # include transit
+  transit_usage <- rep(1, (N + forecast_length))
+
+  # creating features -> only want "partial_state"
+  df_features <- create_features(len_mobility, padded_covariates, transit_usage)
+  features_partial_state <- model.matrix(formula_partial_state, df_features)    
+  covariate_list_partial_state[[k]] <- features_partial_state
+
+  ########### cut ##############
+
+  
   # dates[[as.character(Country)]] = d1$date
   dates[[Country]] = d1$date
 
@@ -245,13 +237,7 @@ for(Country in countries) {
   deaths=c(as.vector(as.numeric(d1$deaths)),rep(-1,forecast))
   cases=c(as.vector(as.numeric(d1$cases)),rep(-1,forecast))
   deaths_by_country[[Country]] = as.vector(as.numeric(d1$deaths))
-  covariates2 <- as.data.frame(d1[, colnames(covariates1)])
-  covariates2[N:(N+forecast),] <- covariates2[N,]
   
-  # print(sprintf("N: %d", N))
-  # print(sprintf("N2: %d", N2))
-  # print(sprintf("length(cases): %d", length(cases)))
-  # print(sprintf("forecast: %d", forecast))
 
   ## icl: append data
   stan_data$N = c(stan_data$N,N)
@@ -261,7 +247,6 @@ for(Country in countries) {
   stan_data$x2=poly(1:N2,2)[,2]
   stan_data$SI=serial.interval$fit[1:N2]
 
-  stan_data$covariate1 = cbind(stan_data$covariate1,covariates2[,1])
   stan_data$f = cbind(stan_data$f,f)
   stan_data$deaths = cbind(stan_data$deaths,deaths)
   stan_data$cases = cbind(stan_data$cases,cases)
