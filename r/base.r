@@ -105,7 +105,7 @@ print(sprintf("MAX DATE : %s", max_date))
 
 ## need to take a close look @ this -> looks fine ##
 # see: https://stackoverflow.com/questions/8055508/in-r-formulas-why-do-i-have-to-use-the-i-function-on-power-terms-like-y-i
-formula_partial_state = '~ -1 + averageMobility + I(transit * transit_use) + residential'
+formula_partial_county = '~ -1 + averageMobility + I(transit * transit_use) + residential'
 
 # <<<<<<<<<<<<<<< MOBILITY <<<<<<<<<<<<<<<<<< #
 
@@ -149,7 +149,7 @@ for(Country in countries) {
 
 # / # / # / good through here # / # / # /
 
-covariate_list_partial_state <- list()
+covariate_list_partial_county <- list()
 
 # State in states; k is their counter
 k <- 1
@@ -204,8 +204,8 @@ for(Country in countries) {
 
   # creating features -> only want "partial_state"
   df_features <- create_features(len_mobility, padded_covariates, transit_usage)
-  features_partial_state <- model.matrix(formula_partial_state, df_features)    
-  covariate_list_partial_state[[k]] <- features_partial_state
+  features_partial_county <- model.matrix(formula_partial_county, df_features)    
+  covariate_list_partial_county[[k]] <- features_partial_county
 
   ########### cut ##############
 
@@ -265,11 +265,13 @@ for(Country in countries) {
 
 ############ cut -> fixme #############
 
-stan_data$P_partial_state = dim(features_partial_state)[2]
-stan_data$X_partial_state = array(NA, dim = c(stan_data$M , stan_data$N2 ,stan_data$P_partial_state))
+stan_data$P_partial_county = dim(features_partial_county)[2]
+stan_data$X_partial_county = array(NA, dim = c(stan_data$M , stan_data$N2 ,stan_data$P_partial_county))
+
+# NOTE: mapped *_partial_state -> *_partial_county
 
 for (i in 1:stan_data$M){
-  stan_data$X_partial_state[i,,] = covariate_list_partial_state[[i]]
+  stan_data$X_partial_county[i,,] = covariate_list_partial_county[[i]]
 }
 
 stan_data$W <- ceiling(stan_data$N2/7) 
