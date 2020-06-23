@@ -23,7 +23,7 @@ transformed data {
 parameters {
   real<lower=0> mu[M]; // intercept for Rt
   real<lower=0> alpha[1]; // icl: the hier term // -> ncols corresponds to number of covariates (i.e., number of interventions)
-  vector[P_partial_state] alpha_county[M];
+  vector[P_partial_county] alpha_county[M];
   real<lower=0> kappa;
   real<lower=0> y[M];
   real<lower=0> phi;
