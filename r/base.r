@@ -153,8 +153,6 @@ for(Country in countries) {
   }
 }
 
-# / # / # / good through here # / # / # /
-
 covariate_list_partial_county <- list()
 
 # k is their counter
@@ -279,6 +277,10 @@ for (i in 1:stan_data$M){
   stan_data$X_partial_county[i,,] = covariate_list_partial_county[[i]]
 }
 
+# / # / # / good through here # / # / # /
+
+# >>>>> next bit >>>>> #
+
 stan_data$W <- ceiling(stan_data$N2/7) 
 stan_data$week_index <- matrix(1,stan_data$M,stan_data$N2)
 for(state.i in 1:stan_data$M) {
@@ -286,6 +288,8 @@ for(state.i in 1:stan_data$M) {
   last_ar_week = which(dates[[state.i]]==max(death_data$date) - 28)
   stan_data$week_index[state.i,last_ar_week:ncol(stan_data$week_index)] <-  stan_data$week_index[state.i,last_ar_week]
 }
+
+# <<<<< next bit <<<<< #
 
 # <<<<<<<<<<< mobility <<<<<<<<<<<<< #
 
