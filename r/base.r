@@ -188,62 +188,58 @@ for(Country in countries) {
 
   # >>>>>>>>>>> mobility >>>>>>>>>>>>> #
 
-  # begin debug -> HERE ->
-  print(1)
-
   # Selects mobility data for each county
   covariates_county <- mobility[which(mobility$countyCode == Country),]
-
-  print(2)
 
   # Find minimum date for the data
   min_date <- min(d1$date)
   num_pad <- (min(covariates_county$date) - min_date[[1]])[[1]]
   len_mobility <- ncol(covariates_county)
   
-  print(3)
-
   padded_covariates <- pad_mobility(len_mobility, num_pad, min_date, covariates_county, forecast, d1, Country)
-
-  print(4)
 
   # include transit
   transit_usage <- rep(1, (N + forecast))
 
-  print(5)
-
   # creating features -> only want "partial_state"
   df_features <- create_features(len_mobility, padded_covariates, transit_usage)
 
-  print(6)
   features_partial_county <- model.matrix(formula_partial_county, df_features)    
 
-  print(7)
   covariate_list_partial_county[[k]] <- features_partial_county
 
   # <<<<<<<<<<< mobility <<<<<<<<<<<<< #
 
+  print(1)
   h = rep(0,forecast+N) # discrete hazard rate from time t = 1, ..., 100
   mean1 = 5.1; cv1 = 0.86; # infection to onset
   mean2 = 18.8; cv2 = 0.45 # onset to death
 
+  print(2)
   # td: double check these comments
   # otherwise should be fine
   ## icl: assume that CFR is probability of dying given infection
   x1 = rgammaAlt(5e6,mean1,cv1) # icl: infection-to-onset ----> do all people who are infected get to onset?
   x2 = rgammaAlt(5e6,mean2,cv2) # icl: onset-to-death
   f = ecdf(x1+x2)
+
+  print(3)
   convolution = function(u) (CFR * f(u))
   h[1] = (convolution(1.5) - convolution(0)) 
+  print(4)
   for(i in 2:length(h)) {
     h[i] = (convolution(i+.5) - convolution(i-.5)) / (1-convolution(i-.5))
   }
+  print(5)
   s = rep(0,N2)
   s[1] = 1 
   for(i in 2:N2) {
     s[i] = s[i-1]*(1-h[i-1])
   }
+  print(6)
   f = s * h
+
+  print(7)
   
   # looks like 'y' may be the problem 
   y=c(as.vector(as.numeric(d1$cases)),rep(-1,forecast))
