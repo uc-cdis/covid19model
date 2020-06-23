@@ -23,6 +23,7 @@ transformed data {
 parameters {
   real<lower=0> mu[M]; // intercept for Rt
   real<lower=0> alpha[1]; // icl: the hier term // -> ncols corresponds to number of covariates (i.e., number of interventions)
+  vector[P_partial_state] alpha_county[M];
   real<lower=0> kappa;
   real<lower=0> y[M];
   real<lower=0> phi;
@@ -37,8 +38,8 @@ transformed parameters {
     for (m in 1:M){
       prediction[1:N0,m] = rep_vector(y[m],N0); // learn the number of cases in the first N0 days
         // new Rt model
-        // handle alpha_state and weekly_effect
-        Rt[,m] = mu[m] * 2 * inv_logit(-X_partial_county[m] * alpha_state[m] 
+        // handle alpha_county and weekly_effect
+        Rt[,m] = mu[m] * 2 * inv_logit(-X_partial_county[m] * alpha_county[m] 
                                       -weekly_effect[week_index[m],m]);
       for (i in (N0+1):N2) {
         convolution=0;
@@ -65,18 +66,28 @@ transformed parameters {
 }
 model {
   tau ~ exponential(0.03);
-  for (m in 1:M){
-      y[m] ~ exponential(1.0/tau);
+  gamma_state ~ normal(0,.5);
+  weekly_sd ~ normal(0,0.2);
+  weekly_rho ~ normal(0.8, 0.05);
+  weekly_rho1 ~ normal(0.1, 0.05);
+  for (m in 1:M) {
+      y[m] ~ exponential(1/tau);
+      weekly_effect[3:(W+1), m] ~ normal(weekly_effect[2:W,m]* weekly_rho + weekly_effect[1:(W-1),m]* weekly_rho1, 
+                                            weekly_sd *sqrt(1-pow(weekly_rho,2)-pow(weekly_rho1,2) - 2 * pow(weekly_rho,2) * weekly_rho1/(1-weekly_rho1)));
+  }
+  weekly_effect[2, ] ~ normal(0,weekly_sd *sqrt(1-pow(weekly_rho,2)-pow(weekly_rho1,2) - 2 * pow(weekly_rho,2) * weekly_rho1/(1-weekly_rho1)));
+  weekly_effect[1, ] ~ normal(0, 0.01);
+  for (q in 1:M){
+     alpha_county[q] ~ normal(0,gamma_state);
   }
   phi ~ normal(0,5);
   kappa ~ normal(0,0.5);
-  mu ~ normal(2.4, kappa); // citation needed 
-  alpha ~ gamma(.5,1);
+  mu ~ normal(3.28, kappa); // citation: https://academic.oup.com/jtm/article/27/2/taaa021/5735319
   for(m in 1:M){
     for(i in EpidemicStart[m]:N[m]){
        deaths[i,m] ~ neg_binomial_2(E_deaths[i,m],phi); 
     }
-   }
+  }
 }
 
 generated quantities {
