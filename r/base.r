@@ -277,6 +277,12 @@ stan_data$X_partial_county = array(NA, dim = c(stan_data$M , stan_data$N2 ,stan_
 
 # NOTE: mapped *_partial_state -> *_partial_county
 
+# dimensions (stan_data$N2 ,stan_data$P_partial_county)
+# don't match
+# dimensions(features_partial_county)
+#
+# guess: (N2) vs. (N + forecast) discrepency
+
 # Error in stan_data$X_partial_county[i, , ] <- covariate_list_partial_county[[i]] : 
 # number of items to replace is not a multiple of replacement length
 for (i in 1:stan_data$M){
