@@ -165,9 +165,10 @@ process_covariates <- function(states, mobility, death_data, formula_partial_sta
 }
 
 # padded_covariates <- pad_mobility(len_mobility, num_pad, min_date, covariates_county, forecast_length, d1, Country)
+# 'County' is data_county$countyCode
+# 'data_county' is d1 (case-mortality daat for that county)
 
-
-# fixme
+# should work
 pad_mobility <- function(len_mobility, num_pad, min_date, covariates_county, forecast_length, data_county, County){
   if (num_pad <= 0){
     covariates_county <- covariates_county[covariates_county$date >=min_date, ]
@@ -177,7 +178,9 @@ pad_mobility <- function(len_mobility, num_pad, min_date, covariates_county, for
     for_length <- length(pad_dates_end)
     
     len_covariates <- length(covariates_county$grocery.pharmacy)
-    padded_covariates <- data.frame("code" = rep(County, length(covariates_county$date) + for_length),
+
+    # could also include : "countyName" - not sure if needed here
+    padded_covariates <- data.frame("countyCode" = rep(County, length(covariates_county$date) + for_length),
                                     "date" = c(covariates_county$date, pad_dates_end),
                                     "grocery.pharmacy" = c(covariates_county$grocery.pharmacy, 
                                                            rep(median(covariates_county$grocery.pharmacy[(len_covariates-7):len_covariates],na.rm = TRUE),
@@ -202,7 +205,7 @@ pad_mobility <- function(len_mobility, num_pad, min_date, covariates_county, for
     for_length <- length(pad_dates_end)
 
     len_covariates <- length(covariates_county$grocery.pharmacy)
-    padded_covariates <- data.frame("code" = rep(County, num_pad + length(covariates_county$date) + for_length),
+    padded_covariates <- data.frame("countyCode" = rep(County, num_pad + length(covariates_county$date) + for_length),
                                     "date" = c(pad_dates_front, covariates_county$date, pad_dates_end),
                                     "grocery.pharmacy" = c(as.integer(rep(0, num_pad)), covariates_county$grocery.pharmacy, 
                                                            rep(median(covariates_county$grocery.pharmacy[(len_covariates-7):len_covariates], na.rm = TRUE), 
