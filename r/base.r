@@ -188,6 +188,9 @@ for(Country in countries) {
 
   # >>>>>>>>>>> mobility >>>>>>>>>>>>> #
 
+  # begin debug -> HERE ->
+  print(1)
+
   # Selects mobility data for each county
   covariates_county <- mobility[which(mobility$countyCode == Country),]    
 
