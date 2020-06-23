@@ -181,10 +181,10 @@ for(Country in countries) {
   
   # at least a seven day forecast 
   # testing this
-  # forecast <- max(N2 - N, 7)
+  forecast <- max(N2 - N, 7)
 
   # fix it at 7 -> uniform forecast across counties..
-  forecast <- 7
+  # forecast <- 7
 
   # >>>>>>>>>>> mobility >>>>>>>>>>>>> #
 
@@ -196,7 +196,13 @@ for(Country in countries) {
   num_pad <- (min(covariates_county$date) - min_date[[1]])[[1]]
   len_mobility <- ncol(covariates_county)
   
+  print("--------- N + forecast -------")
+  print(sprintf("-------- %d --------", N + forecast))
+  
   padded_covariates <- pad_mobility(len_mobility, num_pad, min_date, covariates_county, forecast, d1, Country)
+
+  print("_____ sapply padded ________")
+  print(sapply(padded_covariates, function(x) length(x)))
 
   # include transit
   transit_usage <- rep(1, (N + forecast))
@@ -204,7 +210,12 @@ for(Country in countries) {
   # creating features -> only want "partial_state"
   df_features <- create_features(len_mobility, padded_covariates, transit_usage)
 
+  print("_____ df_features ________")
+  print(sapply(df_features, function(x) length(x)))
+
   features_partial_county <- model.matrix(formula_partial_county, df_features)    
+
+  print(sprintf(" ______ dim(features_partial_county) : %d", dim(features_partial_county)))
 
   covariate_list_partial_county[[k]] <- features_partial_county
 
@@ -283,11 +294,16 @@ stan_data$X_partial_county = array(NA, dim = c(stan_data$M , stan_data$N2 ,stan_
 #
 # guess: (N2) vs. (N + forecast) discrepency
 
+print("------- N2:")
+print(sprintf("----------- %d", N2))
+
 # Error in stan_data$X_partial_county[i, , ] <- covariate_list_partial_county[[i]] : 
 # number of items to replace is not a multiple of replacement length
 for (i in 1:stan_data$M){
   # debug
   print(i)
+  print(dim(stan_data$X_partial_county[i,,]))
+  print(dim(covariate_list_partial_county[[i]]))
   stan_data$X_partial_county[i,,] = covariate_list_partial_county[[i]]
 }
 
