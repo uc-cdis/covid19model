@@ -181,7 +181,7 @@ for(Country in countries) {
   min_date <- min(d1$date)
   num_pad <- (min(covariates_county$date) - min_date[[1]])[[1]]
   len_mobility <- ncol(covariates_county)
-  padded_covariates <- pad_mobility(len_mobility, num_pad, min_date, covariates_county, forecast_length, d1, State)
+  padded_covariates <- pad_mobility(len_mobility, num_pad, min_date, covariates_county, forecast_length, d1, Country)
 
   # include transit
   transit_usage <- rep(1, (N + forecast_length))
