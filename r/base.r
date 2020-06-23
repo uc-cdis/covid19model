@@ -280,10 +280,6 @@ for (i in 1:stan_data$M){
   stan_data$X_partial_county[i,,] = covariate_list_partial_county[[i]]
 }
 
-# / # / # / good through here # / # / # /
-
-# >>>>> next bit >>>>> #
-
 stan_data$W <- ceiling(stan_data$N2/7) 
 stan_data$week_index <- matrix(1,stan_data$M,stan_data$N2)
 for(j in 1:stan_data$M) {
@@ -291,8 +287,6 @@ for(j in 1:stan_data$M) {
   last_ar_week = which(dates[[j]]==max(d$date) - 28)
   stan_data$week_index[j,last_ar_week:ncol(stan_data$week_index)] <-  stan_data$week_index[j,last_ar_week]
 }
-
-# <<<<< next bit <<<<< #
 
 # <<<<<<<<<<< mobility <<<<<<<<<<<<< #
 
@@ -303,6 +297,9 @@ rstan_options(auto_write = TRUE)
 m = stan_model(paste0('../stan/',StanModel,'.stan'))
 
 fit = sampling(m,data=stan_data,iter=nStanIterations,warmup=nStanIterations/2,chains=8,thin=4,control = list(adapt_delta = 0.90, max_treedepth = 10))
+
+# / # / # / good through here # / # / # /
+# / # / # / checkpoint - now need to edit the stan code, and it *should* run # / # / # /
 
 out = rstan::extract(fit)
 prediction = out$prediction
