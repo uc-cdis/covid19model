@@ -299,10 +299,8 @@ options(mc.cores = parallel::detectCores())
 rstan_options(auto_write = TRUE)
 m = stan_model(paste0('../stan/',StanModel,'.stan'))
 
+# it works!!
 fit = sampling(m,data=stan_data,iter=nStanIterations,warmup=nStanIterations/2,chains=8,thin=4,control = list(adapt_delta = 0.90, max_treedepth = 10))
-
-# / # / # / good through here # / # / # /
-# / # / # / checkpoint - now need to edit the stan code, and it *should* run # / # / # /
 
 out = rstan::extract(fit)
 prediction = out$prediction
