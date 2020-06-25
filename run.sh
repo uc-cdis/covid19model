@@ -23,7 +23,7 @@ echo "\n- Mobility Regression -"
 cd ../modelInput/mobility/visit-data/
 sh get-visit-data.sh
 cd ../../../r/
-Rscript mobility-regression.r
+Rscript mobility-regression.r > /dev/null 2>&1
 
 # run the model via R script
 echo "\n- Model Run -"
