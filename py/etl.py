@@ -361,10 +361,16 @@ def makeIFRTable(dirPath, population_df):
 # paper: https://arxiv.org/abs/2004.00756
 # data: https://github.com/JieYingWu/COVID-19_US_County-level_Summaries
 def fetchSocEc(dirPath):
+    print("\n~ SOC-EC TABLE ~")
+
+    print("--- fetching soc-ec table ---")
     path = 'https://raw.githubusercontent.com/JieYingWu/COVID-19_US_County-level_Summaries/master/data/counties.csv'
     df = pd.read_csv(path)
+
+    print("--- saving soc-ec table ---")
     p = dirPath + "/SocEc.csv"
     df.to_csv(p)
+
     return(p)
 
 # wow I want to really, thoroughly refactor all this so bad
