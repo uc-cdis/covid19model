@@ -52,9 +52,9 @@ d <- subset(d, !(countryterritoryCode %in% dropCounties))
 
 # try <steps> day moving average to smooth raw reported case and death counts
 # "so the bars don't look so bad" - really to account for bias/periodic fluxuations in reporting
-steps = 7
-d$deaths = c(rep(0, steps-1), as.integer(smooth_fn(d$deaths, days=steps)))
-d$cases = c(rep(0, steps-1), as.integer(smooth_fn(d$cases, days=steps)))
+# steps = 7
+# d$deaths = c(rep(0, steps-1), as.integer(smooth_fn(d$deaths, days=steps)))
+# d$cases = c(rep(0, steps-1), as.integer(smooth_fn(d$cases, days=steps)))
 
 d$date = as.Date(d$dateRep,format='%m/%d/%y')
 
