@@ -50,9 +50,9 @@ cumCaseAndDeath <- aggregate(cbind(d$deaths), by=list(Category=d$countryterritor
 dropCounties <- subset(cumCaseAndDeath, V1 < minimumReportedDeaths)$Category
 d <- subset(d, !(countryterritoryCode %in% dropCounties))
 
-# try 3 day moving average to smooth raw reported case and death counts
+# try <steps> day moving average to smooth raw reported case and death counts
 # "so the bars don't look so bad" - really to account for bias/periodic fluxuations in reporting
-steps = 3
+steps = 7
 d$deaths = c(rep(0, steps-1), as.integer(smooth_fn(d$deaths, days=steps)))
 d$cases = c(rep(0, steps-1), as.integer(smooth_fn(d$cases, days=steps)))
 
