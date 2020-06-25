@@ -20,6 +20,7 @@ print(sprintf("Running MCMC routine with %d iterations", nStanIterations))
 ## -> https://github.com/ImperialCollegeLondon/covid19model/blob/v6.0/usa/code/utils/read-data-usa.r#L24-L27
 ## -> something to try, for sure
 
+library(zoo)
 smooth_fn = function(x, days=3) {
   return(rollmean(x, days, align = "right"))
 }
@@ -51,9 +52,9 @@ d <- subset(d, !(countryterritoryCode %in% dropCounties))
 
 # try 3 day moving average to smooth raw reported case and death counts
 # "so the bars don't look so bad" - really to account for bias/periodic fluxuations in reporting
-stepsMovingAverage = 3
-d$deaths = c(rep(0, k-1), as.integer(smooth_fn(d$deaths, days=stepsMovingAverage)))
-d$cases = c(rep(0, k-1), as.integer(smooth_fn(d$cases, days=stepsMovingAverage)))
+steps = 3
+d$deaths = c(rep(0, steps-1), as.integer(smooth_fn(d$deaths, days=steps)))
+d$cases = c(rep(0, steps-1), as.integer(smooth_fn(d$cases, days=steps)))
 
 d$date = as.Date(d$dateRep,format='%m/%d/%y')
 
