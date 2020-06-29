@@ -26,12 +26,16 @@ for(i in 1:length(countries)){
     county <- countries[[i]]
     N <- length(dates[[i]])
     countyDates <- dates[[i]]
-    lastObs <- tail(dates[[i]], 1)
+    # lastObs <- tail(dates[[i]], 1)
 
     # last index is county
     countyForecast <- colMeans(estimated.deaths[,(N+1):N2,i])
+    print(countyForecast)
 
+    # int vs. string err here!
+    print(typeof(obs$countryterritoryCode))
     countyObs <- obs[obs$countryterritoryCode==county,]
+    print(head(countyObs))
 
     # tail(as.Date(countyObs$dateRep, format = "%m/%d/%y"), 1) > lastObs
     validationObs <- countyObs[as.Date(countyObs$dateRep, format = "%m/%d/%y") > lastObs, ]
