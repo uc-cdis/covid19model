@@ -64,9 +64,9 @@ print(sprintf("number of points: %d", pts))
 ## fix this writing scheme
 # look at it
 png(filename="../modelOutput/Validation.png", width=1600, height=1600, units="px", pointsize=36)
-plot(fullSet$obs, fullSet$pred)
+plot(fullSet$obs, fullSet$pred, sub=sprintf("correlation: %d", correlationScore))
 dev.off()
 
 png(filename="../modelOutput/Validation_log.png", width=1600, height=1600, units="px", pointsize=36)
-plot(log(fullSet$obs), log(fullSet$pred))
+plot(log(fullSet$obs), log(fullSet$pred), sub=sprintf("correlation: %d", correlationScore))
 dev.off()
