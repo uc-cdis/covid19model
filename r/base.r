@@ -328,7 +328,7 @@ if(JOBID == "")
   JOBID = as.character(abs(round(rnorm(1) * 1000000)))
 print(sprintf("Jobid = %s",JOBID))
 save.image(paste0('../modelOutput/results/',StanModel,'-',JOBID,'.Rdata'))
-save(fit,prediction,dates,reported_cases,deaths_by_country,countries,estimated.deaths,estimated.deaths.cf,out,covariates,file=paste0('../modelOutput/results/',StanModel,'-',JOBID,'-stanfit.Rdata'))
+save(fit,prediction,dates,reported_cases,deaths_by_country,countries,estimated.deaths,estimated.deaths.cf,out,lastObs,covariate_list_partial_county,file=paste0('../modelOutput/results/',StanModel,'-',JOBID,'-stanfit.Rdata'))
 
 #### saving of simulation results is finished
 
@@ -344,3 +344,8 @@ system(paste0("Rscript plot-forecast.r ", filename,'.Rdata')) ## icl: to run thi
 
 # suppressing for now
 # system(paste0("Rscript plot-explore.r ", filename,'.Rdata'))
+
+if (validateFlag == "--validate"){
+  print("validating model output ...")
+  system(paste0("Rscript validate.r ", filename,'.Rdata')) 
+} 
