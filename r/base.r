@@ -7,11 +7,15 @@ library(tidyr)
 library(stringr)
 library(dplyr)
 
-# Rscript base.r us_base 150 4000 
+# Rscript base.r us_base 150 4000 [--validate]
 args = commandArgs(trailingOnly=TRUE)
 StanModel = args[1]
 minimumReportedDeaths = as.integer(args[2])
 nStanIterations = as.integer(args[3])
+validateFlag = args[4]
+if (validateFlag == "--validate"){
+  print("INFO: --validate flag passed - running validation routine")
+}
 print(sprintf("Running stan model %s",StanModel))
 print(sprintf("Only running on counties with at least %d total reported deaths", minimumReportedDeaths))
 print(sprintf("Running MCMC routine with %d iterations", nStanIterations))
@@ -58,6 +62,14 @@ d$cases = c(rep(0, steps-1), as.integer(smooth_fn(d$cases, days=steps)))
 
 d$date = as.Date(d$dateRep,format='%m/%d/%y')
 
+## validation cutoff
+if (validateFlag == "--validate"){
+  lastObs <- tail(d$date, 1)
+  validationCutoff <- lastObs - 7
+  print(sprintf("validation: running model through date: %s", validationCutoff))
+  print(sprintf("validation: validating on 7 days leading up to date of last observation: %s", lastObs))
+  d <- d[d$date < validationCutoff, ]
+}
 
 # print(sprintf("nCounties with more than %d deaths before %s: %d", minimumReportedDeaths, dateCutoff, length(unique(d$countryterritoryCode))))
 print(sprintf("nCounties with more than %d deaths: %d", minimumReportedDeaths, length(unique(d$countryterritoryCode))))
