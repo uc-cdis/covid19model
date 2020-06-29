@@ -176,6 +176,11 @@ pad_mobility <- function(len_mobility, num_pad, min_date, covariates_county, for
       days(1:(forecast_length - (min(data_county$date) - min(covariates_county$date)) + 
                 (max(data_county$date) - max(covariates_county$date))))
     for_length <- length(pad_dates_end)
+
+    print(pad_dates_end)
+
+    print(sprintf("pad_dates_end: %s", pad_dates_end))
+    print(sprintf("for_length: %d", for_length))
     
     len_covariates <- length(covariates_county$grocery.pharmacy)
 
