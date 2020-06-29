@@ -57,15 +57,16 @@ correlationScore <- cor(fullSet$pred, fullSet$obs)
 # error here???
 print(sprintf("correlation: %d", correlationScore))
 
-
 print(sprintf("number of dates: %d", n))
+print(sprintf("number of counties: %d", length(countries)))
 print(sprintf("number of points: %d", pts))
 
+## fix this writing scheme
 # look at it
-png(filename="../modelOutput/explorePlots/firstValidation.png", width=1600, height=1600, units="px", pointsize=36)
+png(filename="../modelOutput/Validation.png", width=1600, height=1600, units="px", pointsize=36)
 plot(fullSet$obs, fullSet$pred)
 dev.off()
 
-png(filename="../modelOutput/explorePlots/firstValidation_log.png", width=1600, height=1600, units="px", pointsize=36)
+png(filename="../modelOutput/Validation_log.png", width=1600, height=1600, units="px", pointsize=36)
 plot(log(fullSet$obs), log(fullSet$pred))
 dev.off()
