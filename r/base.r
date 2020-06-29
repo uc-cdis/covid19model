@@ -45,15 +45,6 @@ d$countryterritoryCode <- sapply(d$countryterritoryCode, as.character)
 # trim US code prefix
 d$countryterritoryCode <- sub("840", "", d$countryterritoryCode)
 
-## validation cutoff
-if (validateFlag == "--validate"){
-  lastObs <- tail(d$date, 1)
-  validationCutoff <- lastObs - 7
-  print(sprintf("validation: running model through date: %s", validationCutoff))
-  print(sprintf("validation: validating on 7 days leading up to date of last observation: %s", lastObs))
-  d <- d[d$date < validationCutoff, ]
-}
-
 # SMOOTHING reported death and case counts
 # try <steps> day moving average to smooth raw reported case and death counts
 # "so the bars don't look so bad" - really to account for bias/periodic fluxuations in reporting
@@ -113,8 +104,17 @@ if (max(google_pred$date) > max(mobility$date)){
 }
 
 max_date <- max(mobility$date)
-d <- d[as.Date(d$dateRep, format = "%m/%d/%y") <= max_date, ]
-print(sprintf("MAX DATE : %s", max_date))
+
+## validation cutoff
+if (validateFlag == "--validate"){
+  lastObs <- max_date - 7
+  print(sprintf("validation: running model through date: %s", lastObs))
+  print(sprintf("validation: validating on 7 days leading up to date of last observation: %s", max_date))
+} else {
+  lastObs <- max_date
+  print(sprintf("MAX DATE : %s", lastObs))
+}
+d <- d[as.Date(d$dateRep, format = "%m/%d/%y") <= lastObs, ]
 
 ## need to take a close look @ this -> looks fine ##
 # see: https://stackoverflow.com/questions/8055508/in-r-formulas-why-do-i-have-to-use-the-i-function-on-power-terms-like-y-i
@@ -141,7 +141,7 @@ stan_data = list(M=length(countries),
 for(Country in countries) {
 
   tmp=d[d$countryterritoryCode==Country,]
-  tmp$date = as.Date(tmp$dateRep,format='%m/%d/%y')
+  # tmp$date = as.Date(tmp$dateRep,format='%m/%d/%y')
   tmp$t = decimal_date(tmp$date) 
   tmp=tmp[order(tmp$t),]
 
@@ -204,7 +204,23 @@ for(Country in countries) {
   num_pad <- (min(covariates_county$date) - min_date[[1]])[[1]]
   len_mobility <- ncol(covariates_county)
     
-  padded_covariates <- pad_mobility(len_mobility, num_pad, min_date, covariates_county, forecast, d1, Country)
+  print(sprintf("num_pad: %d", num_pad))
+
+  print(sapply(covariates_county, function(x) length(x)))
+
+  # their pad_mobility fn is busted, or I broke or
+  # in any case it's overly complicated
+  # padded_covariates <- pad_mobility(len_mobility, num_pad, min_date, covariates_county, forecast, d1, Country)
+
+  # testing ... -> works
+  padded_covariates <- covariates_county[covariates_county$date >= min_date, ]
+
+
+  print(sapply(padded_covariates, function(x) length(x)))
+
+  print(sprintf("N: %d ; forecast: %d", N, forecast))
+  print(sprintf("N + forecast: %d", N+forecast))
+  print(sprintf("N2: %d", N2))
 
   # include transit
   transit_usage <- rep(1, (N + forecast))
