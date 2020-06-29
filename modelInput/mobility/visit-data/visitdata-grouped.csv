@@ -14102,3 +14102,195 @@ date,state,county,categoryid,categoryname,demo,visits,avgDuration,p50Duration
 2020-06-26,Illinois,,Group,Travel & Transport,Above65,27034.0,59.0,
 2020-06-26,Illinois,,Group,Travel & Transport,All,480827.0,73.0,18.0
 2020-06-26,Illinois,,Group,Travel & Transport,Below65,453792.0,74.0,
+2020-06-27,Illinois,,Group,Airport,Above65,11515.0,89.0,
+2020-06-27,Illinois,,Group,Airport,All,243523.0,101.0,36.0
+2020-06-27,Illinois,,Group,Airport,Below65,232008.0,101.0,
+2020-06-27,Illinois,,Group,Alcohol,Above65,11232.0,34.0,
+2020-06-27,Illinois,,Group,Alcohol,All,209945.0,38.0,9.0
+2020-06-27,Illinois,,Group,Alcohol,Below65,198713.0,39.0,
+2020-06-27,Illinois,,Group,Arts & Entertainment,Above65,27845.0,93.0,
+2020-06-27,Illinois,,Group,Arts & Entertainment,All,518709.0,91.0,29.0
+2020-06-27,Illinois,,Group,Arts & Entertainment,Below65,490864.0,91.0,
+2020-06-27,Illinois,,Group,Banks,Above65,16839.0,52.0,
+2020-06-27,Illinois,,Group,Banks,All,290667.0,39.0,9.0
+2020-06-27,Illinois,,Group,Banks,Below65,273828.0,38.0,
+2020-06-27,Illinois,,Group,Beach,Above65,2987.0,48.0,
+2020-06-27,Illinois,,Group,Beach,All,76390.0,65.0,24.0
+2020-06-27,Illinois,,Group,Beach,Below65,73403.0,65.0,
+2020-06-27,Illinois,,Group,Big Box Stores,Above65,51393.0,30.0,
+2020-06-27,Illinois,,Group,Big Box Stores,All,976021.0,36.0,22.0
+2020-06-27,Illinois,,Group,Big Box Stores,Below65,924628.0,36.0,
+2020-06-27,Illinois,,Group,Bus,Above65,2222.0,170.0,
+2020-06-27,Illinois,,Group,Bus,All,68904.0,82.0,15.0
+2020-06-27,Illinois,,Group,Bus,Below65,66682.0,79.0,
+2020-06-27,Illinois,,Group,Colleges & Universities,Above65,7423.0,77.0,
+2020-06-27,Illinois,,Group,Colleges & Universities,All,211532.0,89.0,24.0
+2020-06-27,Illinois,,Group,Colleges & Universities,Below65,204109.0,89.0,
+2020-06-27,Illinois,,Group,Convenience Store,Above65,19125.0,29.0,
+2020-06-27,Illinois,,Group,Convenience Store,All,449790.0,40.0,7.0
+2020-06-27,Illinois,,Group,Convenience Store,Below65,430664.0,41.0,
+2020-06-27,Illinois,,Group,Discount Stores,Above65,14726.0,27.0,
+2020-06-27,Illinois,,Group,Discount Stores,All,298352.0,35.0,12.0
+2020-06-27,Illinois,,Group,Discount Stores,Below65,283626.0,36.0,
+2020-06-27,Illinois,,Group,Drug Store,Above65,34009.0,20.0,
+2020-06-27,Illinois,,Group,Drug Store,All,505981.0,26.0,9.0
+2020-06-27,Illinois,,Group,Drug Store,Below65,471973.0,26.0,
+2020-06-27,Illinois,,Group,Fast Food Restaurants,Above65,59303.0,19.0,
+2020-06-27,Illinois,,Group,Fast Food Restaurants,All,1136029.0,23.0,7.0
+2020-06-27,Illinois,,Group,Fast Food Restaurants,Below65,1076726.0,23.0,
+2020-06-27,Illinois,,Group,Fitness Center,Above65,13945.0,64.0,
+2020-06-27,Illinois,,Group,Fitness Center,All,275783.0,77.0,32.0
+2020-06-27,Illinois,,Group,Fitness Center,Below65,261838.0,77.0,
+2020-06-27,Illinois,,Group,Food,Above65,237213.0,44.0,
+2020-06-27,Illinois,,Group,Food,All,4477753.0,50.0,14.0
+2020-06-27,Illinois,,Group,Food,Below65,4240541.0,50.0,
+2020-06-27,Illinois,,Group,Gas Stations,Above65,55134.0,28.0,
+2020-06-27,Illinois,,Group,Gas Stations,All,1220482.0,34.0,6.0
+2020-06-27,Illinois,,Group,Gas Stations,Below65,1165348.0,34.0,
+2020-06-27,Illinois,,Group,Government,Above65,12593.0,69.0,
+2020-06-27,Illinois,,Group,Government,All,248313.0,83.0,25.0
+2020-06-27,Illinois,,Group,Government,Below65,235720.0,83.0,
+2020-06-27,Illinois,,Group,Grocery,Above65,128648.0,28.0,
+2020-06-27,Illinois,,Group,Grocery,All,1778297.0,32.0,17.0
+2020-06-27,Illinois,,Group,Grocery,Below65,1649649.0,32.0,
+2020-06-27,Illinois,,Group,Hardware Stores,Above65,56900.0,27.0,
+2020-06-27,Illinois,,Group,Hardware Stores,All,794018.0,32.0,17.0
+2020-06-27,Illinois,,Group,Hardware Stores,Below65,737118.0,32.0,
+2020-06-27,Illinois,,Group,Hotel,Above65,13673.0,155.0,
+2020-06-27,Illinois,,Group,Hotel,All,269543.0,171.0,33.0
+2020-06-27,Illinois,,Group,Hotel,Below65,255870.0,172.0,
+2020-06-27,Illinois,,Group,Light Rail Stations,Above65,980.0,126.0,
+2020-06-27,Illinois,,Group,Light Rail Stations,All,25080.0,100.0,21.0
+2020-06-27,Illinois,,Group,Light Rail Stations,Below65,24100.0,99.0,
+2020-06-27,Illinois,,Group,Medical,Above65,31600.0,69.0,
+2020-06-27,Illinois,,Group,Medical,All,508624.0,82.0,25.0
+2020-06-27,Illinois,,Group,Medical,Below65,477024.0,83.0,
+2020-06-27,Illinois,,Group,Metro Stations,Above65,384.0,20.0,
+2020-06-27,Illinois,,Group,Metro Stations,All,20353.0,39.0,10.0
+2020-06-27,Illinois,,Group,Metro Stations,Below65,19969.0,39.0,
+2020-06-27,Illinois,,Group,Nightlife Spots,Above65,65779.0,74.0,
+2020-06-27,Illinois,,Group,Nightlife Spots,All,1556529.0,97.0,48.0
+2020-06-27,Illinois,,Group,Nightlife Spots,Below65,1490750.0,98.0,
+2020-06-27,Illinois,,Group,Office,Above65,8322.0,58.0,
+2020-06-27,Illinois,,Group,Office,All,233335.0,91.0,25.0
+2020-06-27,Illinois,,Group,Office,Below65,225013.0,92.0,
+2020-06-27,Illinois,,Group,Outdoors & Recreation,Above65,108526.0,87.0,
+2020-06-27,Illinois,,Group,Outdoors & Recreation,All,2094131.0,97.0,30.0
+2020-06-27,Illinois,,Group,Outdoors & Recreation,Below65,1985605.0,97.0,
+2020-06-27,Illinois,,Group,Professional & Other Places,Above65,54041.0,78.0,
+2020-06-27,Illinois,,Group,Professional & Other Places,All,1019528.0,91.0,25.0
+2020-06-27,Illinois,,Group,Professional & Other Places,Below65,965487.0,91.0,
+2020-06-27,Illinois,,Group,Residences,Above65,20490.0,75.0,
+2020-06-27,Illinois,,Group,Residences,All,392274.0,99.0,25.0
+2020-06-27,Illinois,,Group,Residences,Below65,371785.0,101.0,
+2020-06-27,Illinois,,Group,School,Above65,29302.0,76.0,
+2020-06-27,Illinois,,Group,School,All,608947.0,98.0,30.0
+2020-06-27,Illinois,,Group,School,Below65,579644.0,99.0,
+2020-06-27,Illinois,,Group,Shops & Services,Above65,225542.0,43.0,
+2020-06-27,Illinois,,Group,Shops & Services,All,3907106.0,48.0,19.0
+2020-06-27,Illinois,,Group,Shops & Services,Below65,3681564.0,48.0,
+2020-06-27,Illinois,,Group,Spiritual Center,Above65,30032.0,87.0,
+2020-06-27,Illinois,,Group,Spiritual Center,All,463481.0,91.0,29.0
+2020-06-27,Illinois,,Group,Spiritual Center,Below65,433449.0,91.0,
+2020-06-27,Illinois,,Group,Sports,Above65,40996.0,120.0,
+2020-06-27,Illinois,,Group,Sports,All,581037.0,126.0,61.0
+2020-06-27,Illinois,,Group,Sports,Below65,540041.0,126.0,
+2020-06-27,Illinois,,Group,Travel & Transport,Above65,18995.0,92.0,
+2020-06-27,Illinois,,Group,Travel & Transport,All,434238.0,82.0,17.0
+2020-06-27,Illinois,,Group,Travel & Transport,Below65,415244.0,81.0,
+2020-06-28,Illinois,,Group,Airport,Above65,10461.0,84.0,
+2020-06-28,Illinois,,Group,Airport,All,329575.0,88.0,32.0
+2020-06-28,Illinois,,Group,Airport,Below65,319113.0,88.0,
+2020-06-28,Illinois,,Group,Alcohol,Above65,7557.0,31.0,
+2020-06-28,Illinois,,Group,Alcohol,All,165822.0,48.0,9.0
+2020-06-28,Illinois,,Group,Alcohol,Below65,158264.0,48.0,
+2020-06-28,Illinois,,Group,Arts & Entertainment,Above65,22613.0,96.0,
+2020-06-28,Illinois,,Group,Arts & Entertainment,All,527209.0,102.0,32.0
+2020-06-28,Illinois,,Group,Arts & Entertainment,Below65,504596.0,102.0,
+2020-06-28,Illinois,,Group,Banks,Above65,8661.0,52.0,
+2020-06-28,Illinois,,Group,Banks,All,164757.0,47.0,10.0
+2020-06-28,Illinois,,Group,Banks,Below65,156096.0,47.0,
+2020-06-28,Illinois,,Group,Beach,Above65,4119.0,75.0,
+2020-06-28,Illinois,,Group,Beach,All,96312.0,71.0,29.0
+2020-06-28,Illinois,,Group,Beach,Below65,92192.0,70.0,
+2020-06-28,Illinois,,Group,Big Box Stores,Above65,51750.0,31.0,
+2020-06-28,Illinois,,Group,Big Box Stores,All,947511.0,36.0,22.0
+2020-06-28,Illinois,,Group,Big Box Stores,Below65,895761.0,36.0,
+2020-06-28,Illinois,,Group,Bus,Above65,2621.0,76.0,
+2020-06-28,Illinois,,Group,Bus,All,66052.0,80.0,15.0
+2020-06-28,Illinois,,Group,Bus,Below65,63431.0,80.0,
+2020-06-28,Illinois,,Group,Colleges & Universities,Above65,7393.0,65.0,
+2020-06-28,Illinois,,Group,Colleges & Universities,All,222120.0,89.0,26.0
+2020-06-28,Illinois,,Group,Colleges & Universities,Below65,214728.0,90.0,
+2020-06-28,Illinois,,Group,Convenience Store,Above65,19339.0,27.0,
+2020-06-28,Illinois,,Group,Convenience Store,All,399615.0,40.0,7.0
+2020-06-28,Illinois,,Group,Convenience Store,Below65,380277.0,41.0,
+2020-06-28,Illinois,,Group,Discount Stores,Above65,14725.0,26.0,
+2020-06-28,Illinois,,Group,Discount Stores,All,265288.0,36.0,12.0
+2020-06-28,Illinois,,Group,Discount Stores,Below65,250563.0,36.0,
+2020-06-28,Illinois,,Group,Drug Store,Above65,28075.0,20.0,
+2020-06-28,Illinois,,Group,Drug Store,All,456120.0,28.0,9.0
+2020-06-28,Illinois,,Group,Drug Store,Below65,428044.0,28.0,
+2020-06-28,Illinois,,Group,Fast Food Restaurants,Above65,51846.0,20.0,
+2020-06-28,Illinois,,Group,Fast Food Restaurants,All,1037773.0,24.0,7.0
+2020-06-28,Illinois,,Group,Fast Food Restaurants,Below65,985927.0,25.0,
+2020-06-28,Illinois,,Group,Fitness Center,Above65,12779.0,59.0,
+2020-06-28,Illinois,,Group,Fitness Center,All,234499.0,70.0,30.0
+2020-06-28,Illinois,,Group,Fitness Center,Below65,221720.0,70.0,
+2020-06-28,Illinois,,Group,Food,Above65,204202.0,46.0,
+2020-06-28,Illinois,,Group,Food,All,4269672.0,53.0,15.0
+2020-06-28,Illinois,,Group,Food,Below65,4065471.0,53.0,
+2020-06-28,Illinois,,Group,Gas Stations,Above65,53646.0,30.0,
+2020-06-28,Illinois,,Group,Gas Stations,All,1136855.0,36.0,6.0
+2020-06-28,Illinois,,Group,Gas Stations,Below65,1083209.0,36.0,
+2020-06-28,Illinois,,Group,Government,Above65,9149.0,80.0,
+2020-06-28,Illinois,,Group,Government,All,194862.0,89.0,25.0
+2020-06-28,Illinois,,Group,Government,Below65,185713.0,89.0,
+2020-06-28,Illinois,,Group,Grocery,Above65,121669.0,29.0,
+2020-06-28,Illinois,,Group,Grocery,All,1746976.0,33.0,17.0
+2020-06-28,Illinois,,Group,Grocery,Below65,1625307.0,33.0,
+2020-06-28,Illinois,,Group,Hardware Stores,Above65,52423.0,31.0,
+2020-06-28,Illinois,,Group,Hardware Stores,All,772348.0,31.0,17.0
+2020-06-28,Illinois,,Group,Hardware Stores,Below65,719925.0,31.0,
+2020-06-28,Illinois,,Group,Hotel,Above65,10355.0,177.0,
+2020-06-28,Illinois,,Group,Hotel,All,264296.0,214.0,52.0
+2020-06-28,Illinois,,Group,Hotel,Below65,253941.0,216.0,
+2020-06-28,Illinois,,Group,Light Rail Stations,Above65,798.0,128.0,
+2020-06-28,Illinois,,Group,Light Rail Stations,All,21058.0,95.0,25.0
+2020-06-28,Illinois,,Group,Light Rail Stations,Below65,20260.0,94.0,
+2020-06-28,Illinois,,Group,Medical,Above65,17704.0,80.0,
+2020-06-28,Illinois,,Group,Medical,All,371471.0,104.0,28.0
+2020-06-28,Illinois,,Group,Medical,Below65,353767.0,105.0,
+2020-06-28,Illinois,,Group,Metro Stations,Above65,365.0,164.0,
+2020-06-28,Illinois,,Group,Metro Stations,All,17421.0,99.0,15.0
+2020-06-28,Illinois,,Group,Metro Stations,Below65,17056.0,97.0,
+2020-06-28,Illinois,,Group,Nightlife Spots,Above65,58800.0,84.0,
+2020-06-28,Illinois,,Group,Nightlife Spots,All,1593690.0,104.0,55.0
+2020-06-28,Illinois,,Group,Nightlife Spots,Below65,1534890.0,105.0,
+2020-06-28,Illinois,,Group,Office,Above65,7351.0,56.0,
+2020-06-28,Illinois,,Group,Office,All,192690.0,91.0,22.0
+2020-06-28,Illinois,,Group,Office,Below65,185339.0,92.0,
+2020-06-28,Illinois,,Group,Outdoors & Recreation,Above65,125142.0,85.0,
+2020-06-28,Illinois,,Group,Outdoors & Recreation,All,2276001.0,98.0,31.0
+2020-06-28,Illinois,,Group,Outdoors & Recreation,Below65,2150859.0,98.0,
+2020-06-28,Illinois,,Group,Professional & Other Places,Above65,42903.0,87.0,
+2020-06-28,Illinois,,Group,Professional & Other Places,All,855113.0,97.0,30.0
+2020-06-28,Illinois,,Group,Professional & Other Places,Below65,812210.0,97.0,
+2020-06-28,Illinois,,Group,Residences,Above65,21493.0,87.0,
+2020-06-28,Illinois,,Group,Residences,All,394884.0,110.0,25.0
+2020-06-28,Illinois,,Group,Residences,Below65,373391.0,112.0,
+2020-06-28,Illinois,,Group,School,Above65,23570.0,97.0,
+2020-06-28,Illinois,,Group,School,All,570090.0,109.0,35.0
+2020-06-28,Illinois,,Group,School,Below65,546520.0,110.0,
+2020-06-28,Illinois,,Group,Shops & Services,Above65,155457.0,41.0,
+2020-06-28,Illinois,,Group,Shops & Services,All,3089753.0,50.0,20.0
+2020-06-28,Illinois,,Group,Shops & Services,Below65,2934296.0,50.0,
+2020-06-28,Illinois,,Group,Spiritual Center,Above65,41810.0,85.0,
+2020-06-28,Illinois,,Group,Spiritual Center,All,611995.0,96.0,54.0
+2020-06-28,Illinois,,Group,Spiritual Center,Below65,570185.0,97.0,
+2020-06-28,Illinois,,Group,Sports,Above65,40134.0,138.0,
+2020-06-28,Illinois,,Group,Sports,All,578190.0,134.0,73.0
+2020-06-28,Illinois,,Group,Sports,Below65,538056.0,134.0,
+2020-06-28,Illinois,,Group,Travel & Transport,Above65,20176.0,91.0,
+2020-06-28,Illinois,,Group,Travel & Transport,All,429035.0,92.0,20.0
+2020-06-28,Illinois,,Group,Travel & Transport,Below65,408859.0,92.0,
