@@ -32,35 +32,18 @@ smooth_fn = function(x, days=3) {
 # case-mortality table
 d <- read.csv("../modelInput/ILCaseAndMortalityV1.csv", stringsAsFactors = FALSE)
 
-###
-# HERE! -> specify a date through which to run the model
-# i.e., specify day of last observation
-# say it's June 8th, but we only want to run through June 1st, because the model hasn't been adjusted for lifting lockdown yet
-# want to easily do this -> can easily do this -> just select columns with date <= target date
-# something a la:
-# validationObs <- countyObs[as.Date(countyObs$dateRep, format = "%m/%d/%y") > lastObs, ]
-# dateCutoff <- "6/1/20"
-# dateCutoff <- as.Date(dateCutoff, format = "%m/%d/%y")
-# print(sprintf("date cutoff: %s",  dateCutoff))
-# d <- d[as.Date(d$dateRep, format = "%m/%d/%y") <= lastObs, ]
-###
-
-d$countryterritoryCode <- sapply(d$countryterritoryCode, as.character)
-# trim US code prefix
-d$countryterritoryCode <- sub("840", "", d$countryterritoryCode)
-
 # drop counties with fewer than cutoff cumulative deaths or cases
 cumCaseAndDeath <- aggregate(cbind(d$deaths), by=list(Category=d$countryterritoryCode), FUN=sum)
 dropCounties <- subset(cumCaseAndDeath, V1 < minimumReportedDeaths)$Category
 d <- subset(d, !(countryterritoryCode %in% dropCounties))
-
-# try <steps> day moving average to smooth raw reported case and death counts
-# "so the bars don't look so bad" - really to account for bias/periodic fluxuations in reporting
-steps = 7
-d$deaths = c(rep(0, steps-1), as.integer(smooth_fn(d$deaths, days=steps)))
-d$cases = c(rep(0, steps-1), as.integer(smooth_fn(d$cases, days=steps)))
+# print(sprintf("nCounties with more than %d deaths before %s: %d", minimumReportedDeaths, dateCutoff, length(unique(d$countryterritoryCode))))
+print(sprintf("nCounties with more than %d deaths: %d", minimumReportedDeaths, length(unique(d$countryterritoryCode))))
 
 d$date = as.Date(d$dateRep,format='%m/%d/%y')
+
+d$countryterritoryCode <- sapply(d$countryterritoryCode, as.character)
+# trim US code prefix
+d$countryterritoryCode <- sub("840", "", d$countryterritoryCode)
 
 ## validation cutoff
 if (validateFlag == "--validate"){
@@ -71,8 +54,12 @@ if (validateFlag == "--validate"){
   d <- d[d$date < validationCutoff, ]
 }
 
-# print(sprintf("nCounties with more than %d deaths before %s: %d", minimumReportedDeaths, dateCutoff, length(unique(d$countryterritoryCode))))
-print(sprintf("nCounties with more than %d deaths: %d", minimumReportedDeaths, length(unique(d$countryterritoryCode))))
+# SMOOTHING reported death and case counts
+# try <steps> day moving average to smooth raw reported case and death counts
+# "so the bars don't look so bad" - really to account for bias/periodic fluxuations in reporting
+steps = 7
+d$deaths = c(rep(0, steps-1), as.integer(smooth_fn(d$deaths, days=steps)))
+d$cases = c(rep(0, steps-1), as.integer(smooth_fn(d$cases, days=steps)))
 
 codeToName <- unique(data.frame("countyCode" = d$countryterritoryCode, "countyName" = d$countriesAndTerritories))
 
@@ -90,16 +77,8 @@ cfr.by.country$country <-  sub("840", "", cfr.by.country$country) # cutoff US pr
 # serial interval discrete gamma distribution
 serial.interval = read.csv("../modelInput/ILSerialIntervalV1.csv") # new table
 
-# interventions table 
-# NOTE: "covariate" == "intervention"; 
-# e.g., if there are 3 different interventions in the model, then there are 3 covariates here in the code
-covariates = read.csv("../modelInput/ILInterventionsV1.csv", stringsAsFactors = FALSE)
-covariates$Country <- sapply(covariates$Country, as.character)
-covariates$Country <-  sub("840", "", covariates$Country) # cutoff US prefix code - note: maybe this should be in the python etl, not here
-
-p <- ncol(covariates) - 2
+# number of days to forecast beyond date of last observation
 forecast = 0
-
 # N2 is Number of time points with data plus forecast
 N2 = 0
 
@@ -149,13 +128,11 @@ deaths_by_country = list()
 
 stan_data = list(M=length(countries),
                 N=NULL, # Number of time points with data
-                p=p,
                 y=NULL,
                 deaths=NULL,
                 f=NULL,
                 N0=6, # Number of days in seeding
                 cases=NULL,
-                LENGTHSCALE=p, # this is the number of covariates (i.e., the number of interventions)
                 EpidemicStart = NULL # Date to start epidemic in each county
                 )
 
