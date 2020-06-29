@@ -7,11 +7,15 @@
 # estimated.deaths,
 # estimated.deaths.cf,
 # out,
-# covariates,file=paste0('../modelOutput/results/',StanModel,'-',JOBID,'-stanfit.Rdata'))
+# lastObs,
+# covariate_list_partial_county,
+# file=paste0('../modelOutput/results/',StanModel,'-',JOBID,'-stanfit.Rdata'))
 
-# ../modelOutput/results/nine_county_big/us_base-606037-stanfit.Rdata
+args <- commandArgs(trailingOnly = TRUE)
+filename2 <- args[1]
+load(paste0("../modelOutput/results/", filename2))
+print(sprintf("loading: %s",paste0("../modelOutput/results/",filename2)))
 
-load("../modelOutput/results/nine_county_big/us_base-606037.Rdata")
 obs <- read.csv("../modelInput/ILCaseAndMortalityV1.csv")
 
 l <- list()
