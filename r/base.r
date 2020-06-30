@@ -309,7 +309,7 @@ fit = sampling(m,data=stan_data,iter=nStanIterations,warmup=nStanIterations/2,ch
 end.time <- Sys.time()
 
 # calculate duration of routine
-duration <- as.integer(end.time - start.time)
+duration <- as.integer(difftime(end.time, start.time, units="secs"))
 
 print(sprintf("DURATION: %d", duration))
 
