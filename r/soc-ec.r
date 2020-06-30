@@ -33,7 +33,7 @@ maxTransit <- max(se$transit, na.rm=TRUE)
 se$ntransit <- lapply(se$transit, function(x) x/maxTransit)
 
 # nICU beds
-maxICU <-  max(se$transit, na.rm=TRUE)
+maxICU <-  max(se$icu_beds, na.rm=TRUE)
 se$nicu_beds <- lapply(se$icu_beds, function(x) x/maxICU)
 
 normalScores <- data.frame(
