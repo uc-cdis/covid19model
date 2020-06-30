@@ -1,4 +1,5 @@
-# save(fit,
+# save(JOBID,
+# fit,
 # prediction,
 # dates,
 # reported_cases,
@@ -63,13 +64,15 @@ print(sprintf("number of counties: %d", length(countries)))
 print(sprintf("number of points: %d", pts))
 print(sprintf("correlation: %f", correlationScore))
 
+outDir <- file.path("../modelOutput/validation", JOBID)
+dir.create(outDir, showWarnings = FALSE)
 
 ## fix this writing scheme
 # look at it
-png(filename="../modelOutput/Validation.png", width=1600, height=1600, units="px", pointsize=36)
+png(filename=file.path(outDir, "v.png"), width=1600, height=1600, units="px", pointsize=36)
 plot(fullSet$obs, fullSet$pred, sub=sprintf("correlation: %f", correlationScore))
 dev.off()
 
-png(filename="../modelOutput/Validation_log.png", width=1600, height=1600, units="px", pointsize=36)
+png(filename=file.path(outDir, "v_log.png"), width=1600, height=1600, units="px", pointsize=36)
 plot(log(fullSet$obs), log(fullSet$pred), sub=sprintf("correlation: %f", correlationScore))
 dev.off()
