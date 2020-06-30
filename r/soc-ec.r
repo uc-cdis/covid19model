@@ -83,3 +83,5 @@ for(i in 1:ncol(mobility)){
   }
 }
 
+#### regress mobility on soc-ec
+#### mortality per-capita on soc-ec

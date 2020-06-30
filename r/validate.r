@@ -70,7 +70,7 @@ dir.create(outDir, showWarnings = FALSE)
 # create summary
 summary <- list(
     jobid=JOBID,
-    time=duration,
+    time=duration, # in seconds
     nIter=nStanIterations,
     start=min(fullSet$date),
     end=max(fullSet$date),
