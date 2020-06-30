@@ -234,7 +234,7 @@ pad_mobility <- function(len_mobility, num_pad, min_date, covariates_county, for
 }
 
 # should work
-nu_pad_mobility <- function(len_mobility, num_pad, min_date, covariates_county, forecast_length, data_county, County, N2){
+nu_pad_mobility <- function(min_date, covariates_county, County, N2){
   covariates_county <- covariates_county[covariates_county$date >= min_date, ]
   short <- N2 - nrow(covariates_county)
   if (short > 0){
@@ -256,7 +256,7 @@ nu_pad_mobility <- function(len_mobility, num_pad, min_date, covariates_county, 
 
 
 # should work
-create_features <- function(len_mobility, padded_covariates, transit_usage){
+create_features <- function(padded_covariates, transit_usage){
     return (data.frame(
                'transit_use' = transit_usage,
                'residential' = padded_covariates$residential, 

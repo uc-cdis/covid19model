@@ -207,35 +207,13 @@ for(Country in countries) {
 
   # Find minimum date for the data
   min_date <- min(d1$date)
-  num_pad <- (min(covariates_county$date) - min_date[[1]])[[1]]
-  len_mobility <- ncol(covariates_county)
-    
-  print(sprintf("nrows cov pre: %d", nrow(covariates_county)))
-  print(sprintf("min: %s", min(covariates_county$date)))
-  print(sprintf("max: %s", max(covariates_county$date)))
-
-  print("county---")
-  print(sprintf("min: %s", min(d1$date)))
-  print(sprintf("max: %s", max(d1$date)))
-  # their pad_mobility fn is busted, or I broke it or
-  # in any case it's overly complicated
-  # padded_covariates <- pad_mobility(len_mobility, num_pad, min_date, covariates_county, forecast, d1, Country)
-  padded_covariates <- nu_pad_mobility(len_mobility, num_pad, min_date, covariates_county, forecast, d1, Country, N2)
-
-  # testing ... -> works - not!
-  # padded_covariates <- covariates_county[covariates_county$date >= min_date, ]
-
-  print(sprintf("N: %d",N))
-  print(sprintf("N2: %d", N2))
-  print(sprintf("forecast: %d", forecast))
-  print(sprintf("nrows_cov: %d", nrow(padded_covariates)))
-  print(sprintf("num_pad: %d", num_pad))
+  padded_covariates <- nu_pad_mobility(min_date, covariates_county, Country, N2)
 
   # include transit
   transit_usage <- rep(1, (N + forecast))
 
   # creating features -> only want "partial_state"
-  df_features <- create_features(len_mobility, padded_covariates, transit_usage)
+  df_features <- create_features(padded_covariates, transit_usage)
   features_partial_county <- model.matrix(formula_partial_county, df_features)    
   covariate_list_partial_county[[k]] <- features_partial_county
 
