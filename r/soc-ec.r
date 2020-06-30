@@ -18,6 +18,9 @@ se <- data.frame(
     icu_beds = se$ICU.Beds
 )
 
+# filter for IL
+il <- se[se$state == "IL", ]
+
 # remove all rows with any na
 se <- se[complete.cases(se), ]
 
@@ -55,6 +58,28 @@ rs <- data.frame(
     icu=se$icu_beds
 )
 
-# filter for IL
-# il <- se[se$state == "IL", ]
+##### mortality
+
+# case-mortality table
+d <- read.csv("../modelInput/ILCaseAndMortalityV1.csv", stringsAsFactors = FALSE)
+d$date = as.Date(d$dateRep,format='%m/%d/%y')
+d$countryterritoryCode <- sapply(d$countryterritoryCode, as.character)
+d$countryterritoryCode <- sub("840", "", d$countryterritoryCode)
+
+codeToName <- unique(data.frame("countyCode" = d$countryterritoryCode, "countyName" = d$countriesAndTerritories))
+countries <- unique(d$countryterritoryCode)
+
+##### mobility
+
+# Read google mobility
+source("./read-mobility.r")
+mobility <- read_google_mobility(countries=countries, codeToName=codeToName)
+
+# basic impute values for NA in google mobility
+# see: https://github.com/ImperialCollegeLondon/covid19model/blob/v6.0/base-usa.r#L87-L88
+for(i in 1:ncol(mobility)){
+  if (is.numeric(mobility[,i])){
+    mobility[is.na(mobility[,i]), i] <- mean(mobility[,i], na.rm = TRUE)
+  }
+}
 
