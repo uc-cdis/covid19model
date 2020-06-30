@@ -168,13 +168,12 @@ process_covariates <- function(states, mobility, death_data, formula_partial_sta
 # 'County' is data_county$countyCode
 # 'data_county' is d1 (case-mortality daat for that county)
 
-# should work
+# should work - doesn't - see nu_pad_mobility
 pad_mobility <- function(len_mobility, num_pad, min_date, covariates_county, forecast_length, data_county, County){
   if (num_pad <= 0){
-    covariates_county <- covariates_county[covariates_county$date >=min_date, ]
+    covariates_county <- covariates_county[covariates_county$date >= min_date, ]
     pad_dates_end <- max(covariates_county$date) + 
-      days(1:(forecast_length - (min(data_county$date) - min(covariates_county$date)) + 
-                (max(data_county$date) - max(covariates_county$date))))
+      days(1:(forecast_length  + (max(data_county$date) - max(covariates_county$date))))
     for_length <- length(pad_dates_end)
 
     print(pad_dates_end)
@@ -233,6 +232,28 @@ pad_mobility <- function(len_mobility, num_pad, min_date, covariates_county, for
   }
   return(padded_covariates)
 }
+
+# should work
+nu_pad_mobility <- function(len_mobility, num_pad, min_date, covariates_county, forecast_length, data_county, County, N2){
+  covariates_county <- covariates_county[covariates_county$date >= min_date, ]
+  short <- N2 - nrow(covariates_county)
+  if (short > 0){
+      pad_dates_front <- min_date + days(1:short)
+      len_covariates <- length(covariates_county$grocery.pharmacy)
+      padded_covariates <- data.frame("countyCode" = rep(County, N2),
+                                      "date" = c(pad_dates_front, covariates_county$date),
+                                      "grocery.pharmacy" = c(as.integer(rep(0, short)), covariates_county$grocery.pharmacy),
+                                      "parks" = c(as.integer(rep(0, short)), covariates_county$parks), 
+                                      "residential" = c(as.integer(rep(0, short)), covariates_county$residential),
+                                      "retail.recreation" = c(as.integer(rep(0, short)), covariates_county$retail.recreation),
+                                      "transitstations" = c(as.integer(rep(0, short)), covariates_county$transitstations),
+                                      "workplace" = c(as.integer(rep(0, short)), covariates_county$workplace))
+      return(padded_covariates)
+  } else {
+    return(covariates_county)
+  }
+}
+
 
 # should work
 create_features <- function(len_mobility, padded_covariates, transit_usage){
