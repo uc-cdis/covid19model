@@ -1,4 +1,5 @@
 # save(JOBID,
+# nStanIterations,
 # fit,
 # prediction,
 # dates,
@@ -68,6 +69,7 @@ dir.create(outDir, showWarnings = FALSE)
 # create summary
 summary <- list(
     jobid=JOBID,
+    nIter=nStanIterations,
     start=min(fullSet$date),
     end=max(fullSet$date),
     nDays=n,
