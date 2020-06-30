@@ -18,29 +18,41 @@ se <- data.frame(
     icu_beds = se$ICU.Beds
 )
 
+# remove all rows with any na
+se <- se[complete.cases(se), ]
+
 ## normalize scores
 
 # density
 maxDensity <- max(se$density, na.rm=TRUE)
-se$ndensity <- lapply(se$density, function(x) x/maxDensity)
+se$ndensity <- sapply(se$density, function(x) x/maxDensity)
 
 # income
 maxIncome <- max(se$income, na.rm=TRUE)
-se$nincome <- lapply(se$income, function(x) x/maxIncome)
+se$nincome <- sapply(se$income, function(x) x/maxIncome)
 
 # transit
 maxTransit <- max(se$transit, na.rm=TRUE)
-se$ntransit <- lapply(se$transit, function(x) x/maxTransit)
+se$ntransit <- sapply(se$transit, function(x) x/maxTransit)
 
 # nICU beds
 maxICU <-  max(se$icu_beds, na.rm=TRUE)
-se$nicu_beds <- lapply(se$icu_beds, function(x) x/maxICU)
+se$nicu_beds <- sapply(se$icu_beds, function(x) x/maxICU)
 
-normalScores <- data.frame(
+# normalized scores
+ns <- data.frame(
     density=se$ndensity,
     income=se$nincome,
     transit=se$ntransit,
     icu=se$nicu_beds
+)
+
+# raw scores
+rs <- data.frame(
+    density=se$density,
+    income=se$income,
+    transity=se$transit,
+    icu=se$icu_beds
 )
 
 # filter for IL
