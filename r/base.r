@@ -19,6 +19,7 @@ StanModel = args[1]
 minimumReportedDeaths = as.integer(args[2])
 nStanIterations = as.integer(args[3])
 validateFlag = args[4]
+# fixme - handle flag not passed - validateFlag is NA
 if (validateFlag == "--validate"){
   print("INFO: --validate flag passed - running validation routine")
 }
