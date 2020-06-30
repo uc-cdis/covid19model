@@ -30,21 +30,16 @@ for(i in 1:length(countries)){
     county <- countries[[i]]
     N <- length(dates[[i]])
     countyDates <- dates[[i]]
-    # lastObs <- tail(dates[[i]], 1)
 
     # last index is county
     countyForecast <- colMeans(estimated.deaths[,(N+1):N2,i])
-    # print(countyForecast)
 
     countyObs <- obs[obs$countryterritoryCode == county,]
-    # print(head(countyObs))
-
     validationObs <- countyObs[countyObs$date > lastObs, ]
 
     # number of points for this county
     n <- min(length(countyForecast), nrow(validationObs))
 
-    # here it is - for one county
     vdf <- data.frame("date"=validationObs$dateRep[1:n], "obs"=validationObs$deaths[1:n], "pred"=countyForecast[1:n])
     vdf$county <- county
 
