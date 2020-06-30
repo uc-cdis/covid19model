@@ -17,6 +17,9 @@ load(paste0("../modelOutput/results/", filename2))
 print(sprintf("loading: %s",paste0("../modelOutput/results/",filename2)))
 
 obs <- read.csv("../modelInput/ILCaseAndMortalityV1.csv")
+obs$date = as.Date(obs$dateRep,format='%m/%d/%y')
+obs$countryterritoryCode <- sapply(obs$countryterritoryCode, as.character)
+obs$countryterritoryCode <- sub("840", "", obs$countryterritoryCode)
 
 l <- list()
 
@@ -30,15 +33,12 @@ for(i in 1:length(countries)){
 
     # last index is county
     countyForecast <- colMeans(estimated.deaths[,(N+1):N2,i])
-    print(countyForecast)
+    # print(countyForecast)
 
-    # int vs. string err here!
-    print(typeof(obs$countryterritoryCode))
-    countyObs <- obs[obs$countryterritoryCode==county,]
-    print(head(countyObs))
+    countyObs <- obs[obs$countryterritoryCode == county,]
+    # print(head(countyObs))
 
-    # tail(as.Date(countyObs$dateRep, format = "%m/%d/%y"), 1) > lastObs
-    validationObs <- countyObs[as.Date(countyObs$dateRep, format = "%m/%d/%y") > lastObs, ]
+    validationObs <- countyObs[countyObs$date > lastObs, ]
 
     # number of points for this county
     n <- min(length(countyForecast), nrow(validationObs))
@@ -58,19 +58,18 @@ pts <- nrow(fullSet)
 # compute the score
 correlationScore <- cor(fullSet$pred, fullSet$obs)
 
-# error here???
-print(sprintf("correlation: %d", correlationScore))
-
 print(sprintf("number of dates: %d", n))
 print(sprintf("number of counties: %d", length(countries)))
 print(sprintf("number of points: %d", pts))
+print(sprintf("correlation: %f", correlationScore))
+
 
 ## fix this writing scheme
 # look at it
 png(filename="../modelOutput/Validation.png", width=1600, height=1600, units="px", pointsize=36)
-plot(fullSet$obs, fullSet$pred, sub=sprintf("correlation: %d", correlationScore))
+plot(fullSet$obs, fullSet$pred, sub=sprintf("correlation: %f", correlationScore))
 dev.off()
 
 png(filename="../modelOutput/Validation_log.png", width=1600, height=1600, units="px", pointsize=36)
-plot(log(fullSet$obs), log(fullSet$pred), sub=sprintf("correlation: %d", correlationScore))
+plot(log(fullSet$obs), log(fullSet$pred), sub=sprintf("correlation: %f", correlationScore))
 dev.off()
