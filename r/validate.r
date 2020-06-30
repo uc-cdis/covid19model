@@ -88,6 +88,6 @@ plot(fullSet$obs, fullSet$pred, sub=sprintf("correlation: %f", correlationScore)
 naught <- dev.off()
 
 # save log plot (sometimes this is easier to look at)
-png(filename=file.path(outDir, "v_log.png"), width=1600, height=1600, units="px", pointsize=36)
+png(filename=file.path(outDir, "v_logScale.png"), width=1600, height=1600, units="px", pointsize=36)
 plot(log(fullSet$obs), log(fullSet$pred), sub=sprintf("correlation: %f", correlationScore))
 naught <- dev.off()
