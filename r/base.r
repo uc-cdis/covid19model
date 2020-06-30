@@ -7,6 +7,12 @@ library(tidyr)
 library(stringr)
 library(dplyr)
 
+# time.taken <- end.time - start.time
+# time.taken
+
+# start timer
+start.time <- Sys.time()
+
 # Rscript base.r us_base 150 4000 [--validate]
 args = commandArgs(trailingOnly=TRUE)
 StanModel = args[1]
@@ -307,6 +313,14 @@ m = stan_model(paste0('../stan/',StanModel,'.stan'))
 # it works!!
 fit = sampling(m,data=stan_data,iter=nStanIterations,warmup=nStanIterations/2,chains=8,thin=4,control = list(adapt_delta = 0.90, max_treedepth = 10))
 
+# stop timer
+end.time <- Sys.time()
+
+# calculate duration of routine
+duration <- end.time - start.time
+
+print("DURATION: %f", duration)
+
 out = rstan::extract(fit)
 prediction = out$prediction
 estimated.deaths = out$E_deaths
@@ -317,7 +331,7 @@ if(JOBID == "")
   JOBID = as.character(abs(round(rnorm(1) * 1000000)))
 print(sprintf("Jobid = %s",JOBID))
 save.image(paste0('../modelOutput/results/',StanModel,'-',JOBID,'.Rdata'))
-save(JOBID,nStanIterations,fit,prediction,dates,reported_cases,deaths_by_country,countries,estimated.deaths,estimated.deaths.cf,out,lastObs,covariate_list_partial_county,file=paste0('../modelOutput/results/',StanModel,'-',JOBID,'-stanfit.Rdata'))
+save(JOBID,nStanIterations,duration,fit,prediction,dates,reported_cases,deaths_by_country,countries,estimated.deaths,estimated.deaths.cf,out,lastObs,covariate_list_partial_county,file=paste0('../modelOutput/results/',StanModel,'-',JOBID,'-stanfit.Rdata'))
 
 #### saving of simulation results is finished
 
