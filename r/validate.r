@@ -76,6 +76,7 @@ summary <- list(
     end=max(fullSet$date),
     nDays=n,
     nCounties=length(countries),
+    deathsCutoff=minimumReportedDeaths,
     nPoints=pts,
     correlation=correlationScore
 )
