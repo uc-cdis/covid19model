@@ -317,9 +317,9 @@ fit = sampling(m,data=stan_data,iter=nStanIterations,warmup=nStanIterations/2,ch
 end.time <- Sys.time()
 
 # calculate duration of routine
-duration <- end.time - start.time
+duration <- as.integer(end.time - start.time)
 
-print("DURATION: %f", duration)
+print(sprintf("DURATION: %d", duration))
 
 out = rstan::extract(fit)
 prediction = out$prediction
