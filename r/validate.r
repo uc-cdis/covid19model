@@ -40,13 +40,17 @@ for(i in 1:length(countries)){
     # number of points for this county
     n <- min(length(countyForecast), nrow(validationObs))
 
-    vdf <- data.frame("date"=validationObs$dateRep[1:n], "obs"=validationObs$deaths[1:n], "pred"=countyForecast[1:n])
+    vdf <- data.frame("date"=validationObs$date[1:n], "obs"=validationObs$deaths[1:n], "pred"=countyForecast[1:n])
     vdf$county <- county
 
     l[[i]] <- vdf
 } 
 
+# could save this df - not sure how necessary that is though
 fullSet <- do.call(rbind, l)
+
+# look at it
+# print(fullSet)
 
 # number of points 
 pts <- nrow(fullSet)
@@ -54,7 +58,10 @@ pts <- nrow(fullSet)
 # compute the score
 correlationScore <- cor(fullSet$pred, fullSet$obs)
 
-print(sprintf("number of dates: %d", n))
+print("--- validation summary ---")
+print(sprintf("first date: %s", min(fullSet$date)))
+print(sprintf("last date: %s", max(fullSet$date)))
+print(sprintf("number of days: %d", n))
 print(sprintf("number of counties: %d", length(countries)))
 print(sprintf("number of points: %d", pts))
 print(sprintf("correlation: %f", correlationScore))
@@ -66,8 +73,8 @@ dir.create(outDir, showWarnings = FALSE)
 # look at it
 png(filename=file.path(outDir, "v.png"), width=1600, height=1600, units="px", pointsize=36)
 plot(fullSet$obs, fullSet$pred, sub=sprintf("correlation: %f", correlationScore))
-dev.off()
+naught <- dev.off()
 
 png(filename=file.path(outDir, "v_log.png"), width=1600, height=1600, units="px", pointsize=36)
 plot(log(fullSet$obs), log(fullSet$pred), sub=sprintf("correlation: %f", correlationScore))
-dev.off()
+naught <- dev.off()
