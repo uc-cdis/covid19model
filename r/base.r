@@ -204,23 +204,12 @@ for(Country in countries) {
   num_pad <- (min(covariates_county$date) - min_date[[1]])[[1]]
   len_mobility <- ncol(covariates_county)
     
-  print(sprintf("num_pad: %d", num_pad))
-
-  print(sapply(covariates_county, function(x) length(x)))
-
-  # their pad_mobility fn is busted, or I broke or
+  # their pad_mobility fn is busted, or I broke it or
   # in any case it's overly complicated
   # padded_covariates <- pad_mobility(len_mobility, num_pad, min_date, covariates_county, forecast, d1, Country)
 
   # testing ... -> works
   padded_covariates <- covariates_county[covariates_county$date >= min_date, ]
-
-
-  print(sapply(padded_covariates, function(x) length(x)))
-
-  print(sprintf("N: %d ; forecast: %d", N, forecast))
-  print(sprintf("N + forecast: %d", N+forecast))
-  print(sprintf("N2: %d", N2))
 
   # include transit
   transit_usage <- rep(1, (N + forecast))
