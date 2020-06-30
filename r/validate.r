@@ -12,10 +12,12 @@
 # covariate_list_partial_county,
 # file=paste0('../modelOutput/results/',StanModel,'-',JOBID,'-stanfit.Rdata'))
 
+library(jsonlite)
+
 args <- commandArgs(trailingOnly = TRUE)
 filename2 <- args[1]
 load(paste0("../modelOutput/results/", filename2))
-print(sprintf("loading: %s",paste0("../modelOutput/results/",filename2)))
+# print(sprintf("loading: %s",paste0("../modelOutput/results/",filename2)))
 
 obs <- read.csv("../modelInput/ILCaseAndMortalityV1.csv")
 obs$date = as.Date(obs$dateRep,format='%m/%d/%y')
@@ -58,23 +60,34 @@ pts <- nrow(fullSet)
 # compute the score
 correlationScore <- cor(fullSet$pred, fullSet$obs)
 
-print("--- validation summary ---")
-print(sprintf("first date: %s", min(fullSet$date)))
-print(sprintf("last date: %s", max(fullSet$date)))
-print(sprintf("number of days: %d", n))
-print(sprintf("number of counties: %d", length(countries)))
-print(sprintf("number of points: %d", pts))
-print(sprintf("correlation: %f", correlationScore))
+## write results
 
 outDir <- file.path("../modelOutput/validation", JOBID)
 dir.create(outDir, showWarnings = FALSE)
 
-## fix this writing scheme
-# look at it
+# create summary
+summary <- list(
+    jobid=JOBID,
+    start=min(fullSet$date),
+    end=max(fullSet$date),
+    nDays=n,
+    nCounties=length(countries),
+    nPoints=pts,
+    correlation=correlationScore
+)
+exportJSON <- toJSON(summary, pretty=TRUE, auto_unbox=TRUE)
+# sent to stdout
+print("--- validation summary ---")
+print(exportJSON)
+# write summary to log 
+write(exportJSON, file.path(outDir, "log.json"))
+
+# save plot
 png(filename=file.path(outDir, "v.png"), width=1600, height=1600, units="px", pointsize=36)
 plot(fullSet$obs, fullSet$pred, sub=sprintf("correlation: %f", correlationScore))
 naught <- dev.off()
 
+# save log plot (sometimes this is easier to look at)
 png(filename=file.path(outDir, "v_log.png"), width=1600, height=1600, units="px", pointsize=36)
 plot(log(fullSet$obs), log(fullSet$pred), sub=sprintf("correlation: %f", correlationScore))
 naught <- dev.off()
