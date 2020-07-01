@@ -42,6 +42,7 @@ transformed parameters {
     matrix[N2, M] prediction = rep_matrix(0,N2,M);
     matrix[N2, M] E_deaths  = rep_matrix(0,N2,M);
     matrix[N2, M] Rt = rep_matrix(0,N2,M);
+    matrix[N2, M] Rt_adj = Rt;
     matrix[N2,M] cumm_sum = rep_matrix(0,N2,M);
     for (m in 1:M){
       prediction[1:N0,m] = rep_vector(y[m],N0); // learn the number of cases in the first N0 days
