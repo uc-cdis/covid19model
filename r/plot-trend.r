@@ -135,7 +135,8 @@ make_three_pannel_plot <- function(){
     allErr[[i]] <- county_deaths_and_est
   }
 
-  allErr <- sapply(allErr, function(x) x[x$time <= lastObs,])
+  cutoff <- max(sapply(allErr, function(x) min(x$time)))
+  allErr <- sapply(allErr, function(x) x[x$time >= cutoff & x$time <= lastObs,])
 
   err_df <- data.frame(time=allErr[,1]$time)
 
