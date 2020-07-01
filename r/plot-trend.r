@@ -51,6 +51,8 @@ make_three_pannel_plot <- function(){
 
   ###
 
+
+  allErr <- list()
   for(i in 1:length(countries)){
 
     N <- length(dates[[i]])
@@ -124,13 +126,41 @@ make_three_pannel_plot <- function(){
                                "rt_min2" = rt_li2,
                                "rt_max2" = rt_ui2)
     
-    make_plots(data_country = data_country, 
+    county_err <- make_plots(data_country = data_country, 
                covariates_country_long = covariates_country_long,
                filename2 = filename2,
                country = countryName,
                code = country)
-    
+
+    allErr[[i]] <- county_err
   }
+  cutoff <- max(sapply(allErr, function(x) min(x$time)))
+  allErr <- sapply(allErr, function(x) x[x$time >= cutoff & x$time <= lastObs,])
+
+  err_df <- data.frame(time=allErr[,1]$time)  
+  err_df$err <- 0
+  for (i in 1:dim(allErr)[2]){
+    err_df <- err_df + allErr[,i]$err
+  }
+
+  avg_err <- mean(err_df$err)
+
+  pState <- ggplot(err_df) +
+      ggtitle("All County Daily Deaths Error") + 
+      geom_bar(data = err_df, aes(x = time, y = err), 
+              fill = "coral4", stat='identity', alpha=0.5) + 
+      xlab("Time") +
+      ylab("Error") +
+      labs(subtitle=sprintf("avg_err: %f", avg_err)) +
+      scale_x_date(date_breaks = "weeks", labels = date_format("%e %b")) + 
+      theme_pubr() + 
+      theme(axis.text.x = element_text(angle = 45, hjust = 1), 
+          plot.title = element_text(hjust = 0.5),
+          legend.position = "None") + 
+      guides(fill=guide_legend(ncol=1))
+
+  save_plot(filename = "../modelOutput/figures/error_all.png", pState)
+
 }
 
 #---------------------------------------------------------------------------
@@ -308,7 +338,10 @@ make_plots <- function(data_country, covariates_country_long,
                     plot.title = element_text(hjust = 0.5),
                     legend.position="right")
 
-    save_plot(filename = file.path(countyDir, "Rt.png"), p3)    
+    save_plot(filename = file.path(countyDir, "Rt.png"), p3)
+
+    df_err <- data.frame(time=deaths_err$time, err=deaths_err$err)
+    return(df_err)
 }
 
 make_three_pannel_plot()
