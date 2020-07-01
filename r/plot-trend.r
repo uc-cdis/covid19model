@@ -147,18 +147,52 @@ make_three_pannel_plot <- function(){
     err_df$est <- err_df$est + allErr[,i]$est
   }
 
+  ### % error 
+
   # may need to guard against dividing by 0 here
   err_df$err <- (err_df$est - err_df$deaths) / err_df$deaths
+  
+  error_plot(
+    df = err_df,
+    target = "err",
+    title = "All County Daily Deaths % Error",
+    path = "percent_error_all.png"
+  )
 
-  avg_err <- mean(err_df$err)
+  ### scaled error
 
-  pState <- ggplot(err_df) +
-      ggtitle("All County Daily Deaths Error") + 
-      geom_bar(data = err_df, aes(x = time, y = err), 
+  err_df$err_raw <- err_df$est - err_df$deaths
+  avg_naive <- mean(abs(diff(err_df$deaths)))
+  err_df$err_scaled <- err_df$err_raw / avg_naive
+
+  error_plot(
+    df = err_df,
+    target = "err_scaled",
+    title = "All County Daily Deaths Scaled Error",
+    path = "scaled_error_all.png"
+  )
+
+  ### absolute scaled error 
+
+  err_df$err_abs_scaled <- abs(err_df$err_raw) / avg_naive
+
+  error_plot(
+    df = err_df,
+    target = "err_abs_scaled",
+    title = "All County Daily Deaths Absolute Scaled Error",
+    path = "abs_scaled_error_all.png"
+  )
+
+}
+
+error_plot <- function(df, target, title, path){
+    p <- ggplot(df) +
+      ggtitle(title) + 
+      geom_bar(data = df, aes(x = time, y = !!sym(target)), 
               fill = "coral4", stat='identity', alpha=0.5) + 
       xlab("Time") +
       ylab("Error") +
-      labs(subtitle=sprintf("avg_err: %f", avg_err)) +
+      labs(subtitle=sprintf("avg_err: %f", mean(df[[target]]))) +
       scale_x_date(date_breaks = "weeks", labels = date_format("%e %b")) + 
       theme_pubr() + 
       theme(axis.text.x = element_text(angle = 45, hjust = 1), 
@@ -166,7 +200,7 @@ make_three_pannel_plot <- function(){
           legend.position = "None") + 
       guides(fill=guide_legend(ncol=1))
 
-  save_plot(filename = "../modelOutput/figures/error_all.png", pState)
+    save_plot(filename = file.path("../modelOutput/figures", path), p)
 
 }
 
@@ -230,7 +264,7 @@ make_plots <- function(data_country, covariates_country_long,
             legend.position = "None") + 
         guides(fill=guide_legend(ncol=1))
 
-    # save_plot(filename = file.path(countyDir, "scaled_error.png"), p01)
+    save_plot(filename = file.path(countyDir, "scaled_error.png"), p01)
 
     ## p1
 
