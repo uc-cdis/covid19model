@@ -55,7 +55,7 @@ d$countryterritoryCode <- sapply(d$countryterritoryCode, as.character)
 d$countryterritoryCode <- sub("840", "", d$countryterritoryCode)
 
 # county population
-pop = unique(d[c("countryterritoryCode", "popData2018")])
+# pop = unique(d[c("countryterritoryCode", "popData2018")])
 
 # SMOOTHING reported death and case counts
 # try <steps> day moving average to smooth raw reported case and death counts
@@ -191,7 +191,7 @@ for(Country in countries) {
   stan_data$EpidemicStart = c(stan_data$EpidemicStart,index1+1-index2)
 
   # Selects population for each county
-  pop_county <- pop[pop$countryterritoryCode==Country,][[2]]
+  # pop_county <- pop[pop$countryterritoryCode==Country,][[2]]
 
   # dates[[as.character(Country)]] = d1$date
   dates[[Country]] = d1$date
@@ -262,7 +262,8 @@ for(Country in countries) {
   stan_data$N = c(stan_data$N,N)
   stan_data$y = c(stan_data$y,y[1]) # icl: just the index case!
   
-  stan_data$pop <- c(stan_data$pop, pop_county)
+  # county population
+  # stan_data$pop <- c(stan_data$pop, pop_county)
 
   stan_data$x1=poly(1:N2,2)[,1]
   stan_data$x2=poly(1:N2,2)[,2]
