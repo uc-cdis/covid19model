@@ -353,7 +353,7 @@ exportJSON <- toJSON(summary, pretty=TRUE, auto_unbox=TRUE)
 print("--- summary ---")
 print(exportJSON)
 # write summary to log 
-write(exportJSON, "../modelOutput/log.json"))
+write(exportJSON, "../modelOutput/log.json")
 
 #### now -> visualize model results -> ####
 
