@@ -143,6 +143,58 @@ make_plots <- function(data_country, covariates_country_long,
     countyDir <- file.path("../modelOutput/figures", code)
     dir.create(countyDir, showWarnings = FALSE)
 
+    ## p0
+    deaths_err <- data.frame(time=data_country$time, deaths=data_country$deaths, est=data_country$estimated_deaths, deaths_c=data_country$deaths_c)
+
+    # index = which(d1$cases>0)[1]
+    index <- which(deaths_err$deaths_c>10)[1]
+    deaths_err <- deaths_err[index:nrow(deaths_err),]
+
+    deaths_err$err <- (deaths_err$est - deaths_err$deaths) / deaths_err$deaths
+    deaths_err <- deaths_err[complete.cases(deaths_err), ]    
+    avg_err <- mean(deaths_err$err)
+
+    p0 <- ggplot(deaths_err) +
+        ggtitle(paste0(country, " Daily Deaths Error")) + 
+        geom_bar(data = deaths_err, aes(x = time, y = err), 
+                fill = "coral4", stat='identity', alpha=0.5) + 
+        xlab("Time") +
+        ylab("Error") +
+        labs(subtitle=sprintf("avg_err: %f", avg_err)) +
+        scale_x_date(date_breaks = "weeks", labels = date_format("%e %b")) + 
+        theme_pubr() + 
+        theme(axis.text.x = element_text(angle = 45, hjust = 1), 
+            plot.title = element_text(hjust = 0.5),
+            legend.position = "None") + 
+        guides(fill=guide_legend(ncol=1))
+
+    save_plot(filename = file.path(countyDir, "error.png"), p0)
+
+    # MASE : https://en.wikipedia.org/wiki/Mean_absolute_scaled_error
+    # https://robjhyndman.com/papers/foresight.pdf
+    # file:///Users/mattgarvin/Downloads/A-note-on-the-MASE-Revision-for-IJF.pdf
+
+    deaths_err$err_raw <- deaths_err$est - deaths_err$deaths
+    avg_naive <- mean(abs(diff(deaths_err$deaths)))
+    deaths_err$err_scaled <- deaths_err$err_raw / avg_naive
+    mase <- mean(deaths_err$err_scaled)
+
+    p01 <- ggplot(deaths_err) +
+        ggtitle(paste0(country, " Daily Deaths Scaled Error")) + 
+        geom_bar(data = deaths_err, aes(x = time, y = err_scaled), 
+                fill = "coral4", stat='identity', alpha=0.5) + 
+        xlab("Time") +
+        ylab("Error") +
+        labs(subtitle=sprintf("mean_scaled_err: %f", mase)) +
+        scale_x_date(date_breaks = "weeks", labels = date_format("%e %b")) + 
+        theme_pubr() + 
+        theme(axis.text.x = element_text(angle = 45, hjust = 1), 
+            plot.title = element_text(hjust = 0.5),
+            legend.position = "None") + 
+        guides(fill=guide_legend(ncol=1))
+
+    # save_plot(filename = file.path(countyDir, "scaled_error.png"), p01)
+
     ## p1
 
     data_cases_95 <- data.frame(data_country$time, data_country$predicted_min, 
