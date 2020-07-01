@@ -9,7 +9,7 @@ data {
   matrix[N2, M] f; // h * s
   int EpidemicStart[M];
   real SI[N2]; // fixed pre-calculated SI using emprical data from Neil
-  real pop[M]; 
+  # real pop[M]; 
   // new data for mobility //
   int <lower=1> P_partial_county; // number of covariates for partial pooling (state-level effects)
   matrix[N2, P_partial_county] X_partial_county[M];
@@ -42,21 +42,15 @@ transformed parameters {
     matrix[N2, M] prediction = rep_matrix(0,N2,M);
     matrix[N2, M] E_deaths  = rep_matrix(0,N2,M);
     matrix[N2, M] Rt = rep_matrix(0,N2,M);
-    matrix[N2, M] Rt_adj = Rt;
-    matrix[N2,M] cumm_sum = rep_matrix(0,N2,M);
     for (m in 1:M){
       prediction[1:N0,m] = rep_vector(y[m],N0); // learn the number of cases in the first N0 days
-      cumm_sum[2:N0,m] = cumulative_sum(prediction[2:N0,m]);
       Rt[,m] = mu[m] * 2 * inv_logit(-X_partial_county[m] * alpha_county[m] -weekly_effect[week_index[m],m]);
-      Rt_adj[1:N0,m] = Rt[1:N0,m];                                    
       for (i in (N0+1):N2) {
         convolution=0;
         for(j in 1:(i-1)) {
           convolution += prediction[j, m]*SI[i-j]; // Correctd 22nd March
         }
-        cumm_sum[i,m] = cumm_sum[i-1,m] + prediction[i-1,m];
-        Rt_adj[i,m] = ((pop[m]-cumm_sum[i,m]) / pop[m]) * Rt[i,m];        
-        prediction[i, m] = Rt_adj[i,m] * convolution;
+        prediction[i, m] = Rt[i,m] * convolution;
       }
       
       E_deaths[1, m]= 1e-9;
