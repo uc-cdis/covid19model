@@ -6,6 +6,7 @@ library(EnvStats)
 library(tidyr)
 library(stringr)
 library(dplyr)
+library(jsonlite)
 
 # time.taken <- end.time - start.time
 # time.taken
@@ -326,16 +327,32 @@ print(sprintf("DURATION: %d", duration))
 out = rstan::extract(fit)
 prediction = out$prediction
 estimated.deaths = out$E_deaths
-estimated.deaths.cf = out$E_deaths0
 
 JOBID = Sys.getenv("PBS_JOBID")
 if(JOBID == "")
   JOBID = as.character(abs(round(rnorm(1) * 1000000)))
 print(sprintf("Jobid = %s",JOBID))
 save.image(paste0('../modelOutput/results/',StanModel,'-',JOBID,'.Rdata'))
-save(JOBID,nStanIterations,duration,minimumReportedDeaths,fit,prediction,dates,reported_cases,deaths_by_country,countries,estimated.deaths,estimated.deaths.cf,out,lastObs,covariate_list_partial_county,file=paste0('../modelOutput/results/',StanModel,'-',JOBID,'-stanfit.Rdata'))
+save(JOBID,nStanIterations,duration,minimumReportedDeaths,fit,prediction,dates,reported_cases,deaths_by_country,countries,estimated.deaths,out,lastObs,covariate_list_partial_county,file=paste0('../modelOutput/results/',StanModel,'-',JOBID,'-stanfit.Rdata'))
 
 #### saving of simulation results is finished
+
+## log ##
+# create summary
+summary <- list(
+    jobid=JOBID,
+    time=duration, # in seconds
+    lastObs=lastObs,
+    deathsCutoff=minimumReportedDeaths,
+    nCounties=length(countries),
+    nIter=nStanIterations
+)
+exportJSON <- toJSON(summary, pretty=TRUE, auto_unbox=TRUE)
+# sent to stdout
+print("--- summary ---")
+print(exportJSON)
+# write summary to log 
+write(exportJSON, "../modelOutput/log.json"))
 
 #### now -> visualize model results -> ####
 
