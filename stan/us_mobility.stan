@@ -9,7 +9,6 @@ data {
   matrix[N2, M] f; // h * s
   int EpidemicStart[M];
   real SI[N2]; // fixed pre-calculated SI using emprical data from Neil
-  # real pop[M]; 
   // new data for mobility //
   int <lower=1> P_partial_county; // number of covariates for partial pooling (state-level effects)
   matrix[N2, P_partial_county] X_partial_county[M];
@@ -38,30 +37,32 @@ parameters {
 }
 
 transformed parameters {
-    real convolution;
-    matrix[N2, M] prediction = rep_matrix(0,N2,M);
-    matrix[N2, M] E_deaths  = rep_matrix(0,N2,M);
-    matrix[N2, M] Rt = rep_matrix(0,N2,M);
-    for (m in 1:M){
-      prediction[1:N0,m] = rep_vector(y[m],N0); // learn the number of cases in the first N0 days
-      Rt[,m] = mu[m] * 2 * inv_logit(-X_partial_county[m] * alpha_county[m] -weekly_effect[week_index[m],m]);
-      for (i in (N0+1):N2) {
-        convolution=0;
-        for(j in 1:(i-1)) {
-          convolution += prediction[j, m]*SI[i-j]; // Correctd 22nd March
-        }
-        prediction[i, m] = Rt[i,m] * convolution;
+  real convolution;
+  matrix[N2, M] prediction = rep_matrix(0,N2,M);
+  matrix[N2, M] E_deaths  = rep_matrix(0,N2,M);
+  matrix[N2, M] Rt = rep_matrix(0,N2,M);
+  for (m in 1:M){
+    prediction[1:N0,m] = rep_vector(y[m],N0); // learn the number of cases in the first N0 days
+    Rt[,m] = mu[m] * 2 * inv_logit(-X_partial_county[m] * alpha_county[m] 
+                                    -weekly_effect[week_index[m],m]);
+    for (i in (N0+1):N2) {
+      convolution=0;
+      for(j in 1:(i-1)) {
+        convolution += prediction[j, m]*SI[i-j]; // Correctd 22nd March
       }
-      
-      E_deaths[1, m]= 1e-9;
-      for (i in 2:N2){
-        E_deaths[i,m]= 0;
-        for(j in 1:(i-1)){
-          E_deaths[i,m] += prediction[j,m]*f[i-j,m];
-        }
+      prediction[i, m] = Rt[i,m] * convolution;
+    }
+    
+    E_deaths[1, m]= 1e-9;
+    for (i in 2:N2){
+      E_deaths[i,m]= 0;
+      for(j in 1:(i-1)){
+        E_deaths[i,m] += prediction[j,m]*f[i-j,m];
       }
     }
+  }
 }
+
 model {
   tau ~ exponential(0.03);
   gamma_county ~ normal(0,.5);
@@ -87,3 +88,4 @@ model {
     }
   }
 }
+
