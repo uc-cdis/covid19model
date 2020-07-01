@@ -126,22 +126,28 @@ make_three_pannel_plot <- function(){
                                "rt_min2" = rt_li2,
                                "rt_max2" = rt_ui2)
     
-    county_err <- make_plots(data_country = data_country, 
+    county_deaths_and_est <- make_plots(data_country = data_country, 
                covariates_country_long = covariates_country_long,
                filename2 = filename2,
                country = countryName,
                code = country)
 
-    allErr[[i]] <- county_err
+    allErr[[i]] <- county_deaths_and_est
   }
-  cutoff <- max(sapply(allErr, function(x) min(x$time)))
-  allErr <- sapply(allErr, function(x) x[x$time >= cutoff & x$time <= lastObs,])
 
-  err_df <- data.frame(time=allErr[,1]$time)  
-  err_df$err <- 0
+  allErr <- sapply(allErr, function(x) x[x$time <= lastObs,])
+
+  err_df <- data.frame(time=allErr[,1]$time)
+
+  err_df$deaths <- 0
+  err_df$est <- 0
   for (i in 1:dim(allErr)[2]){
-    err_df <- err_df + allErr[,i]$err
+    err_df$deaths <- err_df$deaths + allErr[,i]$deaths
+    err_df$est <- err_df$est + allErr[,i]$est
   }
+
+  # may need to guard against dividing by 0 here
+  err_df$err <- (err_df$est - err_df$deaths) / err_df$deaths
 
   avg_err <- mean(err_df$err)
 
@@ -340,7 +346,7 @@ make_plots <- function(data_country, covariates_country_long,
 
     save_plot(filename = file.path(countyDir, "Rt.png"), p3)
 
-    df_err <- data.frame(time=deaths_err$time, err=deaths_err$err)
+    df_err <- data.frame(time=deaths_err$time, deaths=deaths_err$deaths, est=deaths_err$est)
     return(df_err)
 }
 
