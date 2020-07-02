@@ -12,6 +12,7 @@ library(gridExtra)
 library(ggpubr)
 library(bayesplot)
 library(cowplot)
+library(zoo)
 
 source("utils/geom-stepribbon.r")
 #---------------------------------------------------------------------------
@@ -216,9 +217,7 @@ make_plots <- function(data_country, covariates_country_long,
     # $est | $deaths
     weeklyDeaths <- unname(tapply(deaths_err$deaths, (seq_along(deaths_err$deaths)-1) %/% 7, sum))
     weeklyEst <- unname(tapply(deaths_err$est, (seq_along(deaths_err$est)-1) %/% 7, sum))
-
-    # fix the date situation
-    weeklyDates <- unname(tapply(deaths_err$time, (seq_along(deaths_err$time)-1) %/% 7, min))
+    weeklyDates <- as.Date(unname(tapply(deaths_err$time, (seq_along(deaths_err$time)-1) %/% 7, min)))
     
     w <- data.frame(
           time = weeklyDates,
