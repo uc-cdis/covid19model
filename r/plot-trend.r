@@ -151,15 +151,15 @@ make_three_pannel_plot <- function(){
   ### scaled error daily
   error_plot(
     df = err_df,
-    title = "All County Daily Deaths Scaled Error",
-    path = "../modelOutput/figures/se_daily_all.png"
+    title = "All County Daily Deaths",
+    path = "../modelOutput/figures/%sse_daily_all.png"
   )
 
   ### scaled error weekly
   weekly_error_plot(
     df = err_df, 
-    title = "All County Weekly Deaths Scaled Error",
-    path = "../modelOutput/figures/se_weekly_all.png"
+    title = "All County Weekly Deaths",
+    path = "../modelOutput/figures/%sse_weekly_all.png"
   )
 }
 
@@ -183,14 +183,41 @@ error_plot <- function(df, title, path){
   df$err_raw <- df$est - df$deaths
   avg_naive <- mean(abs(diff(df$deaths)))
   df$err_scaled <- df$err_raw / avg_naive
+  df$err_abs_scaled <- abs(df$err_scaled)
 
+  abs_and_signed_error(
+    df = df,
+    title = title,
+    path = path
+  )
+}
+
+abs_and_signed_error  <- function(df, title, path) {
+
+  gg_error(
+    df = df,
+    target = "err_scaled",
+    title = sprintf("%s Scaled Error", title),
+    path = sprintf(path, "")
+  )
+
+  gg_error(
+    df = df,
+    target = "err_abs_scaled",
+    title = sprintf("%s Absolute Scaled Error", title),
+    path = sprintf(path, "a")
+  )
+
+}
+
+gg_error <- function(df, target, title, path){
   p <- ggplot(df) +
     ggtitle(title) + 
-    geom_bar(data = df, aes(x = time, y = err_scaled), 
+    geom_bar(data = df, aes(x = time, y = !!sym(target)), 
             fill = "coral4", stat='identity', alpha=0.5) + 
     xlab("Time") +
     ylab("Error") +
-    labs(subtitle=sprintf("avg_err: %f", mean(df$err_scaled))) +
+    labs(subtitle=sprintf("avg_err: %f", mean(df[[target]]))) +
     scale_x_date(date_breaks = "weeks", labels = date_format("%e %b")) + 
     theme_pubr() + 
     theme(axis.text.x = element_text(angle = 45, hjust = 1), 
@@ -224,14 +251,14 @@ make_plots <- function(data_country, covariates_country_long,
 
     error_plot(
       df = deaths_err,
-      title = paste0(country, " County Daily Deaths Scaled Error"),
-      path = file.path(countyDir, "se_daily.png")
+      title = paste0(country, " County Daily Deaths"),
+      path = file.path(countyDir, "%sse_daily.png")
     )
 
     weekly_error_plot(
       df = deaths_err,
-      title = paste0(country, " County Weekly Deaths Scaled Error"),
-      path = file.path(countyDir, "se_weekly.png")
+      title = paste0(country, " County Weekly Deaths"),
+      path = file.path(countyDir, "%sse_weekly.png")
     )
 
     ## p1
