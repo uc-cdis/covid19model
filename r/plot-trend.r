@@ -180,19 +180,17 @@ weekly_error_plot <- function(df, title, path){
 
 error_plot <- function(df, title, path){
 
-  print("a")
   df$err_raw <- df$est - df$deaths
   avg_naive <- mean(abs(diff(df$deaths)))
   df$err_scaled <- df$err_raw / avg_naive
 
-  print("b")
   p <- ggplot(df) +
     ggtitle(title) + 
-    geom_bar(data = df, aes(x = time, y = "err_scaled"), 
+    geom_bar(data = df, aes(x = time, y = err_scaled), 
             fill = "coral4", stat='identity', alpha=0.5) + 
     xlab("Time") +
     ylab("Error") +
-    labs(subtitle=sprintf("avg_err: %f", mean(df[["err_scaled"]]))) +
+    labs(subtitle=sprintf("avg_err: %f", mean(df$err_scaled))) +
     scale_x_date(date_breaks = "weeks", labels = date_format("%e %b")) + 
     theme_pubr() + 
     theme(axis.text.x = element_text(angle = 45, hjust = 1), 
@@ -200,9 +198,7 @@ error_plot <- function(df, title, path){
         legend.position = "None") + 
     guides(fill=guide_legend(ncol=1))
 
-  print("c")
   save_plot(filename = path, p)
-  print("d")
 }
 
 #---------------------------------------------------------------------------
@@ -226,22 +222,17 @@ make_plots <- function(data_country, covariates_country_long,
     # https://robjhyndman.com/papers/foresight.pdf
     # file:///Users/mattgarvin/Downloads/A-note-on-the-MASE-Revision-for-IJF.pdf
 
-    print(1)
     error_plot(
       df = deaths_err,
       title = paste0(country, " County Daily Deaths Scaled Error"),
       path = file.path(countyDir, "se_daily.png")
     )
 
-    print(2)
-
     weekly_error_plot(
       df = deaths_err,
       title = paste0(country, " County Weekly Deaths Scaled Error"),
       path = file.path(countyDir, "se_weekly.png")
     )
-
-    print(3)
 
     ## p1
 
