@@ -148,37 +148,61 @@ make_three_pannel_plot <- function(){
     err_df$est <- err_df$est + allErr[,i]$est
   }
 
-  ### scaled error
-
-  err_df$err_raw <- err_df$est - err_df$deaths
-  avg_naive <- mean(abs(diff(err_df$deaths)))
-  err_df$err_scaled <- err_df$err_raw / avg_naive
-
+  ### scaled error daily
   error_plot(
     df = err_df,
-    target = "err_scaled",
     title = "All County Daily Deaths Scaled Error",
-    path = "se_daily_all.png"
+    path = "../modelOutput/figures/se_daily_all.png"
+  )
+
+  ### scaled error weekly
+  weekly_error_plot(
+    df = err_df, 
+    title = "All County Weekly Deaths Scaled Error",
+    path = "../modelOutput/figures/se_weekly_all.png"
   )
 }
 
-error_plot <- function(df, target, title, path){
-    p <- ggplot(df) +
-      ggtitle(title) + 
-      geom_bar(data = df, aes(x = time, y = !!sym(target)), 
-              fill = "coral4", stat='identity', alpha=0.5) + 
-      xlab("Time") +
-      ylab("Error") +
-      labs(subtitle=sprintf("avg_err: %f", mean(df[[target]]))) +
-      scale_x_date(date_breaks = "weeks", labels = date_format("%e %b")) + 
-      theme_pubr() + 
-      theme(axis.text.x = element_text(angle = 45, hjust = 1), 
-          plot.title = element_text(hjust = 0.5),
-          legend.position = "None") + 
-      guides(fill=guide_legend(ncol=1))
+weekly_error_plot <- function(df, title, path){
 
-    save_plot(filename = file.path("../modelOutput/figures", path), p)
+  weeklyDeaths <- unname(tapply(df$deaths, (seq_along(df$deaths)-1) %/% 7, sum))
+  weeklyEst <- unname(tapply(df$est, (seq_along(df$est)-1) %/% 7, sum))
+  weeklyDates <- as.Date(unname(tapply(df$time, (seq_along(df$time)-1) %/% 7, min)))
+  
+  w <- data.frame(time = weeklyDates, deaths = weeklyDeaths, est = weeklyEst)
+  
+  error_plot(
+    df = w,
+    title = title,
+    path = path
+  )
+}
 
+error_plot <- function(df, title, path){
+
+  print("a")
+  df$err_raw <- df$est - df$deaths
+  avg_naive <- mean(abs(diff(df$deaths)))
+  df$err_scaled <- df$err_raw / avg_naive
+
+  print("b")
+  p <- ggplot(df) +
+    ggtitle(title) + 
+    geom_bar(data = df, aes(x = time, y = "err_scaled"), 
+            fill = "coral4", stat='identity', alpha=0.5) + 
+    xlab("Time") +
+    ylab("Error") +
+    labs(subtitle=sprintf("avg_err: %f", mean(df[["err_scaled"]]))) +
+    scale_x_date(date_breaks = "weeks", labels = date_format("%e %b")) + 
+    theme_pubr() + 
+    theme(axis.text.x = element_text(angle = 45, hjust = 1), 
+        plot.title = element_text(hjust = 0.5),
+        legend.position = "None") + 
+    guides(fill=guide_legend(ncol=1))
+
+  print("c")
+  save_plot(filename = path, p)
+  print("d")
 }
 
 #---------------------------------------------------------------------------
@@ -202,36 +226,22 @@ make_plots <- function(data_country, covariates_country_long,
     # https://robjhyndman.com/papers/foresight.pdf
     # file:///Users/mattgarvin/Downloads/A-note-on-the-MASE-Revision-for-IJF.pdf
 
-    deaths_err$err_raw <- deaths_err$est - deaths_err$deaths
-    avg_naive <- mean(abs(diff(deaths_err$deaths)))
-    deaths_err$err_scaled <- deaths_err$err_raw / avg_naive
-
+    print(1)
     error_plot(
       df = deaths_err,
-      target = "err_scaled",
       title = paste0(country, " County Daily Deaths Scaled Error"),
-      path = file.path(code, "se_daily.png")
+      path = file.path(countyDir, "se_daily.png")
     )
 
-    #### scaled error plot weekly totals - dev'ingg
-    # $est | $deaths
-    weeklyDeaths <- unname(tapply(deaths_err$deaths, (seq_along(deaths_err$deaths)-1) %/% 7, sum))
-    weeklyEst <- unname(tapply(deaths_err$est, (seq_along(deaths_err$est)-1) %/% 7, sum))
-    weeklyDates <- as.Date(unname(tapply(deaths_err$time, (seq_along(deaths_err$time)-1) %/% 7, min)))
-    
-    w <- data.frame(time = weeklyDates, deaths = weeklyDeaths, est = weeklyEst)
-    
-    # put this into a function
-    w$err_raw <- w$est - w$deaths
-    avg_naive <- mean(abs(diff(w$deaths)))
-    w$err_scaled <- w$err_raw / avg_naive
+    print(2)
 
-    error_plot(
-      df = w,
-      target = "err_scaled",
+    weekly_error_plot(
+      df = deaths_err,
       title = paste0(country, " County Weekly Deaths Scaled Error"),
-      path = file.path(code, "se_weekly.png")
+      path = file.path(countyDir, "se_weekly.png")
     )
+
+    print(3)
 
     ## p1
 
