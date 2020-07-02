@@ -157,7 +157,7 @@ make_three_pannel_plot <- function(){
     df = err_df,
     target = "err_scaled",
     title = "All County Daily Deaths Scaled Error",
-    path = "scaled_error_all.png"
+    path = "daily_se_all.png"
   )
 }
 
@@ -204,19 +204,36 @@ make_plots <- function(data_country, covariates_country_long,
     deaths_err$err_raw <- deaths_err$est - deaths_err$deaths
     avg_naive <- mean(abs(diff(deaths_err$deaths)))
     deaths_err$err_scaled <- deaths_err$err_raw / avg_naive
-    mase <- mean(deaths_err$err_scaled)
 
     error_plot(
       df = deaths_err,
       target = "err_scaled",
       title = paste0(country, " County Daily Deaths Scaled Error"),
-      path = file.path(code, "scaled_error.png")
+      path = file.path(code, "daily_se.png")
     )
 
-    #### scaled error plot weekly totals - dev'ing
+    #### scaled error plot weekly totals - dev'ingg
     # $est | $deaths
     weeklyDeaths <- unname(tapply(deaths_err$deaths, (seq_along(deaths_err$deaths)-1) %/% 7, sum))
-    print(weeklyDeaths)
+    weeklyEst <- unname(tapply(deaths_err$est, (seq_along(deaths_err$est)-1) %/% 7, sum))
+    weeklyDates <- unname(tapply(deaths_err$time, (seq_along(deaths_err$time)-1) %/% 7, min))
+    w <- data.frame(
+          time = weeklyDates,
+          deaths = weeklyDeaths,
+          est = weeklyEst
+        )
+    
+    # put this into a function
+    w$err_raw <- w$est - w$deaths
+    avg_naive <- mean(abs(diff(w$deaths)))
+    w$err_scaled <- deaths_err$err_raw / avg_naive
+
+    error_plot(
+      df = w,
+      target = "err_scaled",
+      title = paste0(country, " County Weekly Deaths Scaled Error"),
+      path = file.path(code, "weekly_se.png")
+    )
 
     ## p1
 
