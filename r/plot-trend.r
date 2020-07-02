@@ -147,18 +147,6 @@ make_three_pannel_plot <- function(){
     err_df$est <- err_df$est + allErr[,i]$est
   }
 
-  ### % error 
-
-  # may need to guard against dividing by 0 here
-  err_df$err <- (err_df$est - err_df$deaths) / err_df$deaths
-
-  error_plot(
-    df = err_df,
-    target = "err",
-    title = "All County Daily Deaths % Error",
-    path = "percent_error_all.png"
-  )
-
   ### scaled error
 
   err_df$err_raw <- err_df$est - err_df$deaths
@@ -171,18 +159,6 @@ make_three_pannel_plot <- function(){
     title = "All County Daily Deaths Scaled Error",
     path = "scaled_error_all.png"
   )
-
-  ### absolute scaled error 
-
-  err_df$err_abs_scaled <- abs(err_df$err_raw) / avg_naive
-
-  error_plot(
-    df = err_df,
-    target = "err_abs_scaled",
-    title = "All County Daily Deaths Absolute Scaled Error",
-    path = "abs_scaled_error_all.png"
-  )
-
 }
 
 error_plot <- function(df, target, title, path){
