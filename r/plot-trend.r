@@ -216,7 +216,10 @@ make_plots <- function(data_country, covariates_country_long,
     # $est | $deaths
     weeklyDeaths <- unname(tapply(deaths_err$deaths, (seq_along(deaths_err$deaths)-1) %/% 7, sum))
     weeklyEst <- unname(tapply(deaths_err$est, (seq_along(deaths_err$est)-1) %/% 7, sum))
+
+    # fix the date situation
     weeklyDates <- unname(tapply(deaths_err$time, (seq_along(deaths_err$time)-1) %/% 7, min))
+    
     w <- data.frame(
           time = weeklyDates,
           deaths = weeklyDeaths,
@@ -226,14 +229,32 @@ make_plots <- function(data_country, covariates_country_long,
     # put this into a function
     w$err_raw <- w$est - w$deaths
     avg_naive <- mean(abs(diff(w$deaths)))
-    w$err_scaled <- deaths_err$err_raw / avg_naive
+    w$err_scaled <- w$err_raw / avg_naive
 
-    error_plot(
-      df = w,
-      target = "err_scaled",
-      title = paste0(country, " County Weekly Deaths Scaled Error"),
-      path = file.path(code, "weekly_se.png")
-    )
+    # this don't work.
+    # error_plot(
+    #   df = w,
+    #   target = "err_scaled",
+    #   title = paste0(country, " County Weekly Deaths Scaled Error"),
+    #   path = file.path(code, "weekly_se.png")
+    # )
+
+    pE <- ggplot(w) +
+      ggtitle(paste0(country, " County Weekly Deaths Scaled Error")) + 
+      geom_bar(data = w, aes(x = time, y = err_scaled), 
+              fill = "coral4", stat='identity', alpha=0.5) + 
+      xlab("Time") +
+      ylab("Error") +
+      labs(subtitle=sprintf("avg_err: %f", mean(w[["err_scaled"]]))) +
+      # scale_x_date(date_breaks = "weeks", labels = date_format("%e %b")) + 
+      scale_x_date(labels = date_format("%e %b")) + 
+      theme_pubr() + 
+      theme(axis.text.x = element_text(angle = 45, hjust = 1), 
+          plot.title = element_text(hjust = 0.5),
+          legend.position = "None") + 
+      guides(fill=guide_legend(ncol=1))
+
+    save_plot(filename = file.path(countyDir, "weekly_se.png"), pE)
 
     ## p1
 
