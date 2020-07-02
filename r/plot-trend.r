@@ -190,7 +190,7 @@ make_plots <- function(data_country, covariates_country_long,
     countyDir <- file.path("../modelOutput/figures", code)
     dir.create(countyDir, showWarnings = FALSE)
 
-    ## p0 - scaled error plot
+    #### scaled error plot daily counts
     deaths_err <- data.frame(time=data_country$time, deaths=data_country$deaths, est=data_country$estimated_deaths, deaths_c=data_country$deaths_c)
 
     # index = which(d1$cases>0)[1]
@@ -212,6 +212,11 @@ make_plots <- function(data_country, covariates_country_long,
       title = paste0(country, " County Daily Deaths Scaled Error"),
       path = file.path(code, "scaled_error.png")
     )
+
+    #### scaled error plot weekly totals - dev'ing
+    # $est | $deaths
+    weeklyDeaths <- unname(tapply(deaths_err$deaths, (seq_along(deaths_err$deaths)-1) %/% 7, sum))
+    print(weeklyDeaths)
 
     ## p1
 
