@@ -158,7 +158,7 @@ make_three_pannel_plot <- function(){
     df = err_df,
     target = "err_scaled",
     title = "All County Daily Deaths Scaled Error",
-    path = "daily_se_all.png"
+    path = "se_daily_all.png"
   )
 }
 
@@ -210,7 +210,7 @@ make_plots <- function(data_country, covariates_country_long,
       df = deaths_err,
       target = "err_scaled",
       title = paste0(country, " County Daily Deaths Scaled Error"),
-      path = file.path(code, "daily_se.png")
+      path = file.path(code, "se_daily.png")
     )
 
     #### scaled error plot weekly totals - dev'ingg
@@ -230,7 +230,7 @@ make_plots <- function(data_country, covariates_country_long,
       df = w,
       target = "err_scaled",
       title = paste0(country, " County Weekly Deaths Scaled Error"),
-      path = file.path(code, "weekly_se.png")
+      path = file.path(code, "se_weekly.png")
     )
 
     ## p1
