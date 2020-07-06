@@ -50,6 +50,12 @@ make_three_pannel_plot <- function(){
     theme(plot.title = element_text(hjust = 0.5), plot.subtitle = element_text(hjust = 0.5)) # center title and subtitle
   ggsave(sprintf("../modelOutput/figures/Rt_All.png"),g,width=6,height=4)
 
+  # next
+  # 1. Rt pre-lockdown
+  # 2. Rt lockdown
+  # 3. Rt post-lockdown
+  # 4. delta's
+  # so that's 5 quantities - 3 intervals, 2 transitions of great importance
 
   # dev'ing #
 
@@ -75,20 +81,35 @@ make_three_pannel_plot <- function(){
   Rt_Lockdown <- out$Rt[,(idxLockdown+1):idxReopen,]
   Rt_PostLockdown <- out$Rt[,(idxReopen+1):idxLastObs,]
 
+  # certainly, certainly make a function out of this
+
   # average Rt for each time period
   Rt_PreLockdown <- apply(Rt_PreLockdown, c(1,3), mean)
   Rt_Lockdown <- apply(Rt_Lockdown, c(1,3), mean)
   Rt_PostLockdown <- apply(Rt_PostLockdown, c(1,3), mean)
 
   # here! visualize it
-  # colnames(Rt) <- codeToName$name
+  colnames(Rt_PreLockdown) <- codeToName$name
+  colnames(Rt_Lockdown) <- codeToName$name
+  colnames(Rt_PostLockdown) <- codeToName$name
 
-  # next
-  # 1. Rt pre-lockdown
-  # 2. Rt lockdown
-  # 3. Rt post-lockdown
-  # 4. delta's
-  # so that's 5 quantities - 3 intervals, 2 transitions of great importance
+  Rt_Delta_Lockdown <- Rt_Lockdown - Rt_PreLockdown
+  Rt_Delta_Reopen <- Rt_PostLockdown - Rt_Lockdown
+
+  # move this
+  plot_Rt_by_time_period <- function(Rt, title, path){
+    g = mcmc_intervals(Rt,prob = .9) + 
+      ggtitle(title, "with 90% posterior credible intervals") +
+      xlab("Rt") + ylab("County") + 
+      theme(plot.title = element_text(hjust = 0.5), plot.subtitle = element_text(hjust = 0.5)) # center title and subtitle
+    ggsave(file.path("../modelOutput/figures", path),g,width=6,height=4)
+  }
+
+  plot_Rt_by_time_period(Rt_PreLockdown, "Average Rt Prior To Lockdown", "Rt_PreLockdown_All.png")
+  plot_Rt_by_time_period(Rt_Lockdown, "Average Rt During Lockdown", "Rt_Lockdown_All.png")
+  plot_Rt_by_time_period(Rt_PostLockdown, "Average Rt After Reopening", "Rt_Reopening_All.png")
+  plot_Rt_by_time_period(Rt_Delta_Lockdown, "Average Change In Rt Following Lockdown", "Rt_Delta_Lockdown_All.png")
+  plot_Rt_by_time_period(Rt_Delta_Reopen, "Average Change In Rt Following Reopening", "Rt_Delta_Reopen_All.png")
 
   ##### ////////////// #####
 
