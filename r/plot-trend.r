@@ -45,7 +45,7 @@ make_three_pannel_plot <- function(){
   # visualize it
   colnames(Rt) <- codeToName$name
   g = mcmc_intervals(Rt,prob = .9) + 
-    ggtitle(sprintf("Rt as of %s", format(lastObs, "%a %B %d")), "with 90% posterior credible intervals") +
+    ggtitle(sprintf("Average Rt %s to %s", format(lastObs-6, "%B %d"),format(lastObs, "%B %d")), "with 90% posterior credible intervals") +
     xlab("Rt") + ylab("County") + 
     theme(plot.title = element_text(hjust = 0.5), plot.subtitle = element_text(hjust = 0.5)) # center title and subtitle
   ggsave(sprintf("../modelOutput/figures/Rt_All.png"),g,width=6,height=4)
