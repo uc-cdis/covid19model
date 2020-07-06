@@ -32,9 +32,23 @@ make_three_pannel_plot <- function(){
   cd <- dates[[1]]
   cd <- cd[cd > lastObs]
 
-  ### final Rt via bayesplot
+  ### final Rt via bayesplot - dev'ing
   dimensions <- dim(out$Rt)
-  Rt = (as.matrix(out$Rt[,dimensions[2] - length(cd),])) # HERE! cutting off at June 1st  - remove later
+  idx <- dimensions[2] - length(cd)
+
+  print(dimensions)
+
+  # idx is lastobs
+  # want: mean(Rt) 7 days leading up to lastobs
+  # Rt = (as.matrix(out$Rt[,(idx-7):idx,]))
+  Rt = out$Rt[,(idx-6):idx,]
+
+  print(dim(Rt))
+
+  Rt <- apply(Rt, c(1,3), mean)
+
+  print(dim(Rt))
+
   colnames(Rt) <- codeToName$name
   g = mcmc_intervals(Rt,prob = .9) + 
     ggtitle(sprintf("Rt as of %s", format(lastObs, "%a %B %d")), "with 90% posterior credible intervals") +
