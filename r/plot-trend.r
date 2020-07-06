@@ -61,9 +61,17 @@ make_three_pannel_plot <- function(){
 
   # cd <- cd[cd > lastObs]
 
+  # split the dates
   preLockdownDates <- datesRef[datesRef < lockdownStart]
   lockdownDates <- datesRef[datesRef >= lockdownStart & datesRef < lockdownEnd]
   postLockdownDates <- datesRef[datesRef >= lockdownEnd & datesRef <= lastObs]
+
+  # map to indexes
+  idxLockdown <- length(preLockdownDates)
+  idxReopen <- idxLockdown + length(lockdownDates)
+  idxLastObs <- idxReopen + length(postLockdownDates)
+
+  
 
   # next
   # 1. Rt pre-lockdown
