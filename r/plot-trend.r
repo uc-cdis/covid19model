@@ -50,6 +50,14 @@ make_three_pannel_plot <- function(){
     theme(plot.title = element_text(hjust = 0.5), plot.subtitle = element_text(hjust = 0.5)) # center title and subtitle
   ggsave(sprintf("../modelOutput/figures/Rt_All.png"),g,width=6,height=4)
 
+  # next
+  # 1. Rt pre-lockdown
+  # 2. Rt lockdown
+  # 3. Rt post-lockdown
+  # 4. delta's
+  # so that's 5 quantities - 3 intervals, 2 transitions of great importance
+
+  ##### ////////////// #####
 
   # interventions table 
   # NOTE: "covariate" == "intervention"; 
