@@ -50,6 +50,21 @@ make_three_pannel_plot <- function(){
     theme(plot.title = element_text(hjust = 0.5), plot.subtitle = element_text(hjust = 0.5)) # center title and subtitle
   ggsave(sprintf("../modelOutput/figures/Rt_All.png"),g,width=6,height=4)
 
+
+  # dev'ing #
+
+  # two transitions
+  lockdownStart <- as.Date("03/21/2020", format="%m/%d/%y")
+  lockdownEnd <- as.Date("05/30/2020", format="%m/%d/%y") # source: https://www.usatoday.com/storytelling/coronavirus-reopening-america-map/
+  
+  datesRef <- dates[[1]]
+
+  # cd <- cd[cd > lastObs]
+
+  preLockdownDates <- datesRef[datesRef < lockdownStart]
+  lockdownDates <- datesRef[datesRef >= lockdownStart & datesRef < lockdownEnd]
+  postLockdownDates <- datesRef[datesRef >= lockdownEnd & datesRef <= lastObs]
+
   # next
   # 1. Rt pre-lockdown
   # 2. Rt lockdown
