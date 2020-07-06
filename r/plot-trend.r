@@ -75,10 +75,12 @@ make_three_pannel_plot <- function(){
   Rt_Lockdown <- out$Rt[,(idxLockdown+1):idxReopen,]
   Rt_PostLockdown <- out$Rt[,(idxReopen+1):idxLastObs,]
 
-  # here we calculate avg Rt over the 7 days leading up to the last observation
-  # Rt <- apply(Rt, c(1,3), mean)
+  # average Rt for each time period
+  Rt_PreLockdown <- apply(Rt_PreLockdown, c(1,3), mean)
+  Rt_Lockdown <- apply(Rt_Lockdown, c(1,3), mean)
+  Rt_PostLockdown <- apply(Rt_PostLockdown, c(1,3), mean)
 
-  # visualize it
+  # here! visualize it
   # colnames(Rt) <- codeToName$name
 
   # next
