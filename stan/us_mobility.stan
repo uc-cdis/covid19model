@@ -43,7 +43,13 @@ transformed parameters {
   matrix[N2, M] Rt = rep_matrix(0,N2,M);
   for (m in 1:M){
     prediction[1:N0,m] = rep_vector(y[m],N0); // learn the number of cases in the first N0 days
-    Rt[,m] = mu[m] * 2 * inv_logit(-X_partial_county[m] * alpha_county[m] - weekly_effect[week_index[m],m]);
+
+    # original <-> includes weekly effect
+    # Rt[,m] = mu[m] * 2 * inv_logit(-X_partial_county[m] * alpha_county[m] - weekly_effect[week_index[m],m]);
+
+    # testing without weekly effect - VERY coarse sensitivity analysis
+    Rt[,m] = mu[m] * 2 * inv_logit(-X_partial_county[m] * alpha_county[m]);
+
     for (i in (N0+1):N2) {
       convolution=0;
       for(j in 1:(i-1)) {
