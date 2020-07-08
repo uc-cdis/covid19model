@@ -207,22 +207,28 @@ make_three_pannel_plot <- function(){
   }
 
   #### all estimated deaths curves one plot ####
+
   minDate <- min(sapply(allErr, function(x) min(x$time)))
-  allEst <- subset(allErr, select=-c("deaths"))
-  allEst <- sapply(allEst, function(x) x[x$time <= lastOb,])
+
+  print(1)
+  allEst <- lapply(allErr, function(x) x[x$time <= lastObs,])
+  print(2)
+  allEst <- lapply(allEst, function(x) subset(x, select=-c(deaths)))
+  print(3)
 
   pad_est <- function(x) {
     df <- data.frame(
-      time = seq(minDate:min(x$time-1), by="days"),
-      est = seq(rep(0, as.integer(min(x$time)-minDate)))
+      time = seq(as.Date(minDate), as.Date(min(x$time-1)), by="days"),
+      est = rep(0, min(x$time) - minDate)
     )
-    return(cbind(df,x))
+    return(rbind(df,x))
   }
+  print(4)
+  allEst <- lapply(allEst, pad_est)
+  print(5)
 
-  allEst <- sapply(allEst, pad_est)
-
-  print(dim(allEst))
-  print(head(allEst))
+  # print(dim(allEst))
+  # print(head(allEst))
   
 
   #### error analysis ####
