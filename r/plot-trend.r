@@ -210,26 +210,21 @@ make_three_pannel_plot <- function(){
 
   minDate <- min(sapply(allErr, function(x) min(x$time)))
 
-  print(1)
   allEst <- lapply(allErr, function(x) x[x$time <= lastObs,])
-  print(2)
   allEst <- lapply(allEst, function(x) subset(x, select=-c(deaths)))
-  print(3)
 
   pad_est <- function(x) {
+    if (min(x$time) == minDate){return(x)}
     df <- data.frame(
-      time = seq(as.Date(minDate), as.Date(min(x$time-1)), by="days"),
+      time = seq(as.Date(minDate), as.Date(min(x$time)-1), by="days"),
       est = rep(0, min(x$time) - minDate)
     )
     return(rbind(df,x))
   }
-  print(4)
   allEst <- lapply(allEst, pad_est)
-  print(5)
 
-  # print(dim(allEst))
-  # print(head(allEst))
-  
+  print(dim(allEst))
+  print(head(allEst))
 
   #### error analysis ####
   cutoff <- max(sapply(allErr, function(x) min(x$time)))
