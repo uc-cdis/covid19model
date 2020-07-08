@@ -34,9 +34,9 @@ print(sprintf("Running MCMC routine with %d iterations", nStanIterations))
 ## -> something to try, for sure
 
 library(zoo)
-smooth_fn = function(x, days=3) {
-  return(rollmean(x, days, align = "right"))
-}
+# smooth_fn = function(x, days=3) {
+#   return(rollmean(x, days, align = "right"))
+# }
 
 # case-mortality table
 d <- read.csv("../modelInput/ILCaseAndMortalityV1.csv", stringsAsFactors = FALSE)
@@ -57,12 +57,13 @@ d$countryterritoryCode <- sub("840", "", d$countryterritoryCode)
 # county population
 # pop = unique(d[c("countryterritoryCode", "popData2018")])
 
+# IMPORTANT: this smoothing function is 100% broken
 # SMOOTHING reported death and case counts
 # try <steps> day moving average to smooth raw reported case and death counts
 # "so the bars don't look so bad" - really to account for bias/periodic fluxuations in reporting
-steps = 7
-d$deaths = c(rep(0, steps-1), as.integer(smooth_fn(d$deaths, days=steps)))
-d$cases = c(rep(0, steps-1), as.integer(smooth_fn(d$cases, days=steps)))
+# steps = 7
+# d$deaths = c(rep(0, steps-1), as.integer(smooth_fn(d$deaths, days=steps)))
+# d$cases = c(rep(0, steps-1), as.integer(smooth_fn(d$cases, days=steps)))
 
 codeToName <- unique(data.frame("countyCode" = d$countryterritoryCode, "countyName" = d$countriesAndTerritories))
 
