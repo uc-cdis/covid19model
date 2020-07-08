@@ -217,14 +217,16 @@ make_three_pannel_plot <- function(){
     if (min(x$time) == minDate){return(x)}
     df <- data.frame(
       time = seq(as.Date(minDate), as.Date(min(x$time)-1), by="days"),
-      est = rep(0, min(x$time) - minDate)
+      est = rep(0, min(x$time) - minDate),
+      countyName = rep(x$countyName[1], min(x$time) - minDate)
     )
     return(rbind(df,x))
   }
   allEst <- lapply(allEst, pad_est)
 
-  print(dim(allEst))
-  print(head(allEst))
+  # rough - add county name as ID
+  pEst <- ggplot(bind_rows(allEst), aes(x=time, y=est, colour=countyName)) + geom_line()
+  save_plot(filename = "../modelOutput/figures/allEstimates.png", pEst)
 
   #### error analysis ####
   cutoff <- max(sapply(allErr, function(x) min(x$time)))
@@ -467,7 +469,7 @@ make_plots <- function(data_country, covariates_country_long,
 
     save_plot(filename = file.path(countyDir, "Rt.png"), p3)
 
-    df_err <- data.frame(time=deaths_err$time, deaths=deaths_err$deaths, est=deaths_err$est)
+    df_err <- data.frame(time=deaths_err$time, deaths=deaths_err$deaths, est=deaths_err$est, countyName=country)
     return(df_err)
 }
 
