@@ -364,7 +364,7 @@ write(exportJSON, "../modelOutput/log.json")
 
 filename <- paste0(StanModel, '-', JOBID)
 system(paste0("Rscript plot-trend.r ", filename,'.Rdata')) 
-system(paste0("Rscript plot-forecast.r ", filename,'.Rdata')) ## icl: to run this code you will need to adjust manual values of forecast required
+# system(paste0("Rscript plot-forecast.r ", filename,'.Rdata')) ## icl: to run this code you will need to adjust manual values of forecast required
 
 # suppressing for now
 # system(paste0("Rscript plot-explore.r ", filename,'.Rdata'))
