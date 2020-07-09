@@ -40,11 +40,6 @@ make_three_pannel_plot <- function(){
 
   # here we calculate avg Rt over the 7 days leading up to the last observation
   Rt = out$Rt[,(idx-6):idx,]
-
-  # fixme: error here
-  # Error in if (d2 == 0L) { : missing value where TRUE/FALSE needed
-  # Calls: make_three_pannel_plot -> apply
-  # Execution halted
   Rt <- apply(Rt, c(1,3), mean)
 
   # visualize it
