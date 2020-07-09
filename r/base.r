@@ -187,7 +187,7 @@ for(Country in countries) {
   index1 = which(cumsum(d1$deaths)>=10)[1] 
   index2 = index1-30
   
-  print(sprintf("First non-zero cases is on day %d, and 30 days before 10 cumulative deaths is day %d",index,index2))
+  print(sprintf("First non-zero cases is on day %d, and 30 days before %d cumulative deaths is day %d",index,minimumReportedDeaths,index2))
   d1=d1[index2:nrow(d1),]
   stan_data$EpidemicStart = c(stan_data$EpidemicStart,index1+1-index2)
 
