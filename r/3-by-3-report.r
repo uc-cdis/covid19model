@@ -144,7 +144,7 @@ make_three_pannel_plot <- function(){
 
     three_by_three[[i]] <- row_of_plots
   }
-  report_image <- grid.arrange(grobs=three_by_three[[1]], ncol=3)
+  report_image <- grid.arrange(grobs=unlist(three_by_three, recursive=FALSE), ncol=3)
   save_plot(filename = "../modelOutput/figures/three_by_three.png", report_image)
 }
 
