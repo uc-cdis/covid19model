@@ -158,29 +158,6 @@ make_plots <- function(data_country, covariates_country_long,
     countyDir <- file.path("../modelOutput/figures", code)
     dir.create(countyDir, showWarnings = FALSE)
 
-    #### scaled error plot daily counts
-    # deaths_err <- data.frame(time=data_country$time, deaths=data_country$deaths, est=data_country$estimated_deaths, deaths_c=data_country$deaths_c)
-
-    # index = which(d1$cases>0)[1]
-    # index <- which(deaths_err$deaths_c>10)[1]
-    # deaths_err <- deaths_err[index:nrow(deaths_err),]
-
-    # MASE : https://en.wikipedia.org/wiki/Mean_absolute_scaled_error
-    # https://robjhyndman.com/papers/foresight.pdf
-    # file:///Users/mattgarvin/Downloads/A-note-on-the-MASE-Revision-for-IJF.pdf
-
-    # error_plot(
-    #   df = deaths_err,
-    #   title = paste0(country, " County Daily Deaths"),
-    #   path = file.path(countyDir, "%sse_daily.png")
-    # )
-
-    # weekly_error_plot(
-    #   df = deaths_err,
-    #   title = paste0(country, " County Weekly Deaths"),
-    #   path = file.path(countyDir, "%sse_weekly.png")
-    # )
-
     ## p1
 
     data_cases_95 <- data.frame(data_country$time, data_country$predicted_min, 
@@ -195,12 +172,12 @@ make_plots <- function(data_country, covariates_country_long,
     levels(data_cases$key) <- c("ninetyfive", "fifty")
     
     p1 <- ggplot(data_country) +
-        ggtitle(paste0(country, " County Daily Cases")) + 
+        # ggtitle(paste0(country, " County Daily Cases")) + 
         geom_bar(data = data_country, aes(x = time, y = reported_cases), 
                 fill = "coral4", stat='identity', alpha=0.5) + 
         geom_ribbon(data = data_cases, 
                     aes(x = time, ymin = cases_min, ymax = cases_max, fill = key)) +
-        xlab("Time") +
+        # xlab("Time") +
         ylab("Cases") +
         scale_x_date(date_breaks = "weeks", labels = date_format("%e %b")) + 
         scale_fill_manual(name = "", labels = c("50%", "95%"),
@@ -228,13 +205,13 @@ make_plots <- function(data_country, covariates_country_long,
     levels(data_deaths$key) <- c("ninetyfive", "fifty")
     
     p2 <-   ggplot(data_country, aes(x = time)) +
-        ggtitle(paste0(country, " County Daily Deaths")) +
+        # ggtitle(paste0(country, " County Daily Deaths")) +
         geom_bar(data = data_country, aes(y = deaths, fill = "reported"),
                 fill = "coral4", stat='identity', alpha=0.5) +
         geom_ribbon(
         data = data_deaths,
         aes(ymin = death_min, ymax = death_max, fill = key)) +
-        xlab("Time") +
+        # xlab("Time") +
         ylab("Deaths") +
         scale_x_date(date_breaks = "weeks", labels = date_format("%e %b")) +
         scale_fill_manual(name = "", labels = c("50%", "95%"),
@@ -265,7 +242,7 @@ make_plots <- function(data_country, covariates_country_long,
     levels(data_rt$key) <- c("ninetyfive", "fifth")
     
     p3 <- ggplot(data_country) +
-        ggtitle(paste0(country, " County Estimated Rt")) +
+        # ggtitle(paste0(country, " County Estimated Rt")) +
         geom_stepribbon(data = data_rt, aes(x = time, 
                                             ymin = rt_min, ymax = rt_max, 
                                             group = key,
@@ -281,7 +258,7 @@ make_plots <- function(data_country, covariates_country_long,
                                                     group = key, 
                                                     shape = key, 
                                                     col = key), size = 2) +
-        xlab("Time") + 
+        # xlab("Time") + 
         ylab(expression(R[t])) +
         scale_fill_manual(name = "", labels = c("50%", "95%"),
                         values = c(alpha("seagreen", 0.75), alpha("seagreen", 0.5))) + 
