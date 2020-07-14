@@ -184,10 +184,17 @@ make_plots <- function(data_country, covariates_country_long,
                         values = c(alpha("deepskyblue4", 0.55), 
                                     alpha("deepskyblue4", 0.45))) + 
         theme_pubr() + 
-        theme(axis.text.x = element_text(angle = 45, hjust = 1), 
-            plot.title = element_text(hjust = 0.5),
-            legend.position = "None") + 
-        guides(fill=guide_legend(ncol=1))
+        # theme(axis.text.x = element_text(angle = 45, hjust = 1), 
+        #     plot.title = element_text(hjust = 0.5),
+        #     legend.position = "None") + 
+        theme(plot.title=element_blank(),
+              legend.position="none",
+              axis.title.y=element_blank(),
+              axis.text.y=element_blank(),
+              axis.title.x=element_blank(),
+              axis.text.x=element_blank(),
+              axis.ticks.x=element_blank()) # +
+        # guides(fill=guide_legend(ncol=1))
 
     ### p2
 
@@ -216,10 +223,17 @@ make_plots <- function(data_country, covariates_country_long,
                         values = c(alpha("deepskyblue4", 0.55), 
                                     alpha("deepskyblue4", 0.45))) + 
         theme_pubr() + 
-        theme(axis.text.x = element_text(angle = 45, hjust = 1), 
-            plot.title = element_text(hjust = 0.5),
-            legend.position = "None") + 
-        guides(fill=guide_legend(ncol=1))
+        # theme(axis.text.x = element_text(angle = 45, hjust = 1), 
+        #     plot.title = element_text(hjust = 0.5),
+        #     legend.position = "None") + 
+        theme(plot.title=element_blank(),
+              legend.position="none",
+              axis.title.y=element_blank(),
+              axis.text.y=element_blank(),
+              axis.title.x=element_blank(),
+              axis.text.x=element_blank(),
+              axis.ticks.x=element_blank()) # +
+        # guides(fill=guide_legend(ncol=1))
 
 
     ### p3
@@ -264,9 +278,16 @@ make_plots <- function(data_country, covariates_country_long,
         scale_colour_discrete(name = "Interventions", labels = plot_labels) + 
         scale_x_date(date_breaks = "weeks", labels = date_format("%e %b")) + 
         theme_pubr() + 
-        theme(axis.text.x = element_text(angle = 45, hjust = 1),
-                    plot.title = element_text(hjust = 0.5),
-                    legend.position="None")
+        # theme(axis.text.x = element_text(angle = 45, hjust = 1),
+        #             plot.title = element_text(hjust = 0.5),
+        #             legend.position="None") +
+        theme(plot.title=element_blank(),
+              legend.position="none",
+              axis.title.y=element_blank(),
+              axis.text.y=element_blank(),
+              axis.title.x=element_blank(),
+              axis.text.x=element_blank(),
+              axis.ticks.x=element_blank())
 
     return(list(p1,p2,p3))
 }
