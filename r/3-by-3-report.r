@@ -189,8 +189,6 @@ make_plots <- function(data_country, covariates_country_long,
             legend.position = "None") + 
         guides(fill=guide_legend(ncol=1))
 
-    save_plot(filename = file.path(countyDir, "cases.png"), p1)
-
     ### p2
 
     data_deaths_95 <- data.frame(data_country$time, data_country$death_min, 
@@ -223,8 +221,7 @@ make_plots <- function(data_country, covariates_country_long,
             legend.position = "None") + 
         guides(fill=guide_legend(ncol=1))
 
-    save_plot(filename = file.path(countyDir, "deaths.png"), p2)
-    
+
     ### p3
 
     plot_labels <- c("lockdown")
@@ -269,9 +266,7 @@ make_plots <- function(data_country, covariates_country_long,
         theme_pubr() + 
         theme(axis.text.x = element_text(angle = 45, hjust = 1),
                     plot.title = element_text(hjust = 0.5),
-                    legend.position="right")
-
-    save_plot(filename = file.path(countyDir, "Rt.png"), p3)
+                    legend.position="None")
 
     return(list(p1,p2,p3))
 }
