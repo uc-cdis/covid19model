@@ -144,8 +144,7 @@ make_three_pannel_plot <- function(){
 
     three_by_three[[i]] <- row_of_plots
   }
-  viz_df <- rbind(three_by_three)
-  report_image <- multiplot(viz_df, cols=3)
+  report_image <- grid.arrange(grobs=three_by_three[[1]], ncol=3)
   save_plot(filename = "../modelOutput/figures/three_by_three.png", report_image)
 }
 
@@ -297,7 +296,7 @@ make_plots <- function(data_country, covariates_country_long,
 
     save_plot(filename = file.path(countyDir, "Rt.png"), p3)
 
-    return(c(p1,p2,p3))
+    return(list(p1,p2,p3))
 }
 
 make_three_pannel_plot()
