@@ -1,19 +1,18 @@
 data {
   int <lower=1> M; // number of countries
   int <lower=1> N0; // number of days for which to impute infections
-  int<lower=1> N[M]; // days of observed data for country m. each entry must be <= N2
-  int<lower=1> N2; // days of observed data + # of days to forecast
-  real<lower=0> x[N2]; // index of days (starting at 1)
-  int cases[N2,M]; // reported cases
-  int deaths[N2, M]; // reported deaths -- the rows with i > N contain -1 and should be ignored
-  matrix[N2, M] f; // h * s
+  int<lower=1> N[M]; // days of observed data for country m. each entry must be
+  real<lower=0> x[N]; // index of days (starting at 1)
+  int cases[N,M]; // reported cases
+  int deaths[N, M]; // reported deaths -- the rows with i > N contain -1 and should be ignored
+  matrix[N, M] f; // h * s
   int EpidemicStart[M];
-  real SI[N2]; // fixed pre-calculated SI using emprical data from Neil
+  real SI[N]; // fixed pre-calculated SI using emprical data from Neil
   // new data for mobility //
   int <lower=1> P_partial_county; // number of covariates for partial pooling (state-level effects)
-  matrix[N2, P_partial_county] X_partial_county[M];
+  matrix[N, P_partial_county] X_partial_county[M];
   int W; // number of weeks for weekly effects
-  int week_index[M,N2];
+  int week_index[M,N];
 }
 
 parameters {
@@ -34,22 +33,14 @@ parameters {
 
 transformed parameters {
   real convolution;
-  matrix[N2, M] prediction = rep_matrix(0,N2,M);
-  matrix[N2, M] E_deaths  = rep_matrix(0,N2,M);
-  matrix[N2, M] Rt = rep_matrix(0,N2,M);
+  matrix[N, M] prediction = rep_matrix(0,N,M);
+  matrix[N, M] E_deaths  = rep_matrix(0,N,M);
+  matrix[N, M] Rt = rep_matrix(0,N,M);
   for (m in 1:M){
     prediction[1:N0,m] = rep_vector(y[m],N0); // learn the number of cases in the first N0 days
-    Rt[,m] = mu[m] * 2 * inv_logit(-X_partial_county[m] * alpha_county[m] - weekly_effect[week_index[m],m]);
-    for (i in (N0+1):N2) {
-      convolution=0;
-      for(j in 1:(i-1)) {
-        convolution += prediction[j, m]*SI[i-j]; // Correctd 22nd March
-      }
-      prediction[i, m] = Rt[i,m] * convolution;
-    }
-    
+    Rt[,m] = mu[m] * 2 * inv_logit(-X_partial_county[m] * alpha_county[m] - weekly_effect[week_index[m],m]);    
     E_deaths[1, m]= 1e-9;
-    for (i in 2:N2){
+    for (i in 2:N){
       E_deaths[i,m]= 0;
       for(j in 1:(i-1)){
         E_deaths[i,m] += prediction[j,m]*f[i-j,m];
