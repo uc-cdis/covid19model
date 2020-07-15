@@ -170,6 +170,7 @@ for(Country in countries) {
   }
 }
 
+# dev'ing removing forecast
 N2 = 0
 
 covariate_list_partial_county <- list()
@@ -206,6 +207,9 @@ for(Country in countries) {
   # at least a seven day forecast 
   # testing this
   forecast <- max(N2 - N, 7)
+
+  # dev'ing removing forecast
+  forecast <- 0
 
   # fix it at 7 -> uniform forecast across counties..
   # can't do this - breaks routine as of now
