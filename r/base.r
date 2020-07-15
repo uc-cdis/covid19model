@@ -170,7 +170,7 @@ for(Country in countries) {
   }
 }
 
-# dev'ing removing forecast
+# dev'ing removing forecastk
 N2 = 0
 
 covariate_list_partial_county <- list()
@@ -251,9 +251,9 @@ for(Country in countries) {
   for(i in 2:length(h)) {
     h[i] = (convolution(i+.5) - convolution(i-.5)) / (1-convolution(i-.5))
   }
-  s = rep(0,N2)
+  s = rep(0,N)
   s[1] = 1 
-  for(i in 2:N2) {
+  for(i in 2:N) {
     s[i] = s[i-1]*(1-h[i-1])
   }
 
