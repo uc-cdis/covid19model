@@ -255,11 +255,6 @@ for(Country in countries) {
   stan_data$N = c(stan_data$N,N)
   stan_data$y = c(stan_data$y,y[1]) # icl: just the index case!
   
-  # county population
-  # stan_data$pop <- c(stan_data$pop, pop_county)
-
-  stan_data$x1=poly(1:N2,2)[,1]
-  stan_data$x2=poly(1:N2,2)[,2]
   stan_data$SI=serial.interval$fit[1:N2]
 
   stan_data$f = cbind(stan_data$f,f)
