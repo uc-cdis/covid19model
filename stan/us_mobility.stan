@@ -3,7 +3,6 @@ data {
   int <lower=1> N0; // number of days for which to impute infections
   int<lower=1> N[M]; // days of observed data for country m. each entry must be <= N2
   int<lower=1> N2; // days of observed data + # of days to forecast
-  real<lower=0> x[N2]; // index of days (starting at 1)
   int deaths[N2, M]; // reported deaths -- the rows with i > N contain -1 and should be ignored
   matrix[N2, M] f; // h * s
   int EpidemicStart[M];
