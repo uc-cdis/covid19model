@@ -267,7 +267,6 @@ for(Country in countries) {
   stan_data$deaths = cbind(stan_data$deaths,deaths)
   
   stan_data$N2=N2
-  stan_data$x=1:N2
   if(length(stan_data$N) == 1) {
     stan_data$N = as.array(stan_data$N)
   }
