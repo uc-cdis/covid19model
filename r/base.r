@@ -170,8 +170,6 @@ for(Country in countries) {
   }
 }
 
-N2 = 0
-
 covariate_list_partial_county <- list()
 
 # k is their counter
@@ -268,16 +266,17 @@ for(Country in countries) {
   # county population
   # stan_data$pop <- c(stan_data$pop, pop_county)
 
-  stan_data$x1=poly(1:N,2)[,1]
-  stan_data$x2=poly(1:N,2)[,2]
-  stan_data$SI=serial.interval$fit[1:N]
+  stan_data$x1=poly(1:N2,2)[,1]
+  stan_data$x2=poly(1:N2,2)[,2]
+  stan_data$SI=serial.interval$fit[1:N2]
 
   stan_data$f = cbind(stan_data$f,f)
 
   stan_data$deaths = cbind(stan_data$deaths,deaths)
   stan_data$cases = cbind(stan_data$cases,cases)
   
-  stan_data$x=1:N
+  stan_data$N2=N2
+  stan_data$x=1:N2
   if(length(stan_data$N) == 1) {
     stan_data$N = as.array(stan_data$N)
   }
@@ -290,7 +289,7 @@ for(Country in countries) {
 # newSTAN - ok
 stan_data$P_partial_county = dim(features_partial_county)[2]
 # newSTAN - ok
-stan_data$X_partial_county = array(NA, dim = c(stan_data$M , stan_data$N ,stan_data$P_partial_county))
+stan_data$X_partial_county = array(NA, dim = c(stan_data$M , stan_data$N2 ,stan_data$P_partial_county))
 
 # NOTE: mapped *_partial_state -> *_partial_county
 
@@ -299,11 +298,11 @@ for (i in 1:stan_data$M){
 }
 
 # newSTAN - ok
-stan_data$W <- ceiling(stan_data$N/7) 
+stan_data$W <- ceiling(stan_data$N2/7) 
 # newSTAN - ok
-stan_data$week_index <- matrix(1,stan_data$M,stan_data$N)
+stan_data$week_index <- matrix(1,stan_data$M,stan_data$N2)
 for(j in 1:stan_data$M) {
-  stan_data$week_index[j,] <- rep(2:(stan_data$W+1),each=7)[1:stan_data$N]
+  stan_data$week_index[j,] <- rep(2:(stan_data$W+1),each=7)[1:stan_data$N2]
   last_ar_week = which(dates[[j]]==max(d$date) - 28)
   stan_data$week_index[j,last_ar_week:ncol(stan_data$week_index)] <-  stan_data$week_index[j,last_ar_week]
 }
