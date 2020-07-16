@@ -308,7 +308,13 @@ def makeIFRTable(dirPath, population_df):
     # so will do the simplest thing for now and extend later
 
     # more or less arbitrary, gonna say 3% -> HERE! fixme.
-    ourIFR["weighted_fatality"] = .03
+    # our original, painful, hardcoded value
+    # ourIFR["weighted_fatality"] = .03
+
+    # testing a new, still painful, hardcoded value here
+    # this is the paper ICL consulted for picking their ifr numbers: 
+    # https://www.thelancet.com/journals/laninf/article/PIIS1473-3099(20)30243-7/fulltext
+    ourIFR["weighted_fatality"] = .00657
 
     # reorder columns
     ourIFRColumnOrder = ["CountyID", "weighted_fatality", "Population"] + strata
