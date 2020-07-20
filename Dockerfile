@@ -42,8 +42,8 @@ RUN pip3 install --upgrade pip==20.1.*
 RUN pip3 install awscli==1.18.*
 WORKDIR /nb-etl
 
-COPY ./nb-etl-requirements.txt /nb-etl/
-RUN pip3 install -r nb-etl-requirements.txt
+COPY ./requirements.txt /nb-etl/
+RUN pip3 install -r requirements.txt
 
 # copy R bayes-by-county simulation files
 COPY ./bayes-by-county/ /nb-etl/bayes-by-county/
