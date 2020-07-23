@@ -129,7 +129,8 @@ d <- d[as.Date(d$dateRep, format = "%m/%d/%y") <= lastObs, ]
 
 ## need to take a close look @ this -> looks fine ##
 # see: https://stackoverflow.com/questions/8055508/in-r-formulas-why-do-i-have-to-use-the-i-function-on-power-terms-like-y-i
-formula_partial_county = as.formula('~ -1 + averageMobility + I(transit * transit_use) + residential')
+# formula_partial_county = as.formula('~ -1 + averageMobility + I(transit * transit_use) + residential')
+formula_partial_county = as.formula('~ -1 + parks')
 
 # <<<<<<<<<<<<<<< MOBILITY <<<<<<<<<<<<<<<<<< #
 
