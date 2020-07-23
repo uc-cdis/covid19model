@@ -51,7 +51,10 @@ df <- cook %>%
   select(date, retail.recreation, grocery.pharmacy, parks, transitstations, workplace, residential) %>%
   gather(key = "variable", value = "value", -date)
 
+justParks <- cook %>% select(date, parks) %>% gather(key = "variable", value = "value", -date)
+
 # Multiple line plot
-ggplot(df, aes(x = date, y = value)) + 
+ggplot(justParks, aes(x = date, y = value)) + 
   geom_line(aes(color = variable), size = 1) +
   theme_minimal()
+
