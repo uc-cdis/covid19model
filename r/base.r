@@ -79,7 +79,7 @@ cfr.by.country$country = as.character(cfr.by.country[,3])
 cfr.by.country$country <-  sub("840", "", cfr.by.country$country) # cutoff US prefix code - note: maybe this should be in the python etl, not here
 
 # serial interval discrete gamma distribution
-serial.interval = read.csv("../modelInput/SerialInterval.csv") # new table
+serial.interval = read.csv("../modelInput/SerialIntervalV2.csv") # new table
 
 # N2 is Number of time points with data plus forecast
 N2 = 0
