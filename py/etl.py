@@ -215,7 +215,7 @@ def makeCaseMortalityTable(dirPath):
     print("--- saving transformed case and mortality data  ---")
 
     # okay, done, now save it
-    p = dirPath + "/caseAndMortalityV2.csv"
+    p = dirPath + "/CaseAndMortalityV2.csv"
     df.to_csv(p)
 
     countyIDList = caseAndMortality["CountyID"].unique()
@@ -362,7 +362,7 @@ def makeIFRTable(dirPath, population_df):
     print("--- saving IFR table ---")
 
     # save this
-    p = dirPath + "/weightedFatalityV2.csv"
+    p = dirPath + "/WeightedFatalityV2.csv"
     inputIFR.to_csv(p)
 
     return(p)
