@@ -58,11 +58,8 @@ read_google_mobility <- function(countries, codeToName, regression=FALSE){
   } else {
     # derive "countyName" column
     google_mobility$countyName <- sub(" County", "", google_mobility$sub_region_2)
-
     # set county code in there -> > names(codeToName) > [1] "countyCode" "countyName"
-    # new column -> "countyCode"
     google_mobility <- rename(google_mobility, all_of(c("countyCode"="census_fips_code")))
-    google_mobility <- left_join(google_mobility, codeToName, by = c("countyCode"))
     google_mobility <- google_mobility[google_mobility$countyCode %in% countries,]
   }
 
@@ -109,6 +106,7 @@ read_google_mobility <- function(countries, codeToName, regression=FALSE){
                   "retail.recreation", "grocery.pharmacy", "parks", 
                   "transitstations", "workplace", "residential")
   }
+  print(head(google_mobility))
   google_mobility <- google_mobility[colOrder]                
 
   return(google_mobility)
