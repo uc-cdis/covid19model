@@ -180,13 +180,14 @@ def makeCaseMortalityTable(dirPath):
     df["month"], df["day"], df["year"] = df["Date"].str.split("/").str
 
     # drop extra columns
-    df = df.drop(["State", "Latitude", "Longitude"], axis=1)
+    df = df.drop(["Latitude", "Longitude"], axis=1)
 
     # rename remaining columns to match Euro table
     ToEuroColumnsMap = {
         "Date": "dateRep",
         "Cases": "cases",
         "Deaths": "deaths",
+        "State": "state",
         "CountyID": "countryterritoryCode", 
         "Town": "countriesAndTerritories", 
         "Population": "popData2018",
@@ -208,7 +209,8 @@ def makeCaseMortalityTable(dirPath):
         'countriesAndTerritories', 
         'geoId', 
         'countryterritoryCode', 
-        'popData2018'
+        'popData2018',
+        'state'
     ]
     df = df[CaseMortalityColumnOrder]
 
