@@ -90,8 +90,8 @@ def makeCaseMortalityTable(dirPath):
     # 2. process deaths data
     deaths = deathsOrig
 
-    # filter for Illinois
-    deaths = deaths.loc[deaths["Province_State"] == "Illinois"]
+    # (don't) filter for Illinois
+    # deaths = deaths.loc[deaths["Province_State"] == "Illinois"]
 
     # compute increments from cumulative counts - same steps as case table
 
@@ -113,8 +113,6 @@ def makeCaseMortalityTable(dirPath):
     dailyCounts = deaths.copy()
     # replace cumulative counts with daily counts (i.e., increments)
     dailyCounts.iloc[:,13:] = dc.diff(axis=1, periods=1).iloc[:,1:]
-    # take a look at cook (county)
-    dailyCounts[dailyCounts["Admin2"] == "Cook"]
 
     # now working with daily deaths, not cumulative deaths
     deaths = dailyCounts
@@ -189,8 +187,8 @@ def makeCaseMortalityTable(dirPath):
         "Date": "dateRep",
         "Cases": "cases",
         "Deaths": "deaths",
-        "CountyID": "countryterritoryCode", # ?
-        "Town": "countriesAndTerritories", # ?
+        "CountyID": "countryterritoryCode", 
+        "Town": "countriesAndTerritories", 
         "Population": "popData2018",
     }
 
