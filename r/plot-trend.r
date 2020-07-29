@@ -116,6 +116,7 @@ make_three_pannel_plot <- function(){
   # interventions table 
   # NOTE: "covariate" == "intervention"; 
   # e.g., if there are 3 different interventions in the model, then there are 3 covariates here in the code
+  # fixme - feat/usa - suppress intervention situation - no interventions display for now
   covariates = read.csv("../modelInput/ILInterventionsV1.csv", stringsAsFactors = FALSE)
   covariates$Country <- sapply(covariates$Country, as.character)
   covariates$Country <-  sub("840", "", covariates$Country) # cutoff US prefix code - note: maybe this should be in the python etl, not here

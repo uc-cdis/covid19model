@@ -12,7 +12,10 @@ forecast_googleMob<-function(codeToName){
   
   # google
   google_data <- read_google_mobility(codeToName=codeToName, regression=TRUE)
+
+  # fixme - feat/usa - I want this to be a list of all USA state names
   il <- as.data.frame("Illinois")
+
   colnames(il) <- "sub_region_1"
   google_data <- left_join(google_data, il, by = c("sub_region_1"))
 
@@ -196,7 +199,7 @@ forecast_googleMob<-function(codeToName){
 }
   
 # case-mortality table
-d <- read.csv("../modelInput/ILCaseAndMortalityV1.csv", stringsAsFactors = FALSE)
+d <- read.csv("../modelInput/CaseAndMortalityV2.csv", stringsAsFactors = FALSE)
 d$countryterritoryCode <- sapply(d$countryterritoryCode, as.character)
 d$countryterritoryCode <- sub("840", "", d$countryterritoryCode)
 codeToName <- unique(data.frame("countyCode" = d$countryterritoryCode, "countyName" = d$countriesAndTerritories))

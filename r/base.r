@@ -39,7 +39,7 @@ library(zoo)
 # }
 
 # case-mortality table
-d <- read.csv("../modelInput/ILCaseAndMortalityV1.csv", stringsAsFactors = FALSE)
+d <- read.csv("../modelInput/CaseAndMortalityV2.csv", stringsAsFactors = FALSE)
 
 # drop counties with fewer than cutoff cumulative deaths or cases
 cumCaseAndDeath <- aggregate(cbind(d$deaths), by=list(Category=d$countryterritoryCode), FUN=sum)
@@ -74,12 +74,12 @@ write.table(CountyCodeList, "../modelOutput/figures/CountyCodeList.txt", row.nam
 countries <- unique(d$countryterritoryCode)
 
 # weighted fatality table
-cfr.by.country = read.csv("../modelInput/ILWeightedFatalityV1.csv")
+cfr.by.country = read.csv("../modelInput/WeightedFatalityV2.csv")
 cfr.by.country$country = as.character(cfr.by.country[,3])
 cfr.by.country$country <-  sub("840", "", cfr.by.country$country) # cutoff US prefix code - note: maybe this should be in the python etl, not here
 
 # serial interval discrete gamma distribution
-serial.interval = read.csv("../modelInput/ILSerialIntervalV1.csv") # new table
+serial.interval = read.csv("../modelInput/SerialInterval.csv") # new table
 
 # N2 is Number of time points with data plus forecast
 N2 = 0
