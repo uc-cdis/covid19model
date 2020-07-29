@@ -114,7 +114,6 @@ read_google_mobility <- function(countries, codeToName, regression=FALSE){
                   "retail.recreation", "grocery.pharmacy", "parks", 
                   "transitstations", "workplace", "residential")
   }
-  print(head(google_mobility))
   google_mobility <- google_mobility[colOrder]                
 
   return(google_mobility)
