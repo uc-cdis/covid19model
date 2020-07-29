@@ -303,9 +303,17 @@ def makeIFRTable(dirPath, population_df):
     # will just take a bit of data transforming/mapping etc.
     # it's on the todo list
 
+    # feat/usa
     # next: add the "weighted_fatality" column
-    # right now the value for this column doesn't really matter
-    # so will do the simplest thing for now and extend later
+    # right now the value for this column is NOT COMPUTED, it's just set here
+    # note: this "weighted" score is not actually a weighted score, it's just a value from a paper
+    # todo: get age distributions by-county or at least by-state
+    # ----  and get fatality ratio by-age-stratum
+    # ----  THEN we can compute the weighted fatality score
+    # so we need:
+    # 1. fatality ratio per-age-stratum
+    # 2. age distribution per-county, or at least per-state
+    # and then we're set for this
 
     # this is the paper ICL consulted for picking their ifr numbers: 
     # https://www.thelancet.com/journals/laninf/article/PIIS1473-3099(20)30243-7/fulltext
@@ -326,11 +334,11 @@ def makeIFRTable(dirPath, population_df):
         "Population": "population"
     }
 
-    ILInputIFR = ourIFR.copy()
-    ILInputIFR = ILInputIFR.rename(mapILToEuroIFR, axis=1)
+    inputIFR = ourIFR.copy()
+    inputIFR = inputIFR.rename(mapILToEuroIFR, axis=1)
     # fill placeholder values for redundant columns, to match their df exactly ..
-    ILInputIFR["Region, subregion, country or area *"] = ILInputIFR["country"]
-    ILInputIFR["Unnamed: 0"] = ILInputIFR.index
+    inputIFR["Region, subregion, country or area *"] = inputIFR["country"]
+    inputIFR["Unnamed: 0"] = inputIFR.index
 
     # reorder to match their order
     EUColumnOrder = [
@@ -349,13 +357,13 @@ def makeIFRTable(dirPath, population_df):
         'population', 
         'country'
     ]
-    ILInputIFR = ILInputIFR[EUColumnOrder]
+    inputIFR = inputIFR[EUColumnOrder]
 
     print("--- saving IFR table ---")
 
     # save this
-    p = dirPath + "/ILWeightedFatalityV1.csv"
-    ILInputIFR.to_csv(p)
+    p = dirPath + "/weightedFatalityV2.csv"
+    inputIFR.to_csv(p)
 
     return(p)
 
