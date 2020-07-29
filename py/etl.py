@@ -215,7 +215,7 @@ def makeCaseMortalityTable(dirPath):
     print("--- saving transformed case and mortality data  ---")
 
     # okay, done, now save it
-    p = dirPath + "/caseAndMortalityV1.csv"
+    p = dirPath + "/caseAndMortalityV2.csv"
     df.to_csv(p)
 
     countyIDList = caseAndMortality["CountyID"].unique()
