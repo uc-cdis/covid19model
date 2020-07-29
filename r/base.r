@@ -167,6 +167,7 @@ for(Country in countries) {
   tmp=tmp[index2:nrow(tmp),]
   
   N = length(tmp$cases)  
+  print(sprintf("county: %s, N: %d", Country, N))
   if(N2 - N < 0) {
     print(sprintf("raising N2 from %d to %d", N2, N))
     N2 = N
@@ -209,8 +210,14 @@ for(Country in countries) {
 
   # >>>>>>>>>>> mobility >>>>>>>>>>>>> #
 
+  print(unique(mobility$countyCode))
+
   # Selects mobility data for each county
   covariates_county <- mobility[which(mobility$countyCode == Country),]
+
+  if (nrow(covariates_county) == 0) {
+    print(sprintf("-- no covariates?? --> %s", Country))
+  }
 
   # Find minimum date for the data
   min_date <- min(d1$date)
