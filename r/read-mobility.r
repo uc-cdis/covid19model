@@ -46,11 +46,11 @@ library(stringr)
 # good
 read_google_mobility <- function(countries, codeToName, regression=FALSE){
 
-  # read in global report, subset to IL
+  # read in global report, subset to USA
   GlobalMobilityReport <<- '../modelInput/mobility/Global_Mobility_Report.csv'
   google_mobility <- read.csv(GlobalMobilityReport, stringsAsFactors = FALSE)
   google_mobility <- google_mobility[google_mobility$country_region == "United States", ]
-  google_mobility <- google_mobility[google_mobility$sub_region_1 == "Illinois", ]
+  # google_mobility <- google_mobility[google_mobility$sub_region_1 == "Illinois", ]
 
   if (regression){
     # no county-level data allowed for regression routine
