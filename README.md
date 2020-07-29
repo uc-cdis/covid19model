@@ -20,12 +20,12 @@ To run the model:
 
 Example:
 
-```sh run.sh us_mobility 150 4000```
+```sh run.sh us_mobility 150 200```
 
 Output gets written to `modelOutput/explorePlots/`, `modelOutput/figures/`, and `modelOutput/results`.
 
 Some Rough Time Benchmarks:
-- 9 counties for 4000 iterations: 9hrs
+- 29 counties for 200 iterations: ~5 hours
 
 These times are from running the model on Matt's laptop, without any kind of extra optimization etc.
 
