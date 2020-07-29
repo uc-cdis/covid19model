@@ -112,12 +112,12 @@ colnames(google_pred)[colnames(google_pred) == 'state'] <- 'sub_region_1'
 # ----  i.e., we can't impute mobility forward for DC
 # ---- for now, I'll skip imputing in general, so we can include DC in our analysis
 # ---- later can come back to revisit possibilities for other solutions
-
-# Append predicted mobility
-if (max(google_pred$date) > max(mobility$date)){
-  google_pred <- google_pred[google_pred$date > max(mobility$date),]
-  mobility <- rbind(as.data.frame(mobility),as.data.frame(google_pred[,colnames(mobility)]))
-}
+#
+# Append predicted mobility 
+# if (max(google_pred$date) > max(mobility$date)){
+#   google_pred <- google_pred[google_pred$date > max(mobility$date),]
+#   mobility <- rbind(as.data.frame(mobility),as.data.frame(google_pred[,colnames(mobility)]))
+# }
 
 max_date <- max(mobility$date)
 
