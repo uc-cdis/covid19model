@@ -135,10 +135,10 @@ def makeCaseMortalityTable(dirPath):
     # merge df's
     # i.e., inject population and deaths data from deaths df into cases df
     cols_to_use = deaths.columns.difference(cases.columns)
-    ILCaseAndMortality = pd.merge(cases, deaths[cols_to_use], left_index=True, right_index=True, how="outer")
+    caseAndMortality = pd.merge(cases, deaths[cols_to_use], left_index=True, right_index=True, how="outer")
 
     # cut out rows where Admin2 is "Out of IL" or "Unassigned" (both have population 0)
-    ILCaseAndMortality = ILCaseAndMortality.loc[ILCaseAndMortality["Population"] > 0]
+    caseAndMortality = caseAndMortality.loc[caseAndMortality["Population"] > 0]
 
     # rename some columns; improve readability
     renameColsMap = {
@@ -148,7 +148,7 @@ def makeCaseMortalityTable(dirPath):
         "Lat": "Latitude",
         "Long_": "Longitude"
     }
-    ILCaseAndMortality = ILCaseAndMortality.rename(renameColsMap, axis=1)
+    caseAndMortality = caseAndMortality.rename(renameColsMap, axis=1)
 
     # now order the columns nicely
     columnOrder = [
@@ -163,11 +163,11 @@ def makeCaseMortalityTable(dirPath):
         "Longitude"
     ]
 
-    ILCaseAndMortality = ILCaseAndMortality[columnOrder]
+    caseAndMortality = caseAndMortality[columnOrder]
 
     # looks good -> save it
     # suppressing this for now, so as not to create "unused" tables -> simplify output of this script
-    # ILCaseAndMortality.to_csv(dirPath + "/ILCaseAndMortality.csv")
+    # caseAndMortality.to_csv(dirPath + "/caseAndMortality.csv")
 
     # next: 
     # 1. preserving this table; modify this table to exactly match the scheme of the Euro table
@@ -175,7 +175,7 @@ def makeCaseMortalityTable(dirPath):
     # 3. run the model with that table as input
     # 6. refactor all this; sketch plan for actual script(s) (!)
 
-    df = ILCaseAndMortality.copy()
+    df = caseAndMortality.copy()
 
     df["month"], df["day"], df["year"] = df["Date"].str.split("/").str
 
@@ -215,12 +215,12 @@ def makeCaseMortalityTable(dirPath):
     print("--- saving transformed case and mortality data  ---")
 
     # okay, done, now save it
-    p = dirPath + "/ILCaseAndMortalityV1.csv"
+    p = dirPath + "/caseAndMortalityV1.csv"
     df.to_csv(p)
 
-    countyIDList = ILCaseAndMortality["CountyID"].unique()
+    countyIDList = caseAndMortality["CountyID"].unique()
 
-    population_df = ILCaseAndMortality[["CountyID", "Population"]].copy().drop_duplicates()
+    population_df = caseAndMortality[["CountyID", "Population"]].copy().drop_duplicates()
 
     return(p, countyIDList, population_df)
 
