@@ -38,8 +38,8 @@ def makeCaseMortalityTable(dirPath):
     # 1. process cases df to match form of EU table
     cases = casesOrig
 
-    # filter for IL
-    cases = cases.loc[cases["Province_State"] == "Illinois"]
+    # (don't) filter for IL
+    # cases = cases.loc[cases["Province_State"] == "Illinois"]
 
     ## get daily counts -> make this a fn
 
