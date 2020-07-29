@@ -210,14 +210,8 @@ for(Country in countries) {
 
   # >>>>>>>>>>> mobility >>>>>>>>>>>>> #
 
-  print(unique(mobility$countyCode))
-
   # Selects mobility data for each county
   covariates_county <- mobility[which(mobility$countyCode == Country),]
-
-  if (nrow(covariates_county) == 0) {
-    print(sprintf("-- no covariates?? --> %s", Country))
-  }
 
   # Find minimum date for the data
   min_date <- min(d1$date)
