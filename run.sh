@@ -4,7 +4,7 @@
 # sh run.sh <stan_model> <minimumDeaths> <nIterations>
 
 # example call:
-# sh run.sh us_base 150 4000 [--validate]
+# sh run.sh us_base 150 200 [--validate]
 
 echo "\n--- running input ETL and model with these parameters ---"
 echo 'stanModel = ' $1
