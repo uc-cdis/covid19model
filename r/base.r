@@ -108,6 +108,11 @@ stateAndCounty <- codeToNameAndState
 google_pred <- left_join(stateAndCounty, google_pred, "state" = "state")
 colnames(google_pred)[colnames(google_pred) == 'state'] <- 'sub_region_1'
 
+# NOTE: there is no visit-data for DC
+# ----  i.e., we can't impute mobility forward for DC
+# ---- for now, I'll skip imputing in general, so we can include DC in our analysis
+# ---- later can come back to revisit possibilities for other solutions
+
 # Append predicted mobility
 if (max(google_pred$date) > max(mobility$date)){
   google_pred <- google_pred[google_pred$date > max(mobility$date),]
