@@ -66,6 +66,7 @@ d$countryterritoryCode <- sub("840", "", d$countryterritoryCode)
 # d$cases = c(rep(0, steps-1), as.integer(smooth_fn(d$cases, days=steps)))
 
 codeToName <- unique(data.frame("countyCode" = d$countryterritoryCode, "countyName" = d$countriesAndTerritories))
+codeToNameAndState <- unique(data.frame("countyCode" = d$countryterritoryCode, "countyName" = d$countriesAndTerritories, "state" = d$state))
 
 # write list of counties used in this simulation
 CountyCodeList <- unique(d$countryterritoryCode)
@@ -103,8 +104,7 @@ google_pred <- read.csv('../modelInput/mobility/google-mobility-forecast.csv', s
 google_pred$date <- as.Date(google_pred$date, format = '%Y-%m-%d') 
 
 # replicate statewide prediction by county -> this can be MUCH more nuanced, but for now - just get something working
-stateAndCounty <- codeToName
-stateAndCounty$state <- "Illinois"
+stateAndCounty <- codeToNameAndState
 google_pred <- left_join(stateAndCounty, google_pred, "state" = "state")
 colnames(google_pred)[colnames(google_pred) == 'state'] <- 'sub_region_1'
 
