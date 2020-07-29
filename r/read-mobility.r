@@ -61,7 +61,7 @@ read_google_mobility <- function(countries, codeToName, regression=FALSE){
 
     # set county code in there -> > names(codeToName) > [1] "countyCode" "countyName"
     # new column -> "countyCode"
-    google_mobility <- rename(google_mobility, all_of(c("census_fips_code"="countyCode")))
+    google_mobility <- rename(google_mobility, all_of(c("countyCode"="census_fips_code")))
     google_mobility <- left_join(google_mobility, codeToName, by = c("countyCode"))
     google_mobility <- google_mobility[google_mobility$countyCode %in% countries,]
   }
