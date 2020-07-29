@@ -224,11 +224,13 @@ def makeCaseMortalityTable(dirPath):
 
     return(p, countyIDList, population_df)
 
+# feat/usa - fixme - lockdown happened at different times for different states
+# can't use the IL lockdown dates for other states, of course
+# for now, can suppress displaying lockdown anyway
+# it doesn't get used for anything except to display that dashed line on the visualizations
+# so - low priority for now
 def makeInterventionsTable(dirPath, countyIDList): 
     print("\n~ INTERVENTIONS TABLE ~")
-
-    # -> should remove all their tables, comparisons to their tables etc.
-    # self-contained ETL -> we can have our own config -> not the old EU tables
 
     # task: make a table for IL by county that looks like their covariates table
     # only column is lockdown
@@ -382,14 +384,17 @@ if __name__ == "__main__":
     os.makedirs(dirPath, exist_ok=True)
 
     p1, countyIDList, population_df = makeCaseMortalityTable(dirPath)
-    p2 = makeInterventionsTable(dirPath, countyIDList)
+    
+    # see note at this fn definition
+    # p2 = makeInterventionsTable(dirPath, countyIDList) 
+
     p3 = makeIFRTable(dirPath, population_df)
     p4 = fetchSocEc(dirPath)
 
     print("\n")
     print("tables successfully written to these paths:")
     print("\t", p1)
-    print("\t", p2)
+    # print("\t", p2)
     print("\t", p3)
     print("\t", p4)    
     print("\n")
