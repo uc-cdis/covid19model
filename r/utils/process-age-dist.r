@@ -18,11 +18,16 @@ for (n in names(raw)) {
             k <- k + 1
     }
 }
-
 data <- raw[, !(names(raw) %in% dropCols)]
 
-# note: last 5 digits of "id" col is the census FIPS county code
-
+# clean up names
 colnames(data) <- sub("Estimate..Total..Total.population..AGE..", "total.", colnames(data))
 colnames(data) <- sub("Estimate..Percent..Total.population..AGE..", "percent.", colnames(data))
 colnames(data) <- sub("Estimate..Total..Total.population", "population", colnames(data))
+
+# notice: last 5 digits of "id" col is the census FIPS county code
+# extract the 5-digit code; rename that column
+data$id <- sapply(data$id, as.character, USE.NAMES=FALSE)
+data$id <- sapply(data$id, function(x) substr(x, nchar(x)-4, nchar(x)), USE.NAMES=FALSE)
+names(data)[names(data) == "id"] <- "countyCode"
+
