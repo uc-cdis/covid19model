@@ -75,4 +75,6 @@ ageByCounty$weighted_fatality <- sapply(seq(1,nrow(ageByCounty)), computeWeighte
 
 # 4. write table
 weightedIFRTable <- subset(ageByCounty, select=c(countyCode, weighted_fatality))
-write.table(weightedIFRTable, path="../../modelInput/USAWeightedFatalityV2.csv", sep=",")
+outPath <- "../../modelInput/USAWeightedFatalityV2.csv"
+write.table(weightedIFRTable, file=outPath, sep=",")
+print(sprintf("wrote table to: %s", outPath))
