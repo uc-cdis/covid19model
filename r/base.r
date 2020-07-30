@@ -74,8 +74,16 @@ write.table(CountyCodeList, "../modelOutput/figures/CountyCodeList.txt", row.nam
 
 countries <- unique(d$countryterritoryCode)
 
+convertCode <- function(code) {
+  s <- as.character(code)
+  short <- 5 - nchar(s)
+  out <- paste(c(rep("0",short),s), collapse="")
+  return(out)
+}
+
 # weighted fatality table
 cfr.by.country = read.csv("../modelInput/USAWeightedFatalityV2.csv")
+cfr.by.country$countyCode <- sapply(cfr.by.country$countyCode, convertCode)
 
 # serial interval discrete gamma distribution
 serial.interval = read.csv("../modelInput/SerialIntervalV2.csv") # new table
@@ -248,8 +256,6 @@ for(Country in countries) {
   }
 
   f = s * h
-  print("--- f ---")
-  print(f)
   
   y=c(as.vector(as.numeric(d1$cases)),rep(-1,short))
   reported_cases[[Country]] = as.vector(as.numeric(d1$cases))
