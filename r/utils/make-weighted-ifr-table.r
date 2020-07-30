@@ -53,17 +53,31 @@ ifr <- c(
 
 ifrByAge <- data.frame(age=ageBrackets, ifr=ifr)
 
+# 2. collapse age brackets of age dist data 
+ageByCounty <- as.data.frame(sapply(seq(3,ncol(freq),by=2), function(i) (freq[,i-1] + freq[,i]) / 100))
+colnames(ageByCounty) <- ageBrackets
+ageByCounty$countyCode <- freq$countyCode
+ageByCounty <- ageByCounty[, c("countyCode",colnames(ageByCounty)[1:ncol(ageByCounty)-1])]
+
+# 3. compute weighted fatality by county
+
 # for reference
-print('''
-> names(freq)
- [1] "countyCode"                "percent.Under.5.years"    
- [3] "percent.5.to.9.years"      "percent.10.to.14.years"   
- [5] "percent.15.to.19.years"    "percent.20.to.24.years"   
- [7] "percent.25.to.29.years"    "percent.30.to.34.years"   
- [9] "percent.35.to.39.years"    "percent.40.to.44.years"   
-[11] "percent.45.to.49.years"    "percent.50.to.54.years"   
-[13] "percent.55.to.59.years"    "percent.60.to.64.years"   
-[15] "percent.65.to.69.years"    "percent.70.to.74.years"   
-[17] "percent.75.to.79.years"    "percent.80.to.84.years"   
-[19] "percent.85.years.and.over"
-''')
+nul <- '''
+> head(ageByCounty)
+  countyCode   0-9 10-19 20-29 30-39 40-49 50-59 60-69 70-79   80+
+1      01117 0.116 0.135 0.122 0.120 0.158 0.130 0.119 0.068 0.031
+2      01121 0.111 0.131 0.122 0.113 0.134 0.132 0.133 0.084 0.040
+3      01125 0.112 0.167 0.176 0.132 0.112 0.111 0.102 0.062 0.025
+...
+> ifrByAge
+    age     ifr
+1   0-9 0.00002
+2 10-19 0.00006
+3 20-29 0.00030
+4 30-39 0.00080
+5 40-49 0.00150
+6 50-59 0.00600
+7 60-69 0.02200
+8 70-79 0.05100
+9   80+ 0.09300
+'''
