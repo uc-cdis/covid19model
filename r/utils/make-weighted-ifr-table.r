@@ -73,27 +73,6 @@ computeWeightedIFR <- function(i) {
 
 ageByCounty$weighted_fatality <- sapply(seq(1,nrow(ageByCounty)), computeWeightedIFR)
 
-# for reference
-nul <- '''
-> head(ageByCounty)
-  countyCode   0-9 10-19 20-29 30-39 40-49 50-59 60-69 70-79   80+
-1      01117 0.116 0.135 0.122 0.120 0.158 0.130 0.119 0.068 0.031
-2      01121 0.111 0.131 0.122 0.113 0.134 0.132 0.133 0.084 0.040
-3      01125 0.112 0.167 0.176 0.132 0.112 0.111 0.102 0.062 0.025
-...
-> ifrByAge
-    age     ifr
-1   0-9 0.00002
-2 10-19 0.00006
-3 20-29 0.00030
-4 30-39 0.00080
-5 40-49 0.00150
-6 50-59 0.00600
-7 60-69 0.02200
-8 70-79 0.05100
-9   80+ 0.09300
-'''
-
 # 4. write table
 weightedIFRTable <- subset(ageByCounty, select=c(countyCode, weighted_fatality))
 write.table(weightedIFRTable, path="../../modelInput/USAWeightedFatalityV2.csv", sep=",")
