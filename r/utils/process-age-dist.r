@@ -32,6 +32,6 @@ data$id <- sapply(data$id, function(x) substr(x, nchar(x)-4, nchar(x)), USE.NAME
 names(data)[names(data) == "id"] <- "countyCode"
 
 outPath <- "../../modelInput/AgeDistributions.csv"
-write.table(data, file=outPath)
+write.table(data, file=outPath, sep=",")
 
 print(sprintf("wrote table to path: %s", outPath))
