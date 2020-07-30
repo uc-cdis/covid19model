@@ -1,6 +1,6 @@
 
 # read-in
-raw <- read.csv("../modelInput/us-age-dist-by-county/data.csv", skip=1)
+raw <- read.csv("../../modelInput/us-age-dist-by-county/data.csv", skip=1)
 
 # keep only desired columns
 # (use grepl)
@@ -31,3 +31,7 @@ data$id <- sapply(data$id, as.character, USE.NAMES=FALSE)
 data$id <- sapply(data$id, function(x) substr(x, nchar(x)-4, nchar(x)), USE.NAMES=FALSE)
 names(data)[names(data) == "id"] <- "countyCode"
 
+outPath <- "../../modelInput/AgeDistributions.csv"
+write.table(data, file=outPath)
+
+print(sprintf("wrote table to path: %s", outPath))
