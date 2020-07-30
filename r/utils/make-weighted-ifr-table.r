@@ -61,6 +61,18 @@ ageByCounty <- ageByCounty[, c("countyCode",colnames(ageByCounty)[1:ncol(ageByCo
 
 # 3. compute weighted fatality by county
 
+computeWeightedIFR <- function(i) {
+    weightedIFR <- 0
+    for (b in ifrByAge$age) {
+        ageIFR <- ifrByAge$ifr[ifrByAge$age == b]
+        ageFreq <- ageByCounty[i,colnames(ageByCounty)==b]
+        weightedIFR <- weightedIFR + (ageIFR * ageFreq)
+    }
+    return(weightedIFR)
+}
+
+ageByCounty$weighted_fatality <- sapply(seq(1,nrow(ageByCounty)), computeWeightedIFR)
+
 # for reference
 nul <- '''
 > head(ageByCounty)
@@ -81,3 +93,7 @@ nul <- '''
 8 70-79 0.05100
 9   80+ 0.09300
 '''
+
+# 4. write table
+weightedIFRTable <- subset(ageByCounty, select=c(countyCode, weighted_fatality))
+write.table(weightedIFRTable, path="../../modelInput/USAWeightedFatalityV2.csv", sep=",")
