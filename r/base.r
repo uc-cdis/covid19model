@@ -75,9 +75,7 @@ write.table(CountyCodeList, "../modelOutput/figures/CountyCodeList.txt", row.nam
 countries <- unique(d$countryterritoryCode)
 
 # weighted fatality table
-cfr.by.country = read.csv("../modelInput/WeightedFatalityV2.csv")
-cfr.by.country$country = as.character(cfr.by.country[,3])
-cfr.by.country$country <-  sub("840", "", cfr.by.country$country) # cutoff US prefix code - note: maybe this should be in the python etl, not here
+cfr.by.country = read.csv("../modelInput/USAWeightedFatalityV2.csv")
 
 # serial interval discrete gamma distribution
 serial.interval = read.csv("../modelInput/SerialIntervalV2.csv") # new table
@@ -181,7 +179,7 @@ covariate_list_partial_county <- list()
 k <- 1
 for(Country in countries) {
 
-  CFR=cfr.by.country$weighted_fatality[cfr.by.country$country == Country]
+  CFR=cfr.by.country$weighted_fatality[cfr.by.country$countyCode == Country]
 
   d1=d[d$countryterritoryCode==Country,]
 
@@ -250,6 +248,8 @@ for(Country in countries) {
   }
 
   f = s * h
+  print("--- f ---")
+  print(f)
   
   y=c(as.vector(as.numeric(d1$cases)),rep(-1,short))
   reported_cases[[Country]] = as.vector(as.numeric(d1$cases))
