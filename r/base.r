@@ -188,6 +188,7 @@ k <- 1
 for(Country in countries) {
 
   CFR=cfr.by.country$weighted_fatality[cfr.by.country$countyCode == Country]
+  print(CFR)
 
   d1=d[d$countryterritoryCode==Country,]
 
