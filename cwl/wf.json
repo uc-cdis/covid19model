@@ -21,7 +21,9 @@
         },
         {
           "class": "ResourceRequirement",
+          "coresMax": 4,
           "coresMin": 4,
+          "ramMax": 16384,
           "ramMin": 16384
         }
       ],
