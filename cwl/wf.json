@@ -1,0 +1,32 @@
+{
+  "$graph": [
+    {
+      "baseCommand": [
+        "bash",
+        "/docker-run.sh"
+      ],
+      "class": "CommandLineTool",
+      "cwlVersion": "v1.0",
+      "id": "#main",
+      "outputs": [
+        {
+          "id": "#main/output",
+          "type": "stdout"
+        }
+      ],
+      "requirements": [
+        {
+          "class": "DockerRequirement",
+          "dockerPull": "quay.io/cdis/bayes-by-county:feat_cwl"
+        },
+        {
+          "class": "ResourceRequirement",
+          "coresMin": 4,
+          "ramMin": 16384
+        }
+      ],
+      "stdout": "stdout.txt"
+    }
+  ],
+  "cwlVersion": "v1.0"
+}
