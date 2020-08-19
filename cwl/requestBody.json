@@ -1,0 +1,7 @@
+{
+    "workflow": <output_from_wftool>,
+    "tags": {
+      "author": "matt",
+      "type": "poc"
+    }
+}
