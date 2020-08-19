@@ -40,17 +40,10 @@ RUN Rscript -e "install.packages('BH', dependencies=TRUE)"
 # install Python dependencies
 RUN pip3 install --upgrade pip==20.1.*
 RUN pip3 install awscli==1.18.*
-WORKDIR /nb-etl
 
-COPY ./requirements.txt /nb-etl/
+WORKDIR /
+COPY . /
+
 RUN pip3 install -r requirements.txt
 
-# copy R bayes-by-county simulation files
-COPY ./bayes-by-county/ /nb-etl/bayes-by-county/
-
-# copy Python notebooks
-COPY ./seir-forecast/seir-forecast.ipynb /nb-etl/
-COPY ./generate_top10_plots.py /nb-etl/
-
-COPY ./docker-run.sh /nb-etl/
-CMD [ "bash", "/nb-etl/docker-run.sh" ]
+CMD [ "bash", "/docker-run.sh" ]
