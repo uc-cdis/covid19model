@@ -7,8 +7,10 @@ requirements:
   # these match those req's in nb-etl's job.yaml in cloud-automation
   - class: ResourceRequirement
     coresMin: 4
+    coresMax: 4
     # this is in MiB -> converts to 16GiB
     ramMin: 16384
+    ramMax: 16384
 
 # same as dockerfile command
 baseCommand: ["bash", "/docker-run.sh"]
