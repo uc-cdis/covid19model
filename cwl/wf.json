@@ -10,11 +10,14 @@
       "id": "#main",
       "outputs": [
         {
-          "id": "#main/standard_out",
+          "id": "#main/viz",
           "outputBinding": {
-            "glob": "stdout.txt"
+            "glob": "*.png"
           },
-          "type": "File"
+          "type": {
+            "items": "File",
+            "type": "array"
+          }
         }
       ],
       "requirements": [
@@ -29,8 +32,7 @@
           "ramMax": 16384,
           "ramMin": 16384
         }
-      ],
-      "stdout": "stdout.txt"
+      ]
     }
   ],
   "cwlVersion": "v1.0"

@@ -22,9 +22,10 @@ baseCommand: ["bash", "/docker-run.sh"]
 # could specify a k8s secret to mount, hmm..
 
 outputs:
-  standard_out:
-    type: File
+  viz:
+    type: File[]
     outputBinding:
-      glob: "stdout.txt"
+      glob: "*.png"
 
-stdout: "stdout.txt"
+# testing without stdout
+# stdout: "stdout.txt"
