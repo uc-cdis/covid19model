@@ -11,8 +11,11 @@
           "id": "#main",
           "outputs": [
             {
-              "id": "#main/output",
-              "type": "stdout"
+              "id": "#main/standard_out",
+              "outputBinding": {
+                "glob": "stdout.txt"
+              },
+              "type": "File"
             }
           ],
           "requirements": [
