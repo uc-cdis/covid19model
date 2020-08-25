@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 
-set -euxo pipefail
+# this seems to be causing a problem
+# dev'ing - remove this
+# set -euxo pipefail
 
 # run R bayes-by-county simulation and push outputs to S3
 echo "Running bayes-by-county..."
