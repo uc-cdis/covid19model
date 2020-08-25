@@ -1,15 +1,11 @@
 #!/usr/bin/env bash
 
-# this seems to be causing a problem
-# dev'ing - remove this
-# set -euxo pipefail
-
 # run R bayes-by-county simulation and push outputs to S3
 echo "Running bayes-by-county..."
 
 # sh run.sh <stan_model> <deaths_cutoff> <nIterations>
 cd /
-sh run.sh us_mobility 50 4000
+sh run.sh us_mobility 150 200
 
 # copy images to S3 under prefix "bayes-by-county"
 # directory structure:
