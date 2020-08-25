@@ -36,6 +36,7 @@ RUN apt-get update && \
 
 RUN Rscript -e "install.packages('EnvStats', dependencies=TRUE)"
 RUN Rscript -e "install.packages('BH', dependencies=TRUE)"
+RUN Rscript -e "install.packages('zoo', dependencies=TRUE)"
 
 # install Python dependencies
 RUN pip3 install --upgrade pip==20.1.*
