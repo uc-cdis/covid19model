@@ -36,6 +36,9 @@ RUN apt-get update && \
 
 RUN Rscript -e "install.packages('EnvStats', dependencies=TRUE)"
 RUN Rscript -e "install.packages('BH', dependencies=TRUE)"
+RUN Rscript -e "install.packages('visdat', dependencies=TRUE)"
+RUN Rscript -e "install.packages('mlr3verse', dependencies=TRUE)"
+RUN Rscript -e "install.packages('ranger', dependencies=TRUE)"
 RUN Rscript -e "install.packages('zoo', dependencies=TRUE)"
 
 # install Python dependencies
