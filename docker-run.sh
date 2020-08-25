@@ -5,7 +5,7 @@ echo "Running bayes-by-county..."
 
 # sh run.sh <stan_model> <deaths_cutoff> <nIterations>
 cd /
-sh run.sh us_mobility 150 200
+sh run.sh us_mobility 520 150
 
 # copy images to S3 under prefix "bayes-by-county"
 # directory structure:
