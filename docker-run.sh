@@ -20,6 +20,9 @@ sh run.sh us_mobility 520 150
 #     CountyCodeList.txt
 #     Rt_All.png
 
+# debug
+ls ./modelOutput/figures/*/*.png
+
 echo "Copying to S3 bucket..."
 if [[ -n "$S3_BUCKET" ]]; then
   aws s3 sync "./modelOutput/figures" "$S3_BUCKET/bayes-by-county/" --exclude ".keep"
