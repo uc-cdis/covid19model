@@ -22,6 +22,12 @@
       ],
       "requirements": [
         {
+          "class": "EnvVarRequirement",
+          "envDef": {
+            "S3_BUCKET": "s3://static.planx-pla.net"
+          }
+        },
+        {
           "class": "DockerRequirement",
           "dockerPull": "quay.io/cdis/bayes-by-county:feat_cwl"
         },
