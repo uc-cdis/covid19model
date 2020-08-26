@@ -4,7 +4,7 @@ class: CommandLineTool
 requirements:
   - class: EnvVarRequirement
     envDef:
-      S3_BUCKET: "s3://static.planx-pla.net" # S3 bucket to copy output viz files to
+      S3_BUCKET: $(inputs.s3_bucket) # S3 bucket to copy output viz files to
   - class: DockerRequirement
     dockerPull: "quay.io/cdis/bayes-by-county:feat_cwl"
   # these match those req's in nb-etl's job.yaml in cloud-automation
@@ -18,7 +18,8 @@ requirements:
 # same as dockerfile command
 baseCommand: ["bash", "/docker-run.sh"]
 
-# really the model currently takes no inputs, so - omitting inputs block
+inputs:
+  s3_bucket: "string"
 
 outputs:
   viz:

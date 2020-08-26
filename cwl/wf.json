@@ -8,6 +8,12 @@
       "class": "CommandLineTool",
       "cwlVersion": "v1.0",
       "id": "#main",
+      "inputs": [
+        {
+          "id": "#main/s3_bucket",
+          "type": "string"
+        }
+      ],
       "outputs": [
         {
           "id": "#main/viz",
@@ -24,7 +30,7 @@
         {
           "class": "EnvVarRequirement",
           "envDef": {
-            "S3_BUCKET": "s3://static.planx-pla.net"
+            "S3_BUCKET": "$(inputs.s3_bucket)"
           }
         },
         {
