@@ -25,7 +25,7 @@ outputs:
   viz:
     type: File[]
     outputBinding:
-      glob: "*.png"
+      glob: "./modelOutput/figures/*/*.png"
 
 # testing without stdout
 # stdout: "stdout.txt"

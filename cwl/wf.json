@@ -12,7 +12,7 @@
         {
           "id": "#main/viz",
           "outputBinding": {
-            "glob": "*.png"
+            "glob": "./modelOutput/figures/*/*.png"
           },
           "type": {
             "items": "File",
