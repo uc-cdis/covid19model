@@ -23,7 +23,11 @@ sh run.sh us_mobility 520 150
 # debug
 ls ./modelOutput/figures/*/*.png
 
+# check
+echo $S3_BUCKET
+
 echo "Copying to S3 bucket..."
-if [[ -n "$S3_BUCKET" ]]; then
-  aws s3 sync "./modelOutput/figures" "$S3_BUCKET/bayes-by-county/" --exclude ".keep"
-fi
+# need to attach service account to job first
+# if [[ -n "$S3_BUCKET" ]]; then
+#   aws s3 sync "./modelOutput/figures" "$S3_BUCKET/bayes-by-county/" --exclude ".keep"
+# fi
