@@ -2,6 +2,7 @@
     "input": {
       "s3_bucket": "s3://static.planx-pla.net"
     },
+    "serviceAccountName": "s3-access-opencdn-databucket-gen3",
     "workflow": {
       "$graph": [
         {
