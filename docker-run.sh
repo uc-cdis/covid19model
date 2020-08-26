@@ -27,7 +27,6 @@ ls ./modelOutput/figures/*/*.png
 echo $S3_BUCKET
 
 echo "Copying to S3 bucket..."
-# need to attach service account to job first
-# if [[ -n "$S3_BUCKET" ]]; then
-#   aws s3 sync "./modelOutput/figures" "$S3_BUCKET/bayes-by-county/" --exclude ".keep"
-# fi
+if [[ -n "$S3_BUCKET" ]]; then
+  aws s3 sync "./modelOutput/figures" "$S3_BUCKET/bayes-by-county/" --exclude ".keep"
+fi
