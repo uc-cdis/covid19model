@@ -48,3 +48,5 @@ Rplots.pdf
 
 *.DS_Store
 *.vscode
+
+*auth

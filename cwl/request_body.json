@@ -1,0 +1,57 @@
+{
+    "input": {
+      "s3_bucket": "s3://static.planx-pla.net"
+    },
+    "serviceAccountName": "s3-access-opencdn-databucket-gen3",
+    "workflow": {
+      "$graph": [
+        {
+          "baseCommand": [
+            "bash",
+            "/docker-run.sh"
+          ],
+          "class": "CommandLineTool",
+          "cwlVersion": "v1.0",
+          "id": "#main",
+          "inputs": [
+            {
+              "id": "#main/s3_bucket",
+              "type": "string"
+            }
+          ],
+          "outputs": [
+            {
+              "id": "#main/viz",
+              "outputBinding": {
+                "glob": "./modelOutput/figures/*/*.png"
+              },
+              "type": {
+                "items": "File",
+                "type": "array"
+              }
+            }
+          ],
+          "requirements": [
+            {
+              "class": "EnvVarRequirement",
+              "envDef": {
+                "S3_BUCKET": "$(inputs.s3_bucket)"
+              }
+            },
+            {
+              "class": "DockerRequirement",
+              "dockerPull": "quay.io/cdis/bayes-by-county:feat_cwl"
+            },
+            {
+              "class": "ResourceRequirement",
+              "coresMax": 4,
+              "coresMin": 4,
+              "ramMax": 16384,
+              "ramMin": 16384
+            }
+          ]
+        }
+      ],
+      "cwlVersion": "v1.0"
+    }
+}
