@@ -21,7 +21,7 @@ minimumReportedDeaths = as.integer(args[2])
 nStanIterations = as.integer(args[3])
 
 #### example calls of new CLI
-## sh run.sh us_mobility 520 150 -stateList "IL,NY"
+## sh run.sh us_mobility 520 150 -stateList "Illinois,NewYork"
 ## sh run.sh us_mobility 520 150 -stateList "all"
 ## sh run.sh us_mobility 520 150 -batch 4
 
@@ -59,8 +59,17 @@ library(zoo)
 
 # case-mortality table
 d <- read.csv("../modelInput/CaseAndMortalityV2.csv", stringsAsFactors = FALSE)
-# stateList <- unique(d$state)
 
+if (is.list(stateList)) {
+  # d$state is like "Alabama" and "New York"
+  # input to CLI is like "Alabama,NewYork"
+  # here we remove the spaces from the df to compare to the CLI input
+  d <- subset(d, (gsub(" ", "", state) %in% stateList))
+} else if (is.integer(batchID)) {
+  # HERE
+  stop("dev'ing breakpoint")
+}
+stop("dev'ing breakpoint")
 
 # drop counties with fewer than cutoff cumulative deaths or cases
 cumCaseAndDeath <- aggregate(cbind(d$deaths), by=list(Category=d$countryterritoryCode), FUN=sum)
