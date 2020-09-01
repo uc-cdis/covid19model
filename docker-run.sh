@@ -18,7 +18,7 @@ echo "Running bayes-by-county..."
 ## sh run.sh us_mobility 150 200 -batch 1
 
 cd /
-sh run.sh us_mobility 520 150 -stateList "Illinois,NewYork"
+sh run.sh us_mobility 2500 150 -stateList "Illinois,NewYork"
 
 # copy images to S3 under prefix "bayes-by-county"
 # directory structure:
