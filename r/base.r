@@ -19,7 +19,10 @@ args = commandArgs(trailingOnly=TRUE)
 StanModel = args[1]
 minimumReportedDeaths = as.integer(args[2])
 nStanIterations = as.integer(args[3])
-validateFlag = args[4]
+# 4 is "--stateList" or "--batch"
+# 5 is statesCSV or batchID
+# 6 is validateFlag
+validateFlag = args[6]
 if (is.na(validateFlag)){validateFlag <- ""}
 
 if (validateFlag == "--validate"){
