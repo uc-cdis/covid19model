@@ -18,9 +18,6 @@ se <- data.frame(
     icu_beds = se$ICU.Beds
 )
 
-# (don't) filter for IL
-# il <- se[se$state == "IL", ]
-
 # remove all rows with any na
 se <- se[complete.cases(se), ]
 
