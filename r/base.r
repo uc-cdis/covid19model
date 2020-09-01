@@ -52,14 +52,10 @@ print(sprintf("Running MCMC routine with %d iterations", nStanIterations))
 # add: countySelector
 # add: stateList or batchID
 
-## smoothing death data: https://github.com/ImperialCollegeLondon/covid19model/blob/v6.0/usa/code/utils/read-data-usa.r#L37-L40
-## -> https://github.com/ImperialCollegeLondon/covid19model/blob/v6.0/usa/code/utils/read-data-usa.r#L24-L27
-## -> something to try, for sure
-
+# fixme: almost certain this dep can be removed
 library(zoo)
-# smooth_fn = function(x, days=3) {
-#   return(rollmean(x, days, align = "right"))
-# }
+
+##### ---> filter either by state or by batchID ---> #####
 
 # case-mortality table
 d <- read.csv("../modelInput/CaseAndMortalityV2.csv", stringsAsFactors = FALSE)
@@ -70,7 +66,6 @@ d <- read.csv("../modelInput/CaseAndMortalityV2.csv", stringsAsFactors = FALSE)
 cumCaseAndDeath <- aggregate(cbind(d$deaths), by=list(Category=d$countryterritoryCode), FUN=sum)
 dropCounties <- subset(cumCaseAndDeath, V1 < minimumReportedDeaths)$Category
 d <- subset(d, !(countryterritoryCode %in% dropCounties))
-# print(sprintf("nCounties with more than %d deaths before %s: %d", minimumReportedDeaths, dateCutoff, length(unique(d$countryterritoryCode))))
 print(sprintf("nCounties with more than %d deaths: %d", minimumReportedDeaths, length(unique(d$countryterritoryCode))))
 
 d$date = as.Date(d$dateRep,format='%m/%d/%y')
@@ -82,20 +77,14 @@ d$countryterritoryCode <- sub("840", "", d$countryterritoryCode)
 # county population
 # pop = unique(d[c("countryterritoryCode", "popData2018")])
 
-# IMPORTANT: this smoothing function is 100% broken
-# SMOOTHING reported death and case counts
-# try <steps> day moving average to smooth raw reported case and death counts
-# "so the bars don't look so bad" - really to account for bias/periodic fluxuations in reporting
-# steps = 7
-# d$deaths = c(rep(0, steps-1), as.integer(smooth_fn(d$deaths, days=steps)))
-# d$cases = c(rep(0, steps-1), as.integer(smooth_fn(d$cases, days=steps)))
-
 codeToName <- unique(data.frame("countyCode" = d$countryterritoryCode, "countyName" = d$countriesAndTerritories))
 codeToNameAndState <- unique(data.frame("countyCode" = d$countryterritoryCode, "countyName" = d$countriesAndTerritories, "state" = d$state))
 
 # write list of counties used in this simulation
 CountyCodeList <- unique(d$countryterritoryCode)
 write.table(CountyCodeList, "../modelOutput/figures/CountyCodeList.txt", row.names=FALSE, col.names=FALSE)
+
+##### <--- filter either by state or by batchID <--- #######
 
 countries <- unique(d$countryterritoryCode)
 
