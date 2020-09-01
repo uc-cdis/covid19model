@@ -55,8 +55,6 @@ print(sprintf("Running MCMC routine with %d iterations", nStanIterations))
 # fixme: almost certain this dep can be removed
 library(zoo)
 
-##### ---> filter either by state or by batchID ---> #####
-
 # case-mortality table
 d <- read.csv("../modelInput/CaseAndMortalityV2.csv", stringsAsFactors = FALSE)
 
@@ -65,35 +63,31 @@ if (is.list(stateList)) {
   # input to CLI is like "Alabama,NewYork"
   # here we remove the spaces from the df to compare to the CLI input
   d <- subset(d, (gsub(" ", "", state) %in% stateList))
+
+  # drop counties with fewer than cutoff cumulative deaths or cases
+  cumCaseAndDeath <- aggregate(cbind(d$deaths), by=list(Category=d$countryterritoryCode), FUN=sum)
+  dropCounties <- subset(cumCaseAndDeath, V1 < minimumReportedDeaths)$Category
+  d <- subset(d, !(countryterritoryCode %in% dropCounties))
+  print(sprintf("nCounties with more than %d deaths: %d", minimumReportedDeaths, length(unique(d$countryterritoryCode))))
+
 } else if (is.integer(batchID)) {
   # HERE
   stop("dev'ing breakpoint")
 }
 stop("dev'ing breakpoint")
 
-# drop counties with fewer than cutoff cumulative deaths or cases
-cumCaseAndDeath <- aggregate(cbind(d$deaths), by=list(Category=d$countryterritoryCode), FUN=sum)
-dropCounties <- subset(cumCaseAndDeath, V1 < minimumReportedDeaths)$Category
-d <- subset(d, !(countryterritoryCode %in% dropCounties))
-print(sprintf("nCounties with more than %d deaths: %d", minimumReportedDeaths, length(unique(d$countryterritoryCode))))
-
 d$date = as.Date(d$dateRep,format='%m/%d/%y')
-
 d$countryterritoryCode <- sapply(d$countryterritoryCode, as.character)
 # trim US code prefix
 d$countryterritoryCode <- sub("840", "", d$countryterritoryCode)
 
-# county population
-# pop = unique(d[c("countryterritoryCode", "popData2018")])
-
+# create useful mapping tables
 codeToName <- unique(data.frame("countyCode" = d$countryterritoryCode, "countyName" = d$countriesAndTerritories))
 codeToNameAndState <- unique(data.frame("countyCode" = d$countryterritoryCode, "countyName" = d$countriesAndTerritories, "state" = d$state))
 
 # write list of counties used in this simulation
 CountyCodeList <- unique(d$countryterritoryCode)
 write.table(CountyCodeList, "../modelOutput/figures/CountyCodeList.txt", row.names=FALSE, col.names=FALSE)
-
-##### <--- filter either by state or by batchID <--- #######
 
 countries <- unique(d$countryterritoryCode)
 
