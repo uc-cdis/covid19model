@@ -46,11 +46,10 @@ if (validateFlag == "--validate"){
   print("INFO: --validate flag passed - running validation routine")
 }
 
-print(sprintf("Running stan model %s",StanModel))
 print(sprintf("Only running on counties with at least %d total reported deaths", minimumReportedDeaths))
+print(sprintf("Running stan model %s",StanModel))
 print(sprintf("Running MCMC routine with %d iterations", nStanIterations))
-# add: countySelector
-# add: stateList or batchID
+print(sprintf("Filtering USA counties with countySelector %s", countySelector))
 
 # fixme: almost certain this dep can be removed
 library(zoo)
@@ -65,23 +64,34 @@ d$countryterritoryCode <- sapply(d$countryterritoryCode, as.character)
 d$countryterritoryCode <- sub("840", "", d$countryterritoryCode)
 
 if (is.list(stateList)) {
-  # d$state is like "Alabama" and "New York"
-  # input to CLI is like "Alabama,NewYork"
-  # here we remove the spaces from the df to compare to the CLI input
-  d <- subset(d, (gsub(" ", "", state) %in% stateList))
+  print("Only running on counties in these states:")
+  print(stateList)
+
+  if (stateList[1] != "all") {
+    # filter by provided stateList
+  
+    # d$state is like "Alabama" and "New York"
+    # input to CLI is like "Alabama,NewYork"
+    # here we remove the spaces from the df to compare to the CLI input
+    d <- subset(d, (gsub(" ", "", state) %in% stateList))
+  }
 
   # drop counties with fewer than cutoff cumulative deaths or cases
   cumCaseAndDeath <- aggregate(cbind(d$deaths), by=list(Category=d$countryterritoryCode), FUN=sum)
   dropCounties <- subset(cumCaseAndDeath, V1 < minimumReportedDeaths)$Category
   d <- subset(d, !(countryterritoryCode %in% dropCounties))
   print(sprintf("nCounties with more than %d deaths: %d", minimumReportedDeaths, length(unique(d$countryterritoryCode))))
-
 } else if (is.integer(batchID)) {
   path <- sprintf("../batches/batch%d.txt", batchID)
   batchString <- readChar(path, file.info(path)$size)
   batch <- as.list(gsub("\"", "", strsplit(batchString, "\n")[[1]]))
   d <- subset(d, (countryterritoryCode %in% batch))
+  # note: no deaths cutoff filter applied here because
+  # that's already been handled in the make-batches.r step
+  # all counties in the batch are already vetted to be above the minimumDeathsCutoff
 }
+
+stop("break")
 
 # create useful mapping tables
 codeToName <- unique(data.frame("countyCode" = d$countryterritoryCode, "countyName" = d$countriesAndTerritories))
