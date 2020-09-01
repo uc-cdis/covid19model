@@ -19,52 +19,79 @@ args = commandArgs(trailingOnly=TRUE)
 StanModel = args[1]
 minimumReportedDeaths = as.integer(args[2])
 nStanIterations = as.integer(args[3])
-validateFlag = args[4]
-if (is.na(validateFlag)){validateFlag <- ""}
 
+#### example calls of new CLI
+## Rscript base.r us_mobility 10 10 -stateList "Illinois,NewYork"
+## Rscript base.r us_mobility 10 10 -stateList "all"
+## Rscript base.r us_mobility 10 10 -batch 1
+
+# 4 is "-stateList" or "-batch"
+countySelector <- args[4]
+
+# 5 is statesCSV or batchID
+if (countySelector == "-stateList") {
+  stateList <- as.list(strsplit(args[5], ",")[[1]])
+  batchID <- NULL
+} else if (countySelector == "-batch") {
+  stateList <- NULL
+  batchID <- as.integer(args[5])
+} else {
+  stop("must specify either -stateList or -batch for countySelector")
+}
+
+# 6 is validateFlag
+validateFlag = args[6]
+if (is.na(validateFlag)){validateFlag <- ""}
 if (validateFlag == "--validate"){
   print("INFO: --validate flag passed - running validation routine")
 }
-print(sprintf("Running stan model %s",StanModel))
+
 print(sprintf("Only running on counties with at least %d total reported deaths", minimumReportedDeaths))
+print(sprintf("Running stan model: %s",StanModel))
 print(sprintf("Running MCMC routine with %d iterations", nStanIterations))
+print(sprintf("Filtering USA counties with countySelector: %s", countySelector))
 
-## smoothing death data: https://github.com/ImperialCollegeLondon/covid19model/blob/v6.0/usa/code/utils/read-data-usa.r#L37-L40
-## -> https://github.com/ImperialCollegeLondon/covid19model/blob/v6.0/usa/code/utils/read-data-usa.r#L24-L27
-## -> something to try, for sure
-
+# fixme: almost certain this dep can be removed
 library(zoo)
-# smooth_fn = function(x, days=3) {
-#   return(rollmean(x, days, align = "right"))
-# }
 
 # case-mortality table
 d <- read.csv("../modelInput/CaseAndMortalityV2.csv", stringsAsFactors = FALSE)
 
-# drop counties with fewer than cutoff cumulative deaths or cases
-cumCaseAndDeath <- aggregate(cbind(d$deaths), by=list(Category=d$countryterritoryCode), FUN=sum)
-dropCounties <- subset(cumCaseAndDeath, V1 < minimumReportedDeaths)$Category
-d <- subset(d, !(countryterritoryCode %in% dropCounties))
-# print(sprintf("nCounties with more than %d deaths before %s: %d", minimumReportedDeaths, dateCutoff, length(unique(d$countryterritoryCode))))
-print(sprintf("nCounties with more than %d deaths: %d", minimumReportedDeaths, length(unique(d$countryterritoryCode))))
-
+# a little preprocessing
 d$date = as.Date(d$dateRep,format='%m/%d/%y')
-
 d$countryterritoryCode <- sapply(d$countryterritoryCode, as.character)
 # trim US code prefix
 d$countryterritoryCode <- sub("840", "", d$countryterritoryCode)
 
-# county population
-# pop = unique(d[c("countryterritoryCode", "popData2018")])
+if (is.list(stateList)) {
+  print("Only running on counties in these states:")
+  print(stateList)
 
-# IMPORTANT: this smoothing function is 100% broken
-# SMOOTHING reported death and case counts
-# try <steps> day moving average to smooth raw reported case and death counts
-# "so the bars don't look so bad" - really to account for bias/periodic fluxuations in reporting
-# steps = 7
-# d$deaths = c(rep(0, steps-1), as.integer(smooth_fn(d$deaths, days=steps)))
-# d$cases = c(rep(0, steps-1), as.integer(smooth_fn(d$cases, days=steps)))
+  if (stateList[1] != "all") {
+    # filter by provided stateList
+  
+    # d$state is like "Alabama" and "New York"
+    # input to CLI is like "Alabama,NewYork"
+    # here we remove the spaces from the df to compare to the CLI input
+    d <- subset(d, (gsub(" ", "", state) %in% stateList))
+  }
 
+  # drop counties with fewer than cutoff cumulative deaths or cases
+  cumCaseAndDeath <- aggregate(cbind(d$deaths), by=list(Category=d$countryterritoryCode), FUN=sum)
+  dropCounties <- subset(cumCaseAndDeath, V1 < minimumReportedDeaths)$Category
+  d <- subset(d, !(countryterritoryCode %in% dropCounties))
+  print(sprintf("nCounties with more than %d deaths: %d", minimumReportedDeaths, length(unique(d$countryterritoryCode))))
+} else if (is.integer(batchID)) {
+  path <- sprintf("../batches/batch%d.txt", batchID)
+  batchString <- readChar(path, file.info(path)$size)
+  batch <- as.list(gsub("\"", "", strsplit(batchString, "\n")[[1]]))
+  d <- subset(d, (countryterritoryCode %in% batch))
+  # note: no deaths cutoff filter applied here because
+  # that's already been handled in the make-batches.r step
+  # all counties in the batch are already vetted to be above the minimumDeathsCutoff
+}
+
+# create useful mapping tables
 codeToName <- unique(data.frame("countyCode" = d$countryterritoryCode, "countyName" = d$countriesAndTerritories))
 codeToNameAndState <- unique(data.frame("countyCode" = d$countryterritoryCode, "countyName" = d$countriesAndTerritories, "state" = d$state))
 

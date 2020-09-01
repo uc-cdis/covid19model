@@ -3,9 +3,22 @@
 # run R bayes-by-county simulation and push outputs to S3
 echo "Running bayes-by-county..."
 
-# sh run.sh <stan_model> <deaths_cutoff> <nIterations>
+# call form:
+# sh run.sh <stan_model> \
+#   <minimumDeaths> \
+#   <nIterations> \
+#   (-stateList | -batch) \
+#   (<stateList> | <batchID>) \
+#   [--validate]
+
+# example calls:
+## sh run.sh us_mobility 150 200 -stateList "Illinois,NewYork"
+## sh run.sh us_mobility 150 200 -stateList "Illinois,NewYork" --validate
+## sh run.sh us_mobility 150 200 -stateList "all"
+## sh run.sh us_mobility 150 200 -batch 1
+
 cd /
-sh run.sh us_mobility 520 150
+sh run.sh us_mobility 2500 150 -stateList "Illinois,NewYork"
 
 # copy images to S3 under prefix "bayes-by-county"
 # directory structure:
