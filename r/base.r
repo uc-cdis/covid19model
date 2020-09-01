@@ -21,9 +21,9 @@ minimumReportedDeaths = as.integer(args[2])
 nStanIterations = as.integer(args[3])
 
 #### example calls of new CLI
-## sh run.sh us_mobility 520 150 -stateList "Illinois,NewYork"
-## sh run.sh us_mobility 520 150 -stateList "all"
-## sh run.sh us_mobility 520 150 -batch 4
+## Rscript base.r us_mobility 10 10 -stateList "Illinois,NewYork"
+## Rscript base.r us_mobility 10 10 -stateList "all"
+## Rscript base.r us_mobility 10 10 -batch 1
 
 # 4 is "-stateList" or "-batch"
 countySelector <- args[4]
@@ -47,9 +47,9 @@ if (validateFlag == "--validate"){
 }
 
 print(sprintf("Only running on counties with at least %d total reported deaths", minimumReportedDeaths))
-print(sprintf("Running stan model %s",StanModel))
+print(sprintf("Running stan model: %s",StanModel))
 print(sprintf("Running MCMC routine with %d iterations", nStanIterations))
-print(sprintf("Filtering USA counties with countySelector %s", countySelector))
+print(sprintf("Filtering USA counties with countySelector: %s", countySelector))
 
 # fixme: almost certain this dep can be removed
 library(zoo)
@@ -90,8 +90,6 @@ if (is.list(stateList)) {
   # that's already been handled in the make-batches.r step
   # all counties in the batch are already vetted to be above the minimumDeathsCutoff
 }
-
-stop("break")
 
 # create useful mapping tables
 codeToName <- unique(data.frame("countyCode" = d$countryterritoryCode, "countyName" = d$countriesAndTerritories))
