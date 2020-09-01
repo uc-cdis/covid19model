@@ -19,18 +19,38 @@ args = commandArgs(trailingOnly=TRUE)
 StanModel = args[1]
 minimumReportedDeaths = as.integer(args[2])
 nStanIterations = as.integer(args[3])
-# 4 is "--stateList" or "--batch"
+
+#### example calls of new CLI
+## sh run.sh us_mobility 520 150 -stateList "IL,NY"
+## sh run.sh us_mobility 520 150 -stateList "all"
+## sh run.sh us_mobility 520 150 -batch 4
+
+# 4 is "-stateList" or "-batch"
+countySelector <- args[4]
+
 # 5 is statesCSV or batchID
+if (countySelector == "-stateList") {
+  stateList <- as.list(strsplit(args[5], ",")[[1]])
+  batchID <- NULL
+} else if (countySelector == "-batch") {
+  stateList <- NULL
+  batchID <- as.integer(args[5])
+} else {
+  stop("must specify either -stateList or -batch for countySelector")
+}
+
 # 6 is validateFlag
 validateFlag = args[6]
 if (is.na(validateFlag)){validateFlag <- ""}
-
 if (validateFlag == "--validate"){
   print("INFO: --validate flag passed - running validation routine")
 }
+
 print(sprintf("Running stan model %s",StanModel))
 print(sprintf("Only running on counties with at least %d total reported deaths", minimumReportedDeaths))
 print(sprintf("Running MCMC routine with %d iterations", nStanIterations))
+# add: countySelector
+# add: stateList or batchID
 
 ## smoothing death data: https://github.com/ImperialCollegeLondon/covid19model/blob/v6.0/usa/code/utils/read-data-usa.r#L37-L40
 ## -> https://github.com/ImperialCollegeLondon/covid19model/blob/v6.0/usa/code/utils/read-data-usa.r#L24-L27
@@ -43,6 +63,8 @@ library(zoo)
 
 # case-mortality table
 d <- read.csv("../modelInput/CaseAndMortalityV2.csv", stringsAsFactors = FALSE)
+# stateList <- unique(d$state)
+
 
 # drop counties with fewer than cutoff cumulative deaths or cases
 cumCaseAndDeath <- aggregate(cbind(d$deaths), by=list(Category=d$countryterritoryCode), FUN=sum)
