@@ -7,14 +7,16 @@ library(mlr3verse)
 
 source("./read-mobility.r")
 
-forecast_googleMob<-function(codeToName){
+forecast_googleMob<-function(codeToName, stateList){
   # read data
   
   # google
   google_data <- read_google_mobility(codeToName=codeToName, regression=TRUE)
-  il <- as.data.frame("Illinois")
-  colnames(il) <- "sub_region_1"
-  google_data <- left_join(google_data, il, by = c("sub_region_1"))
+
+  statedf <- as.data.frame(stateList)
+
+  colnames(statedf) <- "sub_region_1"
+  google_data <- left_join(google_data, statedf, by = c("sub_region_1"))
 
   # new foursquare data 
   new_foursquare = read_csv("../modelInput/mobility/visit-data/visitdata-grouped.csv")
@@ -196,11 +198,12 @@ forecast_googleMob<-function(codeToName){
 }
   
 # case-mortality table
-d <- read.csv("../modelInput/ILCaseAndMortalityV1.csv", stringsAsFactors = FALSE)
+d <- read.csv("../modelInput/CaseAndMortalityV2.csv", stringsAsFactors = FALSE)
 d$countryterritoryCode <- sapply(d$countryterritoryCode, as.character)
 d$countryterritoryCode <- sub("840", "", d$countryterritoryCode)
 codeToName <- unique(data.frame("countyCode" = d$countryterritoryCode, "countyName" = d$countriesAndTerritories))
+stateList <- unique(d$state)
 
-f <- forecast_googleMob(codeToName=codeToName)
+f <- forecast_googleMob(codeToName=codeToName, stateList=stateList)
 google_forecast <- f %>% select(state,retail.recreation,grocery.pharmacy,parks,transitstations,workplace,residential,date)
 write.csv(google_forecast, "../modelInput/mobility/google-mobility-forecast.csv", row.names = FALSE)

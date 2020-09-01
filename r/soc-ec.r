@@ -18,9 +18,6 @@ se <- data.frame(
     icu_beds = se$ICU.Beds
 )
 
-# filter for IL
-il <- se[se$state == "IL", ]
-
 # remove all rows with any na
 se <- se[complete.cases(se), ]
 
@@ -61,7 +58,7 @@ rs <- data.frame(
 ##### mortality
 
 # case-mortality table
-d <- read.csv("../modelInput/ILCaseAndMortalityV1.csv", stringsAsFactors = FALSE)
+d <- read.csv("../modelInput/CaseAndMortalityV2.csv", stringsAsFactors = FALSE)
 d$date = as.Date(d$dateRep,format='%m/%d/%y')
 d$countryterritoryCode <- sapply(d$countryterritoryCode, as.character)
 d$countryterritoryCode <- sub("840", "", d$countryterritoryCode)

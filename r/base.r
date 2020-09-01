@@ -39,7 +39,7 @@ library(zoo)
 # }
 
 # case-mortality table
-d <- read.csv("../modelInput/ILCaseAndMortalityV1.csv", stringsAsFactors = FALSE)
+d <- read.csv("../modelInput/CaseAndMortalityV2.csv", stringsAsFactors = FALSE)
 
 # drop counties with fewer than cutoff cumulative deaths or cases
 cumCaseAndDeath <- aggregate(cbind(d$deaths), by=list(Category=d$countryterritoryCode), FUN=sum)
@@ -66,6 +66,7 @@ d$countryterritoryCode <- sub("840", "", d$countryterritoryCode)
 # d$cases = c(rep(0, steps-1), as.integer(smooth_fn(d$cases, days=steps)))
 
 codeToName <- unique(data.frame("countyCode" = d$countryterritoryCode, "countyName" = d$countriesAndTerritories))
+codeToNameAndState <- unique(data.frame("countyCode" = d$countryterritoryCode, "countyName" = d$countriesAndTerritories, "state" = d$state))
 
 # write list of counties used in this simulation
 CountyCodeList <- unique(d$countryterritoryCode)
@@ -73,13 +74,19 @@ write.table(CountyCodeList, "../modelOutput/figures/CountyCodeList.txt", row.nam
 
 countries <- unique(d$countryterritoryCode)
 
+convertCode <- function(code) {
+  s <- as.character(code)
+  short <- 5 - nchar(s)
+  out <- paste(c(rep("0",short),s), collapse="")
+  return(out)
+}
+
 # weighted fatality table
-cfr.by.country = read.csv("../modelInput/ILWeightedFatalityV1.csv")
-cfr.by.country$country = as.character(cfr.by.country[,3])
-cfr.by.country$country <-  sub("840", "", cfr.by.country$country) # cutoff US prefix code - note: maybe this should be in the python etl, not here
+cfr.by.country = read.csv("../modelInput/USAWeightedFatalityV2.csv")
+cfr.by.country$countyCode <- sapply(cfr.by.country$countyCode, convertCode)
 
 # serial interval discrete gamma distribution
-serial.interval = read.csv("../modelInput/ILSerialIntervalV1.csv") # new table
+serial.interval = read.csv("../modelInput/SerialIntervalV2.csv") # new table
 
 # N2 is Number of time points with data plus forecast
 N2 = 0
@@ -103,16 +110,20 @@ google_pred <- read.csv('../modelInput/mobility/google-mobility-forecast.csv', s
 google_pred$date <- as.Date(google_pred$date, format = '%Y-%m-%d') 
 
 # replicate statewide prediction by county -> this can be MUCH more nuanced, but for now - just get something working
-stateAndCounty <- codeToName
-stateAndCounty$state <- "Illinois"
+stateAndCounty <- codeToNameAndState
 google_pred <- left_join(stateAndCounty, google_pred, "state" = "state")
 colnames(google_pred)[colnames(google_pred) == 'state'] <- 'sub_region_1'
 
-# Append predicted mobility
-if (max(google_pred$date) > max(mobility$date)){
-  google_pred <- google_pred[google_pred$date > max(mobility$date),]
-  mobility <- rbind(as.data.frame(mobility),as.data.frame(google_pred[,colnames(mobility)]))
-}
+# NOTE: there is no visit-data for DC
+# ----  i.e., we can't impute mobility forward for DC
+# ---- for now, I'll skip imputing in general, so we can include DC in our analysis
+# ---- later can come back to revisit possibilities for other solutions
+#
+# Append predicted mobility 
+# if (max(google_pred$date) > max(mobility$date)){
+#   google_pred <- google_pred[google_pred$date > max(mobility$date),]
+#   mobility <- rbind(as.data.frame(mobility),as.data.frame(google_pred[,colnames(mobility)]))
+# }
 
 max_date <- max(mobility$date)
 
@@ -162,6 +173,7 @@ for(Country in countries) {
   tmp=tmp[index2:nrow(tmp),]
   
   N = length(tmp$cases)  
+  print(sprintf("county: %s, N: %d", Country, N))
   if(N2 - N < 0) {
     print(sprintf("raising N2 from %d to %d", N2, N))
     N2 = N
@@ -175,7 +187,7 @@ covariate_list_partial_county <- list()
 k <- 1
 for(Country in countries) {
 
-  CFR=cfr.by.country$weighted_fatality[cfr.by.country$country == Country]
+  CFR=cfr.by.country$weighted_fatality[cfr.by.country$countyCode == Country]
 
   d1=d[d$countryterritoryCode==Country,]
 

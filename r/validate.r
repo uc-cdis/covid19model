@@ -21,7 +21,7 @@ filename2 <- args[1]
 load(paste0("../modelOutput/results/", filename2))
 # print(sprintf("loading: %s",paste0("../modelOutput/results/",filename2)))
 
-obs <- read.csv("../modelInput/ILCaseAndMortalityV1.csv")
+obs <- read.csv("../modelInput/CaseAndMortalityV2.csv")
 obs$date = as.Date(obs$dateRep,format='%m/%d/%y')
 obs$countryterritoryCode <- sapply(obs$countryterritoryCode, as.character)
 obs$countryterritoryCode <- sub("840", "", obs$countryterritoryCode)

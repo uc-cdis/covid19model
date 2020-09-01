@@ -38,9 +38,6 @@ def makeCaseMortalityTable(dirPath):
     # 1. process cases df to match form of EU table
     cases = casesOrig
 
-    # filter for IL
-    cases = cases.loc[cases["Province_State"] == "Illinois"]
-
     ## get daily counts -> make this a fn
 
     # take this out, put it back after compute
@@ -90,9 +87,6 @@ def makeCaseMortalityTable(dirPath):
     # 2. process deaths data
     deaths = deathsOrig
 
-    # filter for Illinois
-    deaths = deaths.loc[deaths["Province_State"] == "Illinois"]
-
     # compute increments from cumulative counts - same steps as case table
 
     # take this out, put it back after compute
@@ -113,8 +107,6 @@ def makeCaseMortalityTable(dirPath):
     dailyCounts = deaths.copy()
     # replace cumulative counts with daily counts (i.e., increments)
     dailyCounts.iloc[:,13:] = dc.diff(axis=1, periods=1).iloc[:,1:]
-    # take a look at cook (county)
-    dailyCounts[dailyCounts["Admin2"] == "Cook"]
 
     # now working with daily deaths, not cumulative deaths
     deaths = dailyCounts
@@ -137,10 +129,10 @@ def makeCaseMortalityTable(dirPath):
     # merge df's
     # i.e., inject population and deaths data from deaths df into cases df
     cols_to_use = deaths.columns.difference(cases.columns)
-    ILCaseAndMortality = pd.merge(cases, deaths[cols_to_use], left_index=True, right_index=True, how="outer")
+    caseAndMortality = pd.merge(cases, deaths[cols_to_use], left_index=True, right_index=True, how="outer")
 
     # cut out rows where Admin2 is "Out of IL" or "Unassigned" (both have population 0)
-    ILCaseAndMortality = ILCaseAndMortality.loc[ILCaseAndMortality["Population"] > 0]
+    caseAndMortality = caseAndMortality.loc[caseAndMortality["Population"] > 0]
 
     # rename some columns; improve readability
     renameColsMap = {
@@ -150,7 +142,7 @@ def makeCaseMortalityTable(dirPath):
         "Lat": "Latitude",
         "Long_": "Longitude"
     }
-    ILCaseAndMortality = ILCaseAndMortality.rename(renameColsMap, axis=1)
+    caseAndMortality = caseAndMortality.rename(renameColsMap, axis=1)
 
     # now order the columns nicely
     columnOrder = [
@@ -165,11 +157,11 @@ def makeCaseMortalityTable(dirPath):
         "Longitude"
     ]
 
-    ILCaseAndMortality = ILCaseAndMortality[columnOrder]
+    caseAndMortality = caseAndMortality[columnOrder]
 
     # looks good -> save it
     # suppressing this for now, so as not to create "unused" tables -> simplify output of this script
-    # ILCaseAndMortality.to_csv(dirPath + "/ILCaseAndMortality.csv")
+    # caseAndMortality.to_csv(dirPath + "/caseAndMortality.csv")
 
     # next: 
     # 1. preserving this table; modify this table to exactly match the scheme of the Euro table
@@ -177,20 +169,21 @@ def makeCaseMortalityTable(dirPath):
     # 3. run the model with that table as input
     # 6. refactor all this; sketch plan for actual script(s) (!)
 
-    df = ILCaseAndMortality.copy()
+    df = caseAndMortality.copy()
 
     df["month"], df["day"], df["year"] = df["Date"].str.split("/").str
 
     # drop extra columns
-    df = df.drop(["State", "Latitude", "Longitude"], axis=1)
+    df = df.drop(["Latitude", "Longitude"], axis=1)
 
     # rename remaining columns to match Euro table
     ToEuroColumnsMap = {
         "Date": "dateRep",
         "Cases": "cases",
         "Deaths": "deaths",
-        "CountyID": "countryterritoryCode", # ?
-        "Town": "countriesAndTerritories", # ?
+        "State": "state",
+        "CountyID": "countryterritoryCode", 
+        "Town": "countriesAndTerritories", 
         "Population": "popData2018",
     }
 
@@ -210,27 +203,30 @@ def makeCaseMortalityTable(dirPath):
         'countriesAndTerritories', 
         'geoId', 
         'countryterritoryCode', 
-        'popData2018'
+        'popData2018',
+        'state'
     ]
     df = df[CaseMortalityColumnOrder]
 
     print("--- saving transformed case and mortality data  ---")
 
     # okay, done, now save it
-    p = dirPath + "/ILCaseAndMortalityV1.csv"
+    p = dirPath + "/CaseAndMortalityV2.csv"
     df.to_csv(p)
 
-    countyIDList = ILCaseAndMortality["CountyID"].unique()
+    countyIDList = caseAndMortality["CountyID"].unique()
 
-    population_df = ILCaseAndMortality[["CountyID", "Population"]].copy().drop_duplicates()
+    population_df = caseAndMortality[["CountyID", "Population"]].copy().drop_duplicates()
 
     return(p, countyIDList, population_df)
 
+# feat/usa - fixme - lockdown happened at different times for different states
+# can't use the IL lockdown dates for other states, of course
+# for now, can suppress displaying lockdown anyway
+# it doesn't get used for anything except to display that dashed line on the visualizations
+# so - low priority for now
 def makeInterventionsTable(dirPath, countyIDList): 
     print("\n~ INTERVENTIONS TABLE ~")
-
-    # -> should remove all their tables, comparisons to their tables etc.
-    # self-contained ETL -> we can have our own config -> not the old EU tables
 
     # task: make a table for IL by county that looks like their covariates table
     # only column is lockdown
@@ -253,109 +249,6 @@ def makeInterventionsTable(dirPath, countyIDList):
     # save this new table
     p = dirPath + "/ILInterventionsV1.csv"
     ourCovariates.to_csv(p)
-
-    return(p)
-
-def makeIFRTable(dirPath, population_df):
-
-    print("\n~ IFR TABLE ~")
-    print("--- constructing IFR table ---")
-    
-    ourIFR = population_df
-
-    # now need:
-    # 1. fatality ratio per stratum (?)
-    # 2. relative frequency pre stratum
-    # for now, all counties will be treated the same - same age strata rel freq, same fatality ratio
-
-    # IL age distribution
-    # actually here's IL age distribution by county according to US census:
-    # https://censusreporter.org/data/table/?table=B01001&geo_ids=04000US17,01000US,050|04000US17&primary_geo_id=04000US17
-
-    # for starters applying same distribution to each county, for sake of just running the model as soon as possible
-    # later (tomorrow) can get the by-county resolution for age distribution -> HERE! fixme.
-    # ILAgeDistr = pd.read_csv("./notebooks/IL-Age-Distr/ageDistr.csv")
-
-    # for now, manually entering this
-    # source:
-    # https://censusreporter.org/profiles/04000US17-illinois/
-    ILAgeDistr = {
-        "0-9": [.119],
-        "10-19": [.131],
-        "20-29": [.136],
-        "30-39": [.135],
-        "40-49": [.127],
-        "50-59": [.132],
-        "60-69": [.114],
-        "70-79": [.067],
-        "80+"  : [.039]
-    }
-
-    ageDist = pd.DataFrame(ILAgeDistr)
-
-    ourIFR[list(ageDist)] = pd.DataFrame(np.repeat(ageDist.values, len(ourIFR.index), axis=0))
-    strata = list(ILAgeDistr.keys())
-    ourIFR[strata] = ourIFR[strata].mul(ourIFR["Population"], axis=0)
-
-    # okay great, so now we have IL population by-county by-age-bracket
-    # note: again recall that this is just the IL state-wide distribution applied to each county's population -> HERE! fixme.
-    # the by-county age distributions are available and can be easily worked in
-    # will just take a bit of data transforming/mapping etc.
-    # it's on the todo list
-
-    # next: add the "weighted_fatality" column
-    # right now the value for this column doesn't really matter
-    # so will do the simplest thing for now and extend later
-
-    # this is the paper ICL consulted for picking their ifr numbers: 
-    # https://www.thelancet.com/journals/laninf/article/PIIS1473-3099(20)30243-7/fulltext
-    ourIFR["weighted_fatality"] = .00657
-
-    # reorder columns
-    ourIFRColumnOrder = ["CountyID", "weighted_fatality", "Population"] + strata
-    ourIFR = ourIFR[ourIFRColumnOrder]
-
-    # save this
-    # suppressing this for now -> simplify/minimize number of files generated by this script
-    # ourIFR.to_csv(dirPath + "/ILWeightedFatality.csv")
-
-    # now map to euro table for input to model
-    mapILToEuroIFR = {
-        "CountyID": "country",
-        "10-19": "Oct-19", # extraordinarily painful to look at, but will be fixed soon enough
-        "Population": "population"
-    }
-
-    ILInputIFR = ourIFR.copy()
-    ILInputIFR = ILInputIFR.rename(mapILToEuroIFR, axis=1)
-    # fill placeholder values for redundant columns, to match their df exactly ..
-    ILInputIFR["Region, subregion, country or area *"] = ILInputIFR["country"]
-    ILInputIFR["Unnamed: 0"] = ILInputIFR.index
-
-    # reorder to match their order
-    EUColumnOrder = [
-        'Unnamed: 0', 
-        'Region, subregion, country or area *', 
-        '0-9', 
-        'Oct-19', 
-        '20-29', 
-        '30-39', 
-        '40-49', 
-        '50-59', 
-        '60-69', 
-        '70-79', 
-        '80+', 
-        'weighted_fatality', 
-        'population', 
-        'country'
-    ]
-    ILInputIFR = ILInputIFR[EUColumnOrder]
-
-    print("--- saving IFR table ---")
-
-    # save this
-    p = dirPath + "/ILWeightedFatalityV1.csv"
-    ILInputIFR.to_csv(p)
 
     return(p)
 
@@ -384,14 +277,15 @@ if __name__ == "__main__":
     os.makedirs(dirPath, exist_ok=True)
 
     p1, countyIDList, population_df = makeCaseMortalityTable(dirPath)
-    p2 = makeInterventionsTable(dirPath, countyIDList)
-    p3 = makeIFRTable(dirPath, population_df)
+    
+    # see note at this fn definition
+    # p2 = makeInterventionsTable(dirPath, countyIDList) 
+
     p4 = fetchSocEc(dirPath)
 
     print("\n")
     print("tables successfully written to these paths:")
     print("\t", p1)
-    print("\t", p2)
-    print("\t", p3)
+    # print("\t", p2)
     print("\t", p4)    
     print("\n")

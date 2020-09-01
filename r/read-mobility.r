@@ -43,14 +43,20 @@ library(EnvStats)
 library(scales)
 library(stringr)
 
+convertCode <- function(code) {
+  s <- as.character(code)
+  short <- 5 - nchar(s)
+  out <- paste(c(rep("0",short),s), collapse="")
+  return(out)
+}
+
 # good
 read_google_mobility <- function(countries, codeToName, regression=FALSE){
 
-  # read in global report, subset to IL
+  # read in global report, subset to USA
   GlobalMobilityReport <<- '../modelInput/mobility/Global_Mobility_Report.csv'
   google_mobility <- read.csv(GlobalMobilityReport, stringsAsFactors = FALSE)
   google_mobility <- google_mobility[google_mobility$country_region == "United States", ]
-  google_mobility <- google_mobility[google_mobility$sub_region_1 == "Illinois", ]
 
   if (regression){
     # no county-level data allowed for regression routine
@@ -58,10 +64,10 @@ read_google_mobility <- function(countries, codeToName, regression=FALSE){
   } else {
     # derive "countyName" column
     google_mobility$countyName <- sub(" County", "", google_mobility$sub_region_2)
-
     # set county code in there -> > names(codeToName) > [1] "countyCode" "countyName"
-    # new column -> "countyCode"
-    google_mobility <- left_join(google_mobility, codeToName, by = c("countyName"))
+    google_mobility <- rename(google_mobility, all_of(c("countyCode"="census_fips_code")))
+    google_mobility <- google_mobility[!is.na(google_mobility$countyCode), ]
+    google_mobility$countyCode <- sapply(google_mobility$countyCode, convertCode)
     google_mobility <- google_mobility[google_mobility$countyCode %in% countries,]
   }
 
