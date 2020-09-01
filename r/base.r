@@ -58,6 +58,12 @@ library(zoo)
 # case-mortality table
 d <- read.csv("../modelInput/CaseAndMortalityV2.csv", stringsAsFactors = FALSE)
 
+# a little preprocessing
+d$date = as.Date(d$dateRep,format='%m/%d/%y')
+d$countryterritoryCode <- sapply(d$countryterritoryCode, as.character)
+# trim US code prefix
+d$countryterritoryCode <- sub("840", "", d$countryterritoryCode)
+
 if (is.list(stateList)) {
   # d$state is like "Alabama" and "New York"
   # input to CLI is like "Alabama,NewYork"
@@ -71,15 +77,11 @@ if (is.list(stateList)) {
   print(sprintf("nCounties with more than %d deaths: %d", minimumReportedDeaths, length(unique(d$countryterritoryCode))))
 
 } else if (is.integer(batchID)) {
-  # HERE
-  stop("dev'ing breakpoint")
+  path <- sprintf("../batches/batch%d.txt", batchID)
+  batchString <- readChar(path, file.info(path)$size)
+  batch <- as.list(gsub("\"", "", strsplit(batchString, "\n")[[1]]))
+  d <- subset(d, (countryterritoryCode %in% batch))
 }
-stop("dev'ing breakpoint")
-
-d$date = as.Date(d$dateRep,format='%m/%d/%y')
-d$countryterritoryCode <- sapply(d$countryterritoryCode, as.character)
-# trim US code prefix
-d$countryterritoryCode <- sub("840", "", d$countryterritoryCode)
 
 # create useful mapping tables
 codeToName <- unique(data.frame("countyCode" = d$countryterritoryCode, "countyName" = d$countriesAndTerritories))
