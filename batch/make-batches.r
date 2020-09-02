@@ -69,21 +69,37 @@ batchSizes <- n %/% divisors
 nBatches <- which(batchSizes <= maxBatchSize)[1]
 batchSize <- batchSizes[nBatches]
 
+print(sprintf("computed batchSize: %d", batchSize))
+print(sprintf("computed nBatches: %d", nBatches))
+
 # order counties by amount of data (i.e., total number of deaths)
 ordered <- cumCaseAndDeath[order(cumCaseAndDeath$V1, decreasing=TRUE),]
 
+# make batches
 batches <- list()
 for (i in 1:nBatches) {
-    batch <- ordered$countryterritoryCode[seq(i,n,i)]
+    batch <- ordered$Category[seq(i,n,nBatches)]
     batches[[i]] <- batch
 }
 
-print("here are the batches:")
-print(batches)
+# print("here are the batches:")
+# print(batches)
+# print(length(batches))
+# print(sapply(batches, length))
+# print(setdiff(unlist(batches), ordered$Category))
 
+## write list of counties used in this simulation
+## CountyCodeList <- unique(d$countryterritoryCode)
+## write.table(CountyCodeList, "../modelOutput/figures/CountyCodeList.txt", row.names=FALSE, col.names=FALSE)
+
+# create batches dir
+batchesDir <- "../batches"
+dir.create(batchesDir, showWarnings = FALSE)
+
+# write batches
+for (i in 1:nBatches) {
+    write.table(batches[[i]], file.path(batchesDir, sprintf("batch%d.txt", i)), row.names=FALSE, col.names=FALSE)
+}
 
 stop("dev'ing breakpoint")
 
-# write list of counties used in this simulation
-# CountyCodeList <- unique(d$countryterritoryCode)
-# write.table(CountyCodeList, "../modelOutput/figures/CountyCodeList.txt", row.names=FALSE, col.names=FALSE)
