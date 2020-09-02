@@ -9,7 +9,7 @@ library(jsonlite)
 
 #### example calls
 # Rscript make-batches.r -stateList "Illinois,NewYork" -deathsCutoff 10 -batchSize 30
-# Rscript make-batches.r -stateList "all" -batchSize 30
+# Rscript make-batches.r -stateList "all" -maxBatchSize 30
 args = commandArgs(trailingOnly=TRUE)
 # nStanIterations = as.integer(args[3])
 
@@ -25,16 +25,16 @@ cutoffFlag <- args[3]
 if (cutoffFlag != "-deathsCutoff") {stop("missing -deathsCutoff flag")}
 minimumReportedDeaths <- as.integer(args[4])
 
-# 5 is "-batchSize"
-# 6 is <batchSize>
-batchSizeFlag <- args[5]
-if (batchSizeFlag != "-batchSize") {stop("missing -batchSize flag")}
-batchSize <- as.integer(args[6])
+# 5 is "-maxBatchSize"
+# 6 is <maxBatchSize>
+maxBatchSizeFlag <- args[5]
+if (maxBatchSizeFlag != "-maxBatchSize") {stop("missing -maxBatchSize flag")}
+maxBatchSize <- as.integer(args[6])
 
 print(sprintf("Only running on counties with at least %d total reported deaths", minimumReportedDeaths))
 print("Only running on counties in these states:")
 print(stateList)
-print(sprintf("Running with batch size: %d", batchSize))
+print(sprintf("Running with max batch size: %d", maxBatchSize))
 
 # fixme: almost certain this dep can be removed
 # library(zoo)
@@ -56,8 +56,23 @@ dropCounties <- subset(cumCaseAndDeath, V1 < minimumReportedDeaths)$Category
 d <- subset(d, !(countryterritoryCode %in% dropCounties))
 print(sprintf("nCounties with more than %d deaths: %d", minimumReportedDeaths, length(unique(d$countryterritoryCode))))
 
+
+
 #### here! already filtered by state and deaths cutoff
 #### now just need to 1. order by deaths 2. make batches 
+
+# compute batchSize and nBatches
+# balance: aim for a batch size less than but close to maxBatchSize
+n <- length(unique(d$countryterritoryCode))
+divisors <- seq(1:200)
+batchSizes <- n %/% divisors
+nBatches <- which(batchSizes <= maxBatchSize)[1]
+batchSize <- batchSizes[nBatches]
+
+ordered <- cumCaseAndDeath[order(cumCaseAndDeath$V1, decreasing=TRUE),]
+
+stop("dev'ing breakpoint")
+
 
 # write list of counties used in this simulation
 # CountyCodeList <- unique(d$countryterritoryCode)
