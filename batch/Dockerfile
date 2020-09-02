@@ -24,4 +24,4 @@ RUN pip3 install -r requirements.txt
 
 WORKDIR /batch/
 
-CMD [ "bash", "/docker-run.sh" ]
+CMD [ "bash", "docker-run.sh" ]
