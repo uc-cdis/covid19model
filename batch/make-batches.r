@@ -69,10 +69,20 @@ batchSizes <- n %/% divisors
 nBatches <- which(batchSizes <= maxBatchSize)[1]
 batchSize <- batchSizes[nBatches]
 
+# order counties by amount of data (i.e., total number of deaths)
 ordered <- cumCaseAndDeath[order(cumCaseAndDeath$V1, decreasing=TRUE),]
 
-stop("dev'ing breakpoint")
+batches <- list()
+for (i in 1:nBatches) {
+    batch <- ordered$countryterritoryCode[seq(i,n,i)]
+    batches[[i]] <- batch
+}
 
+print("here are the batches:")
+print(batches)
+
+
+stop("dev'ing breakpoint")
 
 # write list of counties used in this simulation
 # CountyCodeList <- unique(d$countryterritoryCode)
