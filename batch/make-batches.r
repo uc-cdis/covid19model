@@ -96,6 +96,8 @@ for (i in 1:nBatches) {
 batchesDir <- "../batches"
 dir.create(batchesDir, showWarnings = FALSE)
 
+print(sprintf("writing batches to dir: %s", batchesDir))
+
 # write batches
 for (i in 1:nBatches) {
     write.table(batches[[i]], file.path(batchesDir, sprintf("batch%d.txt", i)), row.names=FALSE, col.names=FALSE)
