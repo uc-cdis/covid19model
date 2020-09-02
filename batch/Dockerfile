@@ -15,11 +15,12 @@ RUN apt-get update && \
 	r-base \
 	libboost-all-dev
 
+WORKDIR /
+COPY . /
+
 # install Python dependencies
 RUN pip3 install --upgrade pip==20.1.*
-RUN pip3 install -r ../requirements.txt
-
-COPY . /
+RUN pip3 install -r requirements.txt
 
 WORKDIR /batch/
 
