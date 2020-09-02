@@ -5,8 +5,12 @@ requirements:
   - class: EnvVarRequirement
     envDef:
       S3_BUCKET: $(inputs.s3_bucket) # S3 bucket to copy output viz files to
+      MODEL_RUN_MODE: $(inputs.mode)
+      DEATHS_CUTOFF: $(inputs.deathsCutoff)
+      N_ITER: $(inputs.nIter)
+      BATCH: $(inputs.batch.path)
   - class: DockerRequirement
-    dockerPull: "quay.io/cdis/bayes-by-county:feat_cwl"
+    dockerPull: "quay.io/cdis/bayes-by-county:feat_batch-cwl"
   # these match those req's in nb-etl's job.yaml in cloud-automation
   - class: ResourceRequirement
     coresMin: 4
@@ -19,14 +23,19 @@ requirements:
 baseCommand: ["bash", "/docker-run.sh"]
 
 inputs:
-  s3_bucket: "string"
-  nIter: int # iterations - make this dynamic
+  s3_bucket: string
+  nIter: int 
+  mode: string
+  deathsCutoff: int
+  batch: File
 
 outputs:
-  viz:
+  figures:
     type: File[]
     outputBinding:
-      glob: "./modelOutput/figures/*/*.png"
+      glob: 
+        - "modelOutput/figures/*.*"
+        - "modelOutput/figures/*/*.png"
 
 # testing without stdout
 # stdout: "stdout.txt"

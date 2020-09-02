@@ -7,8 +7,12 @@ inputs:
     deathsCutoff: int
     maxBatchSize: int
     nIter: int
+    mode: string # must be "batch" -> # if [ $MODEL_RUN_MODE == "batch" ] ;
 
-# outputs:
+outputs:
+    figures:
+        type: File[]
+        outputSource: model/figures
 
 steps:
   make-batches:
@@ -17,13 +21,16 @@ steps:
       stateList: stateList
       deathsCutoff: deathsCutoff
       maxBatchSize: maxBatchSize
-    # not sure about this one!
-    out: [classfile]
+    out: [batches] # this is an array of files: file objects for ["batches/batch1.txt", "batches/batch2.txt", ...]
 
   model:
     run: model.cwl
+    scatter: batches
     in:
       s3_bucket: s3_bucket
       nIter: nIter
-    out: [extracted_file]
+      mode: mode
+      deathsCutoff: deathsCutoff
+      batch: make-batches/batches
+    out: [figures]
 
