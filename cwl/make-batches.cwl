@@ -15,12 +15,11 @@ inputs:
   deathsCutoff: int
   maxBatchSize: int
 
-# not sure about this one! how exactly to hook up the output of this to the input of that
 outputs:
   batches:
     type: File[]
     outputBinding:
-      # glob: "./modelOutput/figures/*/*.png"
+      glob: "batches/*"
 
 # same as dockerfile command
 baseCommand: ["bash", "docker-run.sh"]
