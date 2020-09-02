@@ -20,6 +20,7 @@ baseCommand: ["bash", "/docker-run.sh"]
 
 inputs:
   s3_bucket: "string"
+  nIter: int # iterations - make this dynamic
 
 outputs:
   viz:
