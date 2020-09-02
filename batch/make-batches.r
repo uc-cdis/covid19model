@@ -1,9 +1,3 @@
-library(lubridate)
-library(tidyr)
-library(stringr)
-library(dplyr)
-library(jsonlite)
-
 #### example calls
 # Rscript make-batches.r -stateList "Illinois,NewYork" -deathsCutoff 100 -maxBatchSize 35
 # Rscript make-batches.r -stateList "all" -deathsCutoff 100 -maxBatchSize 35
