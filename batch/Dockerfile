@@ -12,6 +12,6 @@ RUN apt-get update && \
 WORKDIR /
 COPY . /
 
-WORKDIR /batch
+WORKDIR /batch/
 
 CMD [ "bash", "/docker-run.sh" ]
