@@ -79,3 +79,5 @@ print(sprintf("writing batches to dir: %s", batchesDir))
 for (i in 1:nBatches) {
     write.table(batches[[i]], file.path(batchesDir, sprintf("batch%d.txt", i)), row.names=FALSE, col.names=FALSE)
 }
+
+# so batches are like: "../batches/batch1.txt"
