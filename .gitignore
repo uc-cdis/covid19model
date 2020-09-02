@@ -44,9 +44,11 @@ stan/*.rds
 # others
 modelOutput/*
 modelInput/*
+batches/*
 Rplots.pdf
 
 *.DS_Store
 *.vscode
 
 *auth
+
