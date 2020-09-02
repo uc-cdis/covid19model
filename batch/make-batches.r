@@ -1,17 +1,13 @@
-# library(data.table)
 library(lubridate)
-# library(gdata)
-# library(EnvStats)
 library(tidyr)
 library(stringr)
 library(dplyr)
 library(jsonlite)
 
 #### example calls
-# Rscript make-batches.r -stateList "Illinois,NewYork" -deathsCutoff 10 -batchSize 30
-# Rscript make-batches.r -stateList "all" -maxBatchSize 30
+# Rscript make-batches.r -stateList "Illinois,NewYork" -deathsCutoff 100 -maxBatchSize 35
+# Rscript make-batches.r -stateList "all" -deathsCutoff 100 -maxBatchSize 35
 args = commandArgs(trailingOnly=TRUE)
-# nStanIterations = as.integer(args[3])
 
 # 1 is "-stateList"
 # 2 is <stateList_csv>
@@ -36,16 +32,12 @@ print("Only running on counties in these states:")
 print(stateList)
 print(sprintf("Running with max batch size: %d", maxBatchSize))
 
-# fixme: almost certain this dep can be removed
-# library(zoo)
-
 # case-mortality table
 d <- read.csv("../modelInput/CaseAndMortalityV2.csv", stringsAsFactors = FALSE)
 
 # a little preprocessing
 d$date = as.Date(d$dateRep,format='%m/%d/%y')
 d$countryterritoryCode <- sapply(d$countryterritoryCode, as.character)
-# trim US code prefix
 d$countryterritoryCode <- sub("840", "", d$countryterritoryCode)
 
 if (stateList[1] != "all") {d <- subset(d, (gsub(" ", "", state) %in% stateList))}
@@ -55,11 +47,6 @@ cumCaseAndDeath <- aggregate(cbind(d$deaths), by=list(Category=d$countryterritor
 dropCounties <- subset(cumCaseAndDeath, V1 < minimumReportedDeaths)$Category
 d <- subset(d, !(countryterritoryCode %in% dropCounties))
 print(sprintf("nCounties with more than %d deaths: %d", minimumReportedDeaths, length(unique(d$countryterritoryCode))))
-
-
-
-#### here! already filtered by state and deaths cutoff
-#### now just need to 1. order by deaths 2. make batches 
 
 # compute batchSize and nBatches
 # balance: aim for a batch size less than but close to maxBatchSize
@@ -87,10 +74,6 @@ for (i in 1:nBatches) {
 # print(length(batches))
 # print(sapply(batches, length))
 # print(setdiff(unlist(batches), ordered$Category))
-
-## write list of counties used in this simulation
-## CountyCodeList <- unique(d$countryterritoryCode)
-## write.table(CountyCodeList, "../modelOutput/figures/CountyCodeList.txt", row.names=FALSE, col.names=FALSE)
 
 # create batches dir
 batchesDir <- "../batches"
