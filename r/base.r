@@ -28,13 +28,13 @@ nStanIterations = as.integer(args[3])
 # 4 is "-stateList" or "-batch"
 countySelector <- args[4]
 
-# 5 is statesCSV or batchID
+# 5 is statesCSV or batchPath
 if (countySelector == "-stateList") {
   stateList <- as.list(strsplit(args[5], ",")[[1]])
-  batchID <- NULL
+  batchPath <- ""
 } else if (countySelector == "-batch") {
   stateList <- NULL
-  batchID <- as.integer(args[5])
+  batchPath <- args[5]
 } else {
   stop("must specify either -stateList or -batch for countySelector")
 }
@@ -81,9 +81,8 @@ if (is.list(stateList)) {
   dropCounties <- subset(cumCaseAndDeath, V1 < minimumReportedDeaths)$Category
   d <- subset(d, !(countryterritoryCode %in% dropCounties))
   print(sprintf("nCounties with more than %d deaths: %d", minimumReportedDeaths, length(unique(d$countryterritoryCode))))
-} else if (is.integer(batchID)) {
-  path <- sprintf("../batches/batch%d.txt", batchID)
-  batchString <- readChar(path, file.info(path)$size)
+} else if (batchPath != "")) {
+  batchString <- readChar(batchPath, file.info(batchPath)$size)
   batch <- as.list(gsub("\"", "", strsplit(batchString, "\n")[[1]]))
   d <- subset(d, (countryterritoryCode %in% batch))
   # note: no deaths cutoff filter applied here because
