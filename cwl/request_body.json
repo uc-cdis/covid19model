@@ -1,6 +1,11 @@
 {
     "input": {
-      "s3_bucket": "s3://static.planx-pla.net"
+      "s3_bucket": "s3://static.planx-pla.net",
+      "stateList": "all",
+      "deathsCutoff": 10,
+      "maxBatchSize": 35,
+      "nIter": 200,
+      "mode": "batch"
     },
     "serviceAccountName": "s3-access-opencdn-databucket-gen3"
 }
