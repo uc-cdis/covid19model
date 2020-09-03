@@ -22,4 +22,4 @@ outputs:
       glob: "batches/*"
 
 # same as dockerfile command
-baseCommand: ["bash", "docker-run.sh"]
+baseCommand: ["bash", "/batch/docker-run.sh"]
