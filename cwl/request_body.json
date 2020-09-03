@@ -7,5 +7,222 @@
       "nIter": 200,
       "mode": "batch"
     },
-    "serviceAccountName": "s3-access-opencdn-databucket-gen3"
+    "serviceAccountName": "s3-access-opencdn-databucket-gen3",
+    "workflow": {
+      "$graph": [
+        {
+          "baseCommand": [
+            "bash",
+            "docker-run.sh"
+          ],
+          "class": "CommandLineTool",
+          "cwlVersion": "v1.0",
+          "id": "#make-batches.cwl",
+          "inputs": [
+            {
+              "id": "#make-batches.cwl/stateList",
+              "type": "string"
+            },
+            {
+              "id": "#make-batches.cwl/deathsCutoff",
+              "type": "int"
+            },
+            {
+              "id": "#make-batches.cwl/maxBatchSize",
+              "type": "int"
+            }
+          ],
+          "outputs": [
+            {
+              "id": "#make-batches.cwl/batches",
+              "outputBinding": {
+                "glob": "batches/*"
+              },
+              "type": {
+                "items": "File",
+                "type": "array"
+              }
+            }
+          ],
+          "requirements": [
+            {
+              "class": "EnvVarRequirement",
+              "envDef": {
+                "DEATHS_CUTOFF": "$(inputs.deathsCutoff)",
+                "MAX_BATCH_SIZE": "$(inputs.maxBatchSize)",
+                "STATE_LIST": "$(inputs.stateList)"
+              }
+            },
+            {
+              "class": "DockerRequirement",
+              "dockerPull": "quay.io/cdis/make-county-batches:feat_batch-cwl"
+            }
+          ]
+        },
+        {
+          "baseCommand": [
+            "bash",
+            "/docker-run.sh"
+          ],
+          "class": "CommandLineTool",
+          "cwlVersion": "v1.0",
+          "id": "#model.cwl",
+          "inputs": [
+            {
+              "id": "#model.cwl/mode",
+              "type": "string"
+            },
+            {
+              "id": "#model.cwl/deathsCutoff",
+              "type": "int"
+            },
+            {
+              "id": "#model.cwl/batch",
+              "type": "File"
+            },
+            {
+              "id": "#model.cwl/s3_bucket",
+              "type": "string"
+            },
+            {
+              "id": "#model.cwl/nIter",
+              "type": "int"
+            }
+          ],
+          "outputs": [
+            {
+              "id": "#model.cwl/figures",
+              "outputBinding": {
+                "glob": [
+                  "modelOutput/figures/*.*",
+                  "modelOutput/figures/*/*.png"
+                ]
+              },
+              "type": {
+                "items": "File",
+                "type": "array"
+              }
+            }
+          ],
+          "requirements": [
+            {
+              "class": "EnvVarRequirement",
+              "envDef": {
+                "BATCH": "$(inputs.batch.path)",
+                "DEATHS_CUTOFF": "$(inputs.deathsCutoff)",
+                "MODEL_RUN_MODE": "$(inputs.mode)",
+                "N_ITER": "$(inputs.nIter)",
+                "S3_BUCKET": "$(inputs.s3_bucket)"
+              }
+            },
+            {
+              "class": "DockerRequirement",
+              "dockerPull": "quay.io/cdis/bayes-by-county:feat_batch-cwl"
+            },
+            {
+              "class": "ResourceRequirement",
+              "coresMax": 4,
+              "coresMin": 4,
+              "ramMax": 16384,
+              "ramMin": 16384
+            }
+          ]
+        },
+        {
+          "class": "Workflow",
+          "cwlVersion": "v1.0",
+          "id": "#main",
+          "inputs": [
+            {
+              "id": "#main/maxBatchSize",
+              "type": "int"
+            },
+            {
+              "id": "#main/nIter",
+              "type": "int"
+            },
+            {
+              "id": "#main/mode",
+              "type": "string"
+            },
+            {
+              "id": "#main/s3_bucket",
+              "type": "string"
+            },
+            {
+              "id": "#main/stateList",
+              "type": "string"
+            },
+            {
+              "id": "#main/deathsCutoff",
+              "type": "int"
+            }
+          ],
+          "outputs": [
+            {
+              "id": "#main/figures",
+              "outputSource": "#main/model/figures",
+              "type": {
+                "items": "File",
+                "type": "array"
+              }
+            }
+          ],
+          "steps": [
+            {
+              "id": "#main/make-batches",
+              "in": [
+                {
+                  "id": "#main/make-batches/deathsCutoff",
+                  "source": "#main/deathsCutoff"
+                },
+                {
+                  "id": "#main/make-batches/maxBatchSize",
+                  "source": "#main/maxBatchSize"
+                },
+                {
+                  "id": "#main/make-batches/stateList",
+                  "source": "#main/stateList"
+                }
+              ],
+              "out": [
+                "#main/make-batches/batches"
+              ],
+              "run": "#make-batches.cwl"
+            },
+            {
+              "id": "#main/model",
+              "in": [
+                {
+                  "id": "#main/model/s3_bucket",
+                  "source": "#main/s3_bucket"
+                },
+                {
+                  "id": "#main/model/nIter",
+                  "source": "#main/nIter"
+                },
+                {
+                  "id": "#main/model/mode",
+                  "source": "#main/mode"
+                },
+                {
+                  "id": "#main/model/deathsCutoff",
+                  "source": "#main/deathsCutoff"
+                },
+                {
+                  "id": "#main/model/batch",
+                  "source": "#main/make-batches/batches"
+                }
+              ],
+              "out": [
+                "#main/model/figures"
+              ],
+              "run": "#model.cwl",
+              "scatter": "#main/model/batches"
+            }
+          ]
+        }
+      ],
+      "cwlVersion": "v1.0"
+    }
 }
