@@ -19,7 +19,7 @@ echo "Running bayes-by-county..."
 
 cd /
 if [ $MODEL_RUN_MODE == "batch" ]; then
-  sh run.sh us_mobility $DEATHS_CUTOFF $N_ITER -batch $BATCH
+  sh run.sh us_mobility $DEATHS_CUTOFF $N_ITER -batch "$BATCH"
 else
   sh run.sh us_mobility $DEATHS_CUTOFF $N_ITER -stateList $STATE_LIST
 fi
