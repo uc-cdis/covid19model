@@ -9,6 +9,12 @@ requirements:
       MAX_BATCH_SIZE: $(inputs.maxBatchSize)
   - class: DockerRequirement
     dockerPull: "quay.io/cdis/make-county-batches:feat_batch-cwl"
+  - class: ResourceRequirement
+    coresMin: 2
+    coresMax: 2
+    # this is in MiB -> converts to 16GiB
+    ramMin: 16384
+    ramMax: 16384
 
 inputs:
   stateList: string
