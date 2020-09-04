@@ -20,15 +20,15 @@
           "id": "#make-batches.cwl",
           "inputs": [
             {
-              "id": "#make-batches.cwl/maxBatchSize",
-              "type": "string"
-            },
-            {
               "id": "#make-batches.cwl/stateList",
               "type": "string"
             },
             {
               "id": "#make-batches.cwl/deathsCutoff",
+              "type": "string"
+            },
+            {
+              "id": "#make-batches.cwl/maxBatchSize",
               "type": "string"
             }
           ],
@@ -36,7 +36,8 @@
             {
               "id": "#make-batches.cwl/batches",
               "outputBinding": {
-                "glob": "batch*.txt"
+                "glob": "batch*.txt",
+                "loadContents": true
               },
               "type": {
                 "items": "File",
@@ -76,10 +77,6 @@
           "id": "#model.cwl",
           "inputs": [
             {
-              "id": "#model.cwl/s3_bucket",
-              "type": "string"
-            },
-            {
               "id": "#model.cwl/nIter",
               "type": "string"
             },
@@ -94,6 +91,10 @@
             {
               "id": "#model.cwl/batch",
               "type": "File"
+            },
+            {
+              "id": "#model.cwl/s3_bucket",
+              "type": "string"
             }
           ],
           "outputs": [
@@ -115,7 +116,7 @@
             {
               "class": "EnvVarRequirement",
               "envDef": {
-                "BATCH": "$(inputs.batch.path)",
+                "BATCH": "$(inputs.batch.contents)",
                 "DEATHS_CUTOFF": "$(inputs.deathsCutoff)",
                 "MODEL_RUN_MODE": "$(inputs.mode)",
                 "N_ITER": "$(inputs.nIter)",
@@ -231,5 +232,5 @@
         }
       ],
       "cwlVersion": "v1.0"
-    }
+    }    
 }

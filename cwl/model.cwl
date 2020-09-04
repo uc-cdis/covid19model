@@ -8,7 +8,7 @@ requirements:
       MODEL_RUN_MODE: $(inputs.mode)
       DEATHS_CUTOFF: $(inputs.deathsCutoff)
       N_ITER: $(inputs.nIter)
-      BATCH: $(inputs.batch.path)
+      BATCH: $(inputs.batch.contents)
   - class: DockerRequirement
     dockerPull: "quay.io/cdis/bayes-by-county:feat_batch-cwl"
   # these match those req's in nb-etl's job.yaml in cloud-automation
@@ -33,6 +33,7 @@ outputs:
   figures:
     type: File[]
     outputBinding:
+    # this will return null for now
       glob: 
         - "/modelOutput/figures/*.*"
         - "/modelOutput/figures/*/*.png"

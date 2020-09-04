@@ -26,6 +26,7 @@ outputs:
     type: File[]
     outputBinding:
       glob: "batch*.txt"
+      loadContents: true
 
 # same as dockerfile command
 baseCommand: ["bash", "/batch/docker-run.sh"]
