@@ -24,9 +24,9 @@ baseCommand: ["bash", "/docker-run.sh"]
 
 inputs:
   s3_bucket: string
-  nIter: int 
+  nIter: string
   mode: string
-  deathsCutoff: int
+  deathsCutoff: string
   batch: File
 
 outputs:

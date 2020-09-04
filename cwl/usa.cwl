@@ -4,9 +4,9 @@ class: Workflow
 inputs:
     s3_bucket: string
     stateList: string
-    deathsCutoff: int
-    maxBatchSize: int
-    nIter: int
+    deathsCutoff: string
+    maxBatchSize: string
+    nIter: string
     mode: string # must be "batch" -> # if [ $MODEL_RUN_MODE == "batch" ] ;
 
 outputs:

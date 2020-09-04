@@ -12,8 +12,8 @@ requirements:
 
 inputs:
   stateList: string
-  deathsCutoff: int
-  maxBatchSize: int
+  deathsCutoff: string
+  maxBatchSize: string
 
 outputs:
   batches:
