@@ -19,6 +19,6 @@ echo "\n--- make-batches ---"
 
 # run the Rscript
 cd /batch
-Rscript /batch/make-batches.r -stateList $STATE_LIST -deathsCutoff $DEATHS_CUTOFF -maxBatchSize $MAX_BATCH_SIZE
+Rscript /batch/make-batches.r -stateList $STATE_LIST -deathsCutoff $DEATHS_CUTOFF -maxBatchSize $MAX_BATCH_SIZE -outDir $TOOL_WORKING_DIR
 
 echo "\n--- routine completed ---\n"
