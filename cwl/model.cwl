@@ -34,8 +34,8 @@ outputs:
     type: File[]
     outputBinding:
       glob: 
-        - "modelOutput/figures/*.*"
-        - "modelOutput/figures/*/*.png"
+        - "/modelOutput/figures/*.*"
+        - "/modelOutput/figures/*/*.png"
 
 # testing without stdout
 # stdout: "stdout.txt"

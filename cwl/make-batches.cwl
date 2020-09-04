@@ -25,7 +25,7 @@ outputs:
   batches:
     type: File[]
     outputBinding:
-      glob: "batches/*"
+      glob: "/batches/*"
 
 # same as dockerfile command
 baseCommand: ["bash", "/batch/docker-run.sh"]
