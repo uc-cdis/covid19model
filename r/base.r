@@ -270,6 +270,10 @@ for(Country in countries) {
   x2 = rgammaAlt(5e6,mean2,cv2) # icl: onset-to-death
   f = ecdf(x1+x2)
 
+  print("--- DEBUG ---")
+  print("--- here is the CFR ---")
+  print(CFR)
+
   convolution = function(u) (CFR * f(u))
   h[1] = (convolution(1.5) - convolution(0)) 
   for(i in 2:length(h)) {
