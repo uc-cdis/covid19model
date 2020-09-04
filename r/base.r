@@ -81,7 +81,7 @@ if (is.list(stateList)) {
   dropCounties <- subset(cumCaseAndDeath, V1 < minimumReportedDeaths)$Category
   d <- subset(d, !(countryterritoryCode %in% dropCounties))
   print(sprintf("nCounties with more than %d deaths: %d", minimumReportedDeaths, length(unique(d$countryterritoryCode))))
-} else if (batchPath != "")) {
+} else if (batchPath != "") {
   batchString <- readChar(batchPath, file.info(batchPath)$size)
   batch <- as.list(gsub("\"", "", strsplit(batchString, "\n")[[1]]))
   d <- subset(d, (countryterritoryCode %in% batch))
