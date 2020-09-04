@@ -70,7 +70,7 @@ ordered <- cumCaseAndDeath[order(cumCaseAndDeath$V1, decreasing=TRUE),]
 batches <- list()
 for (i in 1:nBatches) {
     batch <- ordered$Category[seq(i,n,nBatches)]
-    batches[[i]] <- batch
+    batches[[i]] <- paste(batch, collapse=",") # "id1,id2,...,idj"
 }
 
 # print("here are the batches:")
@@ -81,7 +81,9 @@ for (i in 1:nBatches) {
 
 # write batches
 for (i in 1:nBatches) {
-    write.table(batches[[i]], file.path(outDir, sprintf("batch%d.txt", i)), row.names=FALSE, col.names=FALSE)
+    f <- file(file.path(outDir, sprintf("batch%d.txt", i)))
+    writeLines(c(batches[[i]]), f)
+    close(f)
 }
 
 print("wrote these batches:")
