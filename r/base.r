@@ -23,18 +23,18 @@ nStanIterations = as.integer(args[3])
 #### example calls of new CLI
 ## Rscript base.r us_mobility 10 10 -stateList "Illinois,NewYork"
 ## Rscript base.r us_mobility 10 10 -stateList "all"
-## Rscript base.r us_mobility 10 10 -batch 1
+## Rscript base.r us_mobility 10 10 -batch <raw_text_from_batch1.txt>
 
 # 4 is "-stateList" or "-batch"
 countySelector <- args[4]
 
-# 5 is statesCSV or batchPath
+# 5 is statesCSV or batchString
 if (countySelector == "-stateList") {
   stateList <- as.list(strsplit(args[5], ",")[[1]])
-  batchPath <- ""
+  batchString <- ""
 } else if (countySelector == "-batch") {
   stateList <- NULL
-  batchPath <- args[5]
+  batchString <- args[5]
 } else {
   stop("must specify either -stateList or -batch for countySelector")
 }
@@ -81,8 +81,7 @@ if (is.list(stateList)) {
   dropCounties <- subset(cumCaseAndDeath, V1 < minimumReportedDeaths)$Category
   d <- subset(d, !(countryterritoryCode %in% dropCounties))
   print(sprintf("nCounties with more than %d deaths: %d", minimumReportedDeaths, length(unique(d$countryterritoryCode))))
-} else if (batchPath != "") {
-  batchString <- readChar(batchPath, file.info(batchPath)$size)
+} else if (batchString != "") {
   batch <- as.list(gsub("\"", "", strsplit(batchString, "\n")[[1]]))
   d <- subset(d, (countryterritoryCode %in% batch))
   # note: no deaths cutoff filter applied here because
