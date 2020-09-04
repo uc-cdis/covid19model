@@ -82,7 +82,7 @@ if (is.list(stateList)) {
   d <- subset(d, !(countryterritoryCode %in% dropCounties))
   print(sprintf("nCounties with more than %d deaths: %d", minimumReportedDeaths, length(unique(d$countryterritoryCode))))
 } else if (batchString != "") {
-  batch <- as.list(gsub("\"", "", strsplit(batchString, "\n")[[1]]))
+  batch <- strsplit(gsub("\n", "", batchString), ",")[[1]]
   d <- subset(d, (countryterritoryCode %in% batch))
   # note: no deaths cutoff filter applied here because
   # that's already been handled in the make-batches.r step
