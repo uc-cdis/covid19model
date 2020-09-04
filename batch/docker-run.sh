@@ -7,12 +7,7 @@ echo 'maxBatchSize = '  $MAX_BATCH_SIZE
 
 # run the etl to generate all input tables
 echo "\n--- input ETL ---"
-pwd
 cd /py
-pwd
-ls 
-ls /
-ls /py
 python3 /py/etl.py
 
 # make the batches
