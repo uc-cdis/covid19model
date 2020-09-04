@@ -12,7 +12,7 @@
       "$graph": [
         {
           "baseCommand": [
-            "bash", 
+            "bash",
             "/batch/docker-run.sh"
           ],
           "class": "CommandLineTool",
@@ -20,15 +20,15 @@
           "id": "#make-batches.cwl",
           "inputs": [
             {
+              "id": "#make-batches.cwl/maxBatchSize",
+              "type": "string"
+            },
+            {
               "id": "#make-batches.cwl/stateList",
               "type": "string"
             },
             {
               "id": "#make-batches.cwl/deathsCutoff",
-              "type": "string"
-            },
-            {
-              "id": "#make-batches.cwl/maxBatchSize",
               "type": "string"
             }
           ],
@@ -56,6 +56,13 @@
             {
               "class": "DockerRequirement",
               "dockerPull": "quay.io/cdis/make-county-batches:feat_batch-cwl"
+            },
+            {
+              "class": "ResourceRequirement",
+              "coresMax": 2,
+              "coresMin": 2,
+              "ramMax": 16384,
+              "ramMin": 16384
             }
           ]
         },
@@ -69,6 +76,14 @@
           "id": "#model.cwl",
           "inputs": [
             {
+              "id": "#model.cwl/s3_bucket",
+              "type": "string"
+            },
+            {
+              "id": "#model.cwl/nIter",
+              "type": "string"
+            },
+            {
               "id": "#model.cwl/mode",
               "type": "string"
             },
@@ -79,14 +94,6 @@
             {
               "id": "#model.cwl/batch",
               "type": "File"
-            },
-            {
-              "id": "#model.cwl/s3_bucket",
-              "type": "string"
-            },
-            {
-              "id": "#model.cwl/nIter",
-              "type": "string"
             }
           ],
           "outputs": [
@@ -134,14 +141,6 @@
           "id": "#main",
           "inputs": [
             {
-              "id": "#main/maxBatchSize",
-              "type": "string"
-            },
-            {
-              "id": "#main/nIter",
-              "type": "string"
-            },
-            {
               "id": "#main/mode",
               "type": "string"
             },
@@ -155,6 +154,14 @@
             },
             {
               "id": "#main/deathsCutoff",
+              "type": "string"
+            },
+            {
+              "id": "#main/maxBatchSize",
+              "type": "string"
+            },
+            {
+              "id": "#main/nIter",
               "type": "string"
             }
           ],
@@ -173,16 +180,16 @@
               "id": "#main/make-batches",
               "in": [
                 {
+                  "id": "#main/make-batches/stateList",
+                  "source": "#main/stateList"
+                },
+                {
                   "id": "#main/make-batches/deathsCutoff",
                   "source": "#main/deathsCutoff"
                 },
                 {
                   "id": "#main/make-batches/maxBatchSize",
                   "source": "#main/maxBatchSize"
-                },
-                {
-                  "id": "#main/make-batches/stateList",
-                  "source": "#main/stateList"
                 }
               ],
               "out": [
