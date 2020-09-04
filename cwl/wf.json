@@ -26,7 +26,7 @@
         {
           "id": "#make-batches.cwl/batches",
           "outputBinding": {
-            "glob": "/batches/*"
+            "glob": "batch*.txt"
           },
           "type": {
             "items": "File",
