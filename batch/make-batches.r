@@ -21,6 +21,16 @@ maxBatchSizeFlag <- args[5]
 if (maxBatchSizeFlag != "-maxBatchSize") {stop("missing -maxBatchSize flag")}
 maxBatchSize <- as.integer(args[6])
 
+# 7 is "-outDir"
+# 8 is <outDir>
+outDirFlag <- args[7]
+if (outDirFlag != "-outDir") {stop("missing -outDir flag")}
+outDir <- args[8]
+
+# create batches dir
+dir.create(outDir, showWarnings = FALSE)
+print(sprintf("writing batches to dir: %s", outDir))
+
 print(sprintf("Only running on counties with at least %d total reported deaths", minimumReportedDeaths))
 print("Only running on counties in these states:")
 print(stateList)
@@ -69,16 +79,10 @@ for (i in 1:nBatches) {
 # print(sapply(batches, length))
 # print(setdiff(unlist(batches), ordered$Category))
 
-# create batches dir
-batchesDir <- "../batches"
-dir.create(batchesDir, showWarnings = FALSE)
-
-print(sprintf("writing batches to dir: %s", batchesDir))
-
 # write batches
 for (i in 1:nBatches) {
-    write.table(batches[[i]], file.path(batchesDir, sprintf("batch%d.txt", i)), row.names=FALSE, col.names=FALSE)
+    write.table(batches[[i]], file.path(outDir, sprintf("batch%d.txt", i)), row.names=FALSE, col.names=FALSE)
 }
 
 print("wrote these batches:")
-print(list.files(batchesDir))
+print(list.files(outDir))
