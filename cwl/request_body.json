@@ -2,9 +2,9 @@
     "input": {
       "s3_bucket": "s3://static.planx-pla.net",
       "stateList": "all",
-      "deathsCutoff": 10,
-      "maxBatchSize": 35,
-      "nIter": 200,
+      "deathsCutoff": "10",
+      "maxBatchSize": "35",
+      "nIter": "200",
       "mode": "batch"
     },
     "serviceAccountName": "s3-access-opencdn-databucket-gen3",
@@ -25,11 +25,11 @@
             },
             {
               "id": "#make-batches.cwl/deathsCutoff",
-              "type": "int"
+              "type": "string"
             },
             {
               "id": "#make-batches.cwl/maxBatchSize",
-              "type": "int"
+              "type": "string"
             }
           ],
           "outputs": [
@@ -74,7 +74,7 @@
             },
             {
               "id": "#model.cwl/deathsCutoff",
-              "type": "int"
+              "type": "string"
             },
             {
               "id": "#model.cwl/batch",
@@ -86,7 +86,7 @@
             },
             {
               "id": "#model.cwl/nIter",
-              "type": "int"
+              "type": "string"
             }
           ],
           "outputs": [
@@ -135,11 +135,11 @@
           "inputs": [
             {
               "id": "#main/maxBatchSize",
-              "type": "int"
+              "type": "string"
             },
             {
               "id": "#main/nIter",
-              "type": "int"
+              "type": "string"
             },
             {
               "id": "#main/mode",
@@ -155,7 +155,7 @@
             },
             {
               "id": "#main/deathsCutoff",
-              "type": "int"
+              "type": "string"
             }
           ],
           "outputs": [
