@@ -225,7 +225,7 @@
                 "#main/model/figures"
               ],
               "run": "#model.cwl",
-              "scatter": "#main/model/batches"
+              "scatter": "#main/model/batch"
             }
           ]
         }

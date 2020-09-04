@@ -25,7 +25,7 @@ steps:
 
   model:
     run: model.cwl
-    scatter: batches
+    scatter: batch
     in:
       s3_bucket: s3_bucket
       nIter: nIter
