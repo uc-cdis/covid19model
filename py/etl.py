@@ -273,7 +273,7 @@ def fetchSocEc(dirPath):
 if __name__ == "__main__":
 
     # put tables here
-    dirPath = "../modelInput"
+    dirPath = "/modelInput"
     os.makedirs(dirPath, exist_ok=True)
 
     p1, countyIDList, population_df = makeCaseMortalityTable(dirPath)
