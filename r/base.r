@@ -107,8 +107,9 @@ convertCode <- function(code) {
 }
 
 # weighted fatality table
-cfr.by.country = read.csv("../modelInput/USAWeightedFatalityV2.csv")
-cfr.by.country$countyCode <- sapply(cfr.by.country$countyCode, convertCode)
+# NOTE: suppressing due to missing counties in census age-dist data
+# cfr.by.country = read.csv("../modelInput/USAWeightedFatalityV2.csv")
+# cfr.by.country$countyCode <- sapply(cfr.by.country$countyCode, convertCode)
 
 # serial interval discrete gamma distribution
 serial.interval = read.csv("../modelInput/SerialIntervalV2.csv") # new table
@@ -208,11 +209,16 @@ for(Country in countries) {
 
 covariate_list_partial_county <- list()
 
+# this is the paper ICL consulted for picking their ifr numbers: 
+# https://www.thelancet.com/journals/laninf/article/PIIS1473-3099(20)30243-7/fulltext
+CFR <- .00657
+
 # k is their counter
 k <- 1
 for(Country in countries) {
 
-  CFR=cfr.by.country$weighted_fatality[cfr.by.country$countyCode == Country]
+  # NOTE: suppressing due to missing counties in census age-dist data
+  # CFR=cfr.by.country$weighted_fatality[cfr.by.country$countyCode == Country]
 
   d1=d[d$countryterritoryCode==Country,]
 
@@ -269,9 +275,9 @@ for(Country in countries) {
   x2 = rgammaAlt(5e6,mean2,cv2) # icl: onset-to-death
   f = ecdf(x1+x2)
 
-  print("--- DEBUG ---")
-  print("--- here is the CFR ---")
-  print(CFR)
+  # print("--- DEBUG ---")
+  # print("--- here is the CFR ---")
+  # print(CFR)
 
   convolution = function(u) (CFR * f(u))
   h[1] = (convolution(1.5) - convolution(0)) 
