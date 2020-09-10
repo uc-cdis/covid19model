@@ -63,41 +63,9 @@ d$countryterritoryCode <- sapply(d$countryterritoryCode, as.character)
 # trim US code prefix
 d$countryterritoryCode <- sub("840", "", d$countryterritoryCode)
 
-if (is.list(stateList)) {
-  print("Only running on counties in these states:")
-  print(stateList)
-
-  if (stateList[1] != "all") {
-    # filter by provided stateList
-  
-    # d$state is like "Alabama" and "New York"
-    # input to CLI is like "Alabama,NewYork"
-    # here we remove the spaces from the df to compare to the CLI input
-    d <- subset(d, (gsub(" ", "", state) %in% stateList))
-  }
-
-  # drop counties with fewer than cutoff cumulative deaths or cases
-  cumCaseAndDeath <- aggregate(cbind(d$deaths), by=list(Category=d$countryterritoryCode), FUN=sum)
-  dropCounties <- subset(cumCaseAndDeath, V1 < minimumReportedDeaths)$Category
-  d <- subset(d, !(countryterritoryCode %in% dropCounties))
-  print(sprintf("nCounties with more than %d deaths: %d", minimumReportedDeaths, length(unique(d$countryterritoryCode))))
-} else if (batchString != "") {
-  batch <- strsplit(gsub("\n", "", batchString), ",")[[1]]
-  d <- subset(d, (countryterritoryCode %in% batch))
-  # note: no deaths cutoff filter applied here because
-  # that's already been handled in the make-batches.r step
-  # all counties in the batch are already vetted to be above the minimumDeathsCutoff
-}
-
 # create useful mapping tables
 codeToName <- unique(data.frame("countyCode" = d$countryterritoryCode, "countyName" = d$countriesAndTerritories))
 codeToNameAndState <- unique(data.frame("countyCode" = d$countryterritoryCode, "countyName" = d$countriesAndTerritories, "state" = d$state))
-
-# write list of counties used in this simulation
-CountyCodeList <- unique(d$countryterritoryCode)
-write.table(CountyCodeList, "../modelOutput/figures/CountyCodeList.txt", row.names=FALSE, col.names=FALSE)
-
-countries <- unique(d$countryterritoryCode)
 
 convertCode <- function(code) {
   s <- as.character(code)
@@ -121,7 +89,7 @@ N2 = 0
 
 # Read google mobility
 source("./read-mobility.r")
-mobility <- read_google_mobility(countries=countries, codeToName=codeToName)
+mobility <- read_google_mobility(countries=unique(d$countryterritoryCode), codeToName=codeToName)
 
 # basic impute values for NA in google mobility
 # see: https://github.com/ImperialCollegeLondon/covid19model/blob/v6.0/base-usa.r#L87-L88
@@ -163,6 +131,38 @@ if (validateFlag == "--validate"){
   print(sprintf("MAX DATE : %s", lastObs))
 }
 d <- d[as.Date(d$dateRep, format = "%m/%d/%y") <= lastObs, ]
+
+if (is.list(stateList)) {
+  print("Only running on counties in these states:")
+  print(stateList)
+
+  if (stateList[1] != "all") {
+    # filter by provided stateList
+  
+    # d$state is like "Alabama" and "New York"
+    # input to CLI is like "Alabama,NewYork"
+    # here we remove the spaces from the df to compare to the CLI input
+    d <- subset(d, (gsub(" ", "", state) %in% stateList))
+  }
+
+  # drop counties with fewer than cutoff cumulative deaths or cases
+  cumCaseAndDeath <- aggregate(cbind(d$deaths), by=list(Category=d$countryterritoryCode), FUN=sum)
+  dropCounties <- subset(cumCaseAndDeath, V1 < minimumReportedDeaths)$Category
+  d <- subset(d, !(countryterritoryCode %in% dropCounties))
+  print(sprintf("nCounties with more than %d deaths: %d", minimumReportedDeaths, length(unique(d$countryterritoryCode))))
+} else if (batchString != "") {
+  batch <- strsplit(gsub("\n", "", batchString), ",")[[1]]
+  d <- subset(d, (countryterritoryCode %in% batch))
+  # note: no deaths cutoff filter applied here because
+  # that's already been handled in the make-batches.r step
+  # all counties in the batch are already vetted to be above the minimumDeathsCutoff
+}
+
+# write list of counties used in this simulation
+CountyCodeList <- unique(d$countryterritoryCode)
+write.table(CountyCodeList, "../modelOutput/figures/CountyCodeList.txt", row.names=FALSE, col.names=FALSE)
+
+countries <- unique(d$countryterritoryCode)
 
 ## need to take a close look @ this -> looks fine ##
 # see: https://stackoverflow.com/questions/8055508/in-r-formulas-why-do-i-have-to-use-the-i-function-on-power-terms-like-y-i
