@@ -20,15 +20,15 @@
           "id": "#make-batches.cwl",
           "inputs": [
             {
+              "id": "#make-batches.cwl/stateList",
+              "type": "string"
+            },
+            {
               "id": "#make-batches.cwl/deathsCutoff",
               "type": "string"
             },
             {
               "id": "#make-batches.cwl/maxBatchSize",
-              "type": "string"
-            },
-            {
-              "id": "#make-batches.cwl/stateList",
               "type": "string"
             }
           ],
@@ -77,6 +77,10 @@
           "id": "#model.cwl",
           "inputs": [
             {
+              "id": "#model.cwl/s3_bucket",
+              "type": "string"
+            },
+            {
               "id": "#model.cwl/nIter",
               "type": "string"
             },
@@ -91,17 +95,13 @@
             {
               "id": "#model.cwl/batch",
               "type": "File"
-            },
-            {
-              "id": "#model.cwl/s3_bucket",
-              "type": "string"
             }
           ],
           "outputs": [
             {
               "id": "#model.cwl/output",
               "outputBinding": {
-                "outputEval": "output"
+                "outputEval": "$('output')"
               },
               "type": "string"
             }
@@ -136,14 +136,6 @@
           "id": "#main",
           "inputs": [
             {
-              "id": "#main/mode",
-              "type": "string"
-            },
-            {
-              "id": "#main/s3_bucket",
-              "type": "string"
-            },
-            {
               "id": "#main/stateList",
               "type": "string"
             },
@@ -157,6 +149,14 @@
             },
             {
               "id": "#main/nIter",
+              "type": "string"
+            },
+            {
+              "id": "#main/mode",
+              "type": "string"
+            },
+            {
+              "id": "#main/s3_bucket",
               "type": "string"
             }
           ],
@@ -175,16 +175,16 @@
               "id": "#main/make-batches",
               "in": [
                 {
-                  "id": "#main/make-batches/maxBatchSize",
-                  "source": "#main/maxBatchSize"
-                },
-                {
                   "id": "#main/make-batches/stateList",
                   "source": "#main/stateList"
                 },
                 {
                   "id": "#main/make-batches/deathsCutoff",
                   "source": "#main/deathsCutoff"
+                },
+                {
+                  "id": "#main/make-batches/maxBatchSize",
+                  "source": "#main/maxBatchSize"
                 }
               ],
               "out": [
@@ -195,6 +195,10 @@
             {
               "id": "#main/model",
               "in": [
+                {
+                  "id": "#main/model/batch",
+                  "source": "#main/make-batches/batches"
+                },
                 {
                   "id": "#main/model/s3_bucket",
                   "source": "#main/s3_bucket"
@@ -210,10 +214,6 @@
                 {
                   "id": "#main/model/deathsCutoff",
                   "source": "#main/deathsCutoff"
-                },
-                {
-                  "id": "#main/model/batch",
-                  "source": "#main/make-batches/batches"
                 }
               ],
               "out": [

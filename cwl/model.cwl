@@ -34,7 +34,7 @@ outputs:
   output:
     type: string
     outputBinding:
-      outputEval: "output"
+      outputEval: "$('output')"
 
 # testing without stdout
 # stdout: "stdout.txt"
