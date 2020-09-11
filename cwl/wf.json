@@ -10,15 +10,15 @@
       "id": "#make-batches.cwl",
       "inputs": [
         {
-          "id": "#make-batches.cwl/stateList",
-          "type": "string"
-        },
-        {
           "id": "#make-batches.cwl/deathsCutoff",
           "type": "string"
         },
         {
           "id": "#make-batches.cwl/maxBatchSize",
+          "type": "string"
+        },
+        {
+          "id": "#make-batches.cwl/stateList",
           "type": "string"
         }
       ],
@@ -89,17 +89,11 @@
       ],
       "outputs": [
         {
-          "id": "#model.cwl/figures",
+          "id": "#model.cwl/output",
           "outputBinding": {
-            "glob": [
-              "/modelOutput/figures/*.*",
-              "/modelOutput/figures/*/*.png"
-            ]
+            "outputEval": "output"
           },
-          "type": {
-            "items": "File",
-            "type": "array"
-          }
+          "type": "string"
         }
       ],
       "requirements": [
@@ -158,10 +152,10 @@
       ],
       "outputs": [
         {
-          "id": "#main/figures",
-          "outputSource": "#main/model/figures",
+          "id": "#main/output",
+          "outputSource": "#main/model/output",
           "type": {
-            "items": "File",
+            "items": "string",
             "type": "array"
           }
         }
@@ -171,16 +165,16 @@
           "id": "#main/make-batches",
           "in": [
             {
+              "id": "#main/make-batches/maxBatchSize",
+              "source": "#main/maxBatchSize"
+            },
+            {
               "id": "#main/make-batches/stateList",
               "source": "#main/stateList"
             },
             {
               "id": "#main/make-batches/deathsCutoff",
               "source": "#main/deathsCutoff"
-            },
-            {
-              "id": "#main/make-batches/maxBatchSize",
-              "source": "#main/maxBatchSize"
             }
           ],
           "out": [
@@ -213,7 +207,7 @@
             }
           ],
           "out": [
-            "#main/model/figures"
+            "#main/model/output"
           ],
           "run": "#model.cwl",
           "scatter": "#main/model/batch"

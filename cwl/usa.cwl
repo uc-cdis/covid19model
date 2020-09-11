@@ -10,9 +10,9 @@ inputs:
     mode: string # must be "batch" -> # if [ $MODEL_RUN_MODE == "batch" ] ;
 
 outputs:
-    figures:
-        type: File[]
-        outputSource: model/figures
+    output:
+        type: string[]
+        outputSource: model/output
 
 steps:
   make-batches:
@@ -21,7 +21,7 @@ steps:
       stateList: stateList
       deathsCutoff: deathsCutoff
       maxBatchSize: maxBatchSize
-    out: [batches] # this is an array of files: file objects for ["batches/batch1.txt", "batches/batch2.txt", ...]
+    out: [batches]
 
   model:
     run: model.cwl
@@ -32,5 +32,5 @@ steps:
       mode: mode
       deathsCutoff: deathsCutoff
       batch: make-batches/batches
-    out: [figures]
+    out: [output]
 

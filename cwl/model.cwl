@@ -29,14 +29,12 @@ inputs:
   deathsCutoff: string
   batch: File
 
+# returning a dummy output so the engine doesn't choke after scatter finishes
 outputs:
-  figures:
-    type: File[]
+  output:
+    type: string
     outputBinding:
-    # this will return null for now
-      glob: 
-        - "/modelOutput/figures/*.*"
-        - "/modelOutput/figures/*/*.png"
+      outputEval: "output"
 
 # testing without stdout
 # stdout: "stdout.txt"
