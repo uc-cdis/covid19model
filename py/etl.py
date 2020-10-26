@@ -4,7 +4,7 @@
 # todo: refactor
 
 ## HERE! -> not handled here in python -> Serial Interval Table -> would be worthwhile to reproduce the R for that here
-## "serial interval table" <--> that discretized gamma distribution 
+## "serial interval table" <--> that discretized gamma distribution
 ## so that this script does indeed produce all the required input tables for the model
 ## alternatively, could just generate that discretized gamma distribution in the R code itself, pre-simulation
 ## I don't like that idea -> will try to reproduce results in python - but not now -> other more pressing tasks now
@@ -12,11 +12,15 @@
 import os
 import numpy as np
 import warnings
-warnings.simplefilter(action='ignore', category=FutureWarning) # suppress pandas "future warning"
+
+warnings.simplefilter(
+    action="ignore", category=FutureWarning
+)  # suppress pandas "future warning"
 import pandas as pd
 
+
 def makeCaseMortalityTable(dirPath):
-        
+
     print("\n~ COVID-19 CASE-MORTALITY TABLE ~")
 
     # E
@@ -41,19 +45,19 @@ def makeCaseMortalityTable(dirPath):
     ## get daily counts -> make this a fn
 
     # take this out, put it back after compute
-    dc = cases.copy().iloc[:,11:].astype(np.int64)
+    dc = cases.copy().iloc[:, 11:].astype(np.int64)
 
     # fix monotone errors
     # rows
-    for i in range(len(dc.iloc[:,0])):
+    for i in range(len(dc.iloc[:, 0])):
         # cols
-        for j in range(len(dc.columns)-1):
+        for j in range(len(dc.columns) - 1):
             # per row:
             # if the next value is bigger than current value -> set next val to current val
             # ensures monotonically increasing sequences
             # allows coherent compute of daily counts (increments -> prevents negative increments)
-            if dc.iloc[i,j] > dc.iloc[i,j+1]:
-                dc.iloc[i,j+1] = dc.iloc[i,j]
+            if dc.iloc[i, j] > dc.iloc[i, j + 1]:
+                dc.iloc[i, j + 1] = dc.iloc[i, j]
 
     # look, they're all monotone now!
     # print(dc.apply(lambda x: x.is_monotonic, axis=1).unique())
@@ -61,7 +65,7 @@ def makeCaseMortalityTable(dirPath):
     dailyCounts = cases.copy()
 
     # replace cumulative counts with daily counts (i.e., increments)
-    dailyCounts.iloc[:,12:] = dc.diff(axis=1, periods=1).iloc[:,1:]
+    dailyCounts.iloc[:, 12:] = dc.diff(axis=1, periods=1).iloc[:, 1:]
 
     # treat the daily counts as our working table from here forward
     # note: need to do the same procedure for the death counts
@@ -71,7 +75,7 @@ def makeCaseMortalityTable(dirPath):
     # US counties: UID = 840 (country code3) + XXXXX (5-digit FIPS code)
 
     # drop redundant columns
-    cases = cases.drop(cases.columns[[1,2,3,4,7,10]], axis=1)
+    cases = cases.drop(cases.columns[[1, 2, 3, 4, 7, 10]], axis=1)
 
     # "melt" df into desired form
     # i.e., rows correspond to dates
@@ -91,28 +95,28 @@ def makeCaseMortalityTable(dirPath):
 
     # take this out, put it back after compute
     # note: this table has "population" column - 1 additional column, so dates start at 12, not 11
-    dc = deaths.copy().iloc[:,12:].astype(np.int64)
+    dc = deaths.copy().iloc[:, 12:].astype(np.int64)
 
     ## fix monotone errors -> make this a fn
     # rows
-    for i in range(len(dc.iloc[:,0])):
+    for i in range(len(dc.iloc[:, 0])):
         # cols
-        for j in range(len(dc.columns)-1):
-            if dc.iloc[i,j] > dc.iloc[i,j+1]:
-                dc.iloc[i,j+1] = dc.iloc[i,j]
+        for j in range(len(dc.columns) - 1):
+            if dc.iloc[i, j] > dc.iloc[i, j + 1]:
+                dc.iloc[i, j + 1] = dc.iloc[i, j]
 
     # look, they're all monotone now!
     # print(dc.apply(lambda x: x.is_monotonic, axis=1).unique())
 
     dailyCounts = deaths.copy()
     # replace cumulative counts with daily counts (i.e., increments)
-    dailyCounts.iloc[:,13:] = dc.diff(axis=1, periods=1).iloc[:,1:]
+    dailyCounts.iloc[:, 13:] = dc.diff(axis=1, periods=1).iloc[:, 1:]
 
     # now working with daily deaths, not cumulative deaths
     deaths = dailyCounts
 
     # drop redundant columns -> keep population column
-    deaths = deaths.drop(deaths.columns[[1,2,3,4,7,10]], axis=1)
+    deaths = deaths.drop(deaths.columns[[1, 2, 3, 4, 7, 10]], axis=1)
 
     # "melt" df into desired form
     # i.e., rows correspond to dates
@@ -129,18 +133,20 @@ def makeCaseMortalityTable(dirPath):
     # merge df's
     # i.e., inject population and deaths data from deaths df into cases df
     cols_to_use = deaths.columns.difference(cases.columns)
-    caseAndMortality = pd.merge(cases, deaths[cols_to_use], left_index=True, right_index=True, how="outer")
+    caseAndMortality = pd.merge(
+        cases, deaths[cols_to_use], left_index=True, right_index=True, how="outer"
+    )
 
     # cut out rows where Admin2 is "Out of IL" or "Unassigned" (both have population 0)
     caseAndMortality = caseAndMortality.loc[caseAndMortality["Population"] > 0]
 
     # rename some columns; improve readability
     renameColsMap = {
-        "UID": "CountyID", # fairly certain this is appropriate, though will double check
-        "Admin2": "Town", # ? -> probably a better name for this
+        "UID": "CountyID",  # fairly certain this is appropriate, though will double check
+        "Admin2": "Town",  # ? -> probably a better name for this
         "Province_State": "State",
         "Lat": "Latitude",
-        "Long_": "Longitude"
+        "Long_": "Longitude",
     }
     caseAndMortality = caseAndMortality.rename(renameColsMap, axis=1)
 
@@ -154,7 +160,7 @@ def makeCaseMortalityTable(dirPath):
         "State",
         "Population",
         "Latitude",
-        "Longitude"
+        "Longitude",
     ]
 
     caseAndMortality = caseAndMortality[columnOrder]
@@ -163,7 +169,7 @@ def makeCaseMortalityTable(dirPath):
     # suppressing this for now, so as not to create "unused" tables -> simplify output of this script
     # caseAndMortality.to_csv(dirPath + "/caseAndMortality.csv")
 
-    # next: 
+    # next:
     # 1. preserving this table; modify this table to exactly match the scheme of the Euro table
     # 2. save that as a separate file
     # 3. run the model with that table as input
@@ -182,8 +188,8 @@ def makeCaseMortalityTable(dirPath):
         "Cases": "cases",
         "Deaths": "deaths",
         "State": "state",
-        "CountyID": "countryterritoryCode", 
-        "Town": "countriesAndTerritories", 
+        "CountyID": "countryterritoryCode",
+        "Town": "countriesAndTerritories",
         "Population": "popData2018",
     }
 
@@ -194,17 +200,17 @@ def makeCaseMortalityTable(dirPath):
 
     # reorder the columns to match Euro table # probably don't hardcode this -> make proper config file (?)
     CaseMortalityColumnOrder = [
-        'dateRep', 
-        'day', 
-        'month', 
-        'year', 
-        'cases', 
-        'deaths', 
-        'countriesAndTerritories', 
-        'geoId', 
-        'countryterritoryCode', 
-        'popData2018',
-        'state'
+        "dateRep",
+        "day",
+        "month",
+        "year",
+        "cases",
+        "deaths",
+        "countriesAndTerritories",
+        "geoId",
+        "countryterritoryCode",
+        "popData2018",
+        "state",
     ]
     df = df[CaseMortalityColumnOrder]
 
@@ -216,16 +222,19 @@ def makeCaseMortalityTable(dirPath):
 
     countyIDList = caseAndMortality["CountyID"].unique()
 
-    population_df = caseAndMortality[["CountyID", "Population"]].copy().drop_duplicates()
+    population_df = (
+        caseAndMortality[["CountyID", "Population"]].copy().drop_duplicates()
+    )
 
-    return(p, countyIDList, population_df)
+    return (p, countyIDList, population_df)
+
 
 # feat/usa - fixme - lockdown happened at different times for different states
 # can't use the IL lockdown dates for other states, of course
 # for now, can suppress displaying lockdown anyway
 # it doesn't get used for anything except to display that dashed line on the visualizations
 # so - low priority for now
-def makeInterventionsTable(dirPath, countyIDList): 
+def makeInterventionsTable(dirPath, countyIDList):
     print("\n~ INTERVENTIONS TABLE ~")
 
     # task: make a table for IL by county that looks like their covariates table
@@ -250,7 +259,8 @@ def makeInterventionsTable(dirPath, countyIDList):
     p = dirPath + "/ILInterventionsV1.csv"
     ourCovariates.to_csv(p)
 
-    return(p)
+    return p
+
 
 # paper: https://arxiv.org/abs/2004.00756
 # data: https://github.com/JieYingWu/COVID-19_US_County-level_Summaries
@@ -258,14 +268,15 @@ def fetchSocEc(dirPath):
     print("\n~ SOC-EC TABLE ~")
 
     print("--- fetching soc-ec table ---")
-    path = 'https://raw.githubusercontent.com/JieYingWu/COVID-19_US_County-level_Summaries/master/data/counties.csv'
+    path = "https://raw.githubusercontent.com/JieYingWu/COVID-19_US_County-level_Summaries/master/data/counties.csv"
     df = pd.read_csv(path)
 
     print("--- saving soc-ec table ---")
     p = dirPath + "/SocEc.csv"
     df.to_csv(p)
 
-    return(p)
+    return p
+
 
 # wow I want to really, thoroughly refactor all this so bad
 # make a class - the whole thing -> not the most time pressing task though
@@ -277,9 +288,9 @@ if __name__ == "__main__":
     os.makedirs(dirPath, exist_ok=True)
 
     p1, countyIDList, population_df = makeCaseMortalityTable(dirPath)
-    
+
     # see note at this fn definition
-    # p2 = makeInterventionsTable(dirPath, countyIDList) 
+    # p2 = makeInterventionsTable(dirPath, countyIDList)
 
     p4 = fetchSocEc(dirPath)
 
@@ -287,5 +298,5 @@ if __name__ == "__main__":
     print("tables successfully written to these paths:")
     print("\t", p1)
     # print("\t", p2)
-    print("\t", p4)    
+    print("\t", p4)
     print("\n")
