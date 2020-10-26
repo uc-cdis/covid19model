@@ -53,7 +53,7 @@ ifr <- c(
 
 ifrByAge <- data.frame(age=ageBrackets, ifr=ifr)
 
-# 2. collapse age brackets of age dist data 
+# 2. collapse age brackets of age dist data
 ageByCounty <- as.data.frame(sapply(seq(3,ncol(freq),by=2), function(i) (freq[,i-1] + freq[,i]) / 100))
 colnames(ageByCounty) <- ageBrackets
 ageByCounty$countyCode <- freq$countyCode
