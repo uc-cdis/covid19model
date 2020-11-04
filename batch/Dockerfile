@@ -1,7 +1,9 @@
-FROM debian:bullseye
+# FROM debian:bullseye
+
+FROM r-base:4.0.3
 
 # clear cache
-RUN echo "clear cache"
+# RUN echo "clear cache"
 
 RUN apt-get update && \
 	apt-get install -y build-essential \
@@ -12,7 +14,7 @@ RUN apt-get update && \
 	gnupg2 \
 	python3 \
 	python3-pip \
-	r-base \
+# 	r-base \
 	libboost-all-dev \
 	r-cran-tidyverse \
 	r-cran-gdata 
