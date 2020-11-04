@@ -13,7 +13,10 @@ RUN apt-get update && \
 	python3 \
 	python3-pip \
 	r-base \
-	libboost-all-dev
+	libboost-all-dev \
+	r-cran-tidyverse \
+	r-cran-gdata 
+
 
 WORKDIR /
 COPY . /
