@@ -16,6 +16,7 @@ RUN apt-get update && \
 	python3-pip \
 # 	r-base \
 	libboost-all-dev \
+	r-cran-rstan \
 	r-cran-tidyverse \
 	r-cran-matrixstats \
 	r-cran-scales \
