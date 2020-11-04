@@ -254,6 +254,11 @@ for(Country in countries) {
   min_date <- min(d1$date)
   padded_covariates <- nu_pad_mobility(min_date, covariates_county, Country, N2)
 
+  print(sprintf("N2: %d", N2))
+  print(sprintf("N: %d", N))
+  print(sprintf("short: %d", short))
+  print(sprintf("padded length: %d", nrow(padded_covariates)))
+
   # include transit
   transit_usage <- rep(1, (N + short))
 
