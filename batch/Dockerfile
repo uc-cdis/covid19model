@@ -19,6 +19,7 @@ RUN apt-get update && \
 	r-cran-tidyverse \
 	r-cran-gdata 
 
+RUN Rscript -e "install.packages(‘data.table’, dependencies=TRUE)"
 
 WORKDIR /
 COPY . /
