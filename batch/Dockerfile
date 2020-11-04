@@ -5,13 +5,10 @@ RUN echo "clear cache"
 
 RUN apt-get update && \
 	apt-get install -y build-essential \
-# 	wget \
+ 	wget \
 	libxml2-dev \
 	libcurl4-openssl-dev \
 	libssl-dev \
-# 	fonts-open-sans \
-# 	fonts-arkpandora \
-# 	fonts-adf-verana \
 	gnupg2 \
 	python3 \
 	python3-pip \
