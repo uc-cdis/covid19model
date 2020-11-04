@@ -10,6 +10,15 @@ echo "\n--- input ETL ---"
 cd /py
 python3 /py/etl.py
 
+## MOBILITY DATA
+echo "\n- Fetch Mobility Data  -"
+cd ../modelInput/mobility/
+wget -O Global_Mobility_Report.csv https://www.gstatic.com/covid19/mobility/Global_Mobility_Report.csv 
+cd ./visit-data/
+sh get-visit-data.sh
+cd ../../../r
+Rscript mobility-regression.r > /dev/null 2>&1
+
 # make the batches
 echo "\n--- make-batches ---"
 
