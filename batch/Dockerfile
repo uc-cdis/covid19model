@@ -17,9 +17,27 @@ RUN apt-get update && \
 # 	r-base \
 	libboost-all-dev \
 	r-cran-tidyverse \
-	r-cran-gdata 
+	r-cran-matrixstats \
+	r-cran-scales \
+	r-cran-gdata \
+	r-cran-gridextra \
+	r-cran-bayesplot \
+	r-cran-svglite \
+	r-cran-optparse \
+	r-cran-nortest \
+	r-cran-pbkrtest \
+	r-cran-rcppeigen \
+	r-cran-bh \
+	r-cran-ggpubr \
+	r-cran-cowplot \
+	r-cran-isoband
 
-RUN Rscript -e "install.packages(‘data.table’, dependencies=TRUE)"
+RUN Rscript -e "install.packages('EnvStats', dependencies=TRUE)"
+RUN Rscript -e "install.packages('BH', dependencies=TRUE)"
+RUN Rscript -e "install.packages('visdat', dependencies=TRUE)"
+RUN Rscript -e "install.packages('mlr3verse', dependencies=TRUE)"
+RUN Rscript -e "install.packages('ranger', dependencies=TRUE)"
+RUN Rscript -e "install.packages('zoo', dependencies=TRUE)"
 
 WORKDIR /
 COPY . /
