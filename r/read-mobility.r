@@ -33,7 +33,7 @@ library(data.table)
 
 ##########
 
-library(rstan)
+# library(rstan)
 library(data.table)
 library(lubridate)
 library(gdata)
