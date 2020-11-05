@@ -44,6 +44,9 @@ RUN Rscript -e "install.packages('mlr3verse', dependencies=TRUE)"
 RUN Rscript -e "install.packages('ranger', dependencies=TRUE)"
 RUN Rscript -e "install.packages('zoo', dependencies=TRUE)"
 
+RUN Rscript -e "install.packages('StanHeaders', dependencies=TRUE)"
+RUN Rscript -e "install.packages('inline', dependencies=TRUE)"
+RUN Rscript -e "install.packages('loo', dependencies=TRUE)"
 RUN Rscript -e "install.packages('http://cran.r-project.org/src/contrib/Archive/rstan/rstan_2.19.3.tar.gz', repos=NULL, type='source', dependencies=TRUE)"
 
 # install Python dependencies
