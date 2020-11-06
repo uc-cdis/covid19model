@@ -8,7 +8,7 @@ requirements:
       DEATHS_CUTOFF: $(inputs.deathsCutoff)
       MAX_BATCH_SIZE: $(inputs.maxBatchSize)
   - class: DockerRequirement
-    dockerPull: "quay.io/cdis/make-county-batches:feat_batch-cwl"
+    dockerPull: "quay.io/cdis/make-county-batches:v3.0"
   - class: ResourceRequirement
     coresMin: 2
     coresMax: 2

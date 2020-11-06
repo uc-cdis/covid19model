@@ -10,7 +10,7 @@ requirements:
       N_ITER: $(inputs.nIter)
       BATCH: $(inputs.batch.contents)
   - class: DockerRequirement
-    dockerPull: "quay.io/cdis/bayes-by-county:feat_batch-cwl"
+    dockerPull: "quay.io/cdis/bayes-by-county:v3.0"
   # these match those req's in nb-etl's job.yaml in cloud-automation
   - class: ResourceRequirement
     coresMin: 4
