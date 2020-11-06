@@ -1,5 +1,10 @@
 # COVID-19 Model for IL by-county (Version 2)
 
+## V3: All-USA 
+
+Enable model run on all USA counties. Includes CWL workflow
+for running the model on all USA counties in batches.
+
 ## V2: Mobility Data
 
 Use google mobility data to generate real-time estimates of Rt.
