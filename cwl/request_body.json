@@ -3,7 +3,7 @@
       "s3_bucket": "s3://static.planx-pla.net",
       "stateList": "all",
       "deathsCutoff": "10",
-      "maxBatchSize": "35",
+      "maxBatchSize": "20",
       "nIter": "200",
       "mode": "batch"
     },
