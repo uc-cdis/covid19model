@@ -7,7 +7,7 @@ raw <- read.csv("../../modelInput/us-age-dist-by-county/data.csv", skip=1)
 dropCols <- list()
 k <- 1
 for (n in names(raw)) {
-    if (grepl("male", n, ignore.case=TRUE) | 
+    if (grepl("male", n, ignore.case=TRUE) |
         grepl("error", n, ignore.case=TRUE) |
         grepl("selected", n, ignore.case=TRUE) |
         grepl("summary", n, ignore.case=TRUE) |
