@@ -3,22 +3,31 @@
     {
       "baseCommand": [
         "bash",
-        "/docker-run.sh"
+        "/batch/docker-run.sh"
       ],
       "class": "CommandLineTool",
       "cwlVersion": "v1.0",
-      "id": "#main",
+      "id": "#make-batches.cwl",
       "inputs": [
         {
-          "id": "#main/s3_bucket",
+          "id": "#make-batches.cwl/stateList",
+          "type": "string"
+        },
+        {
+          "id": "#make-batches.cwl/deathsCutoff",
+          "type": "string"
+        },
+        {
+          "id": "#make-batches.cwl/maxBatchSize",
           "type": "string"
         }
       ],
       "outputs": [
         {
-          "id": "#main/viz",
+          "id": "#make-batches.cwl/batches",
           "outputBinding": {
-            "glob": "./modelOutput/figures/*/*.png"
+            "glob": "batch*.txt",
+            "loadContents": true
           },
           "type": {
             "items": "File",
@@ -30,12 +39,77 @@
         {
           "class": "EnvVarRequirement",
           "envDef": {
+            "DEATHS_CUTOFF": "$(inputs.deathsCutoff)",
+            "MAX_BATCH_SIZE": "$(inputs.maxBatchSize)",
+            "STATE_LIST": "$(inputs.stateList)"
+          }
+        },
+        {
+          "class": "DockerRequirement",
+          "dockerPull": "quay.io/cdis/make-county-batches:feat_batch-cwl"
+        },
+        {
+          "class": "ResourceRequirement",
+          "coresMax": 2,
+          "coresMin": 2,
+          "ramMax": 16384,
+          "ramMin": 16384
+        }
+      ]
+    },
+    {
+      "baseCommand": [
+        "bash",
+        "/docker-run.sh"
+      ],
+      "class": "CommandLineTool",
+      "cwlVersion": "v1.0",
+      "id": "#model.cwl",
+      "inputs": [
+        {
+          "id": "#model.cwl/s3_bucket",
+          "type": "string"
+        },
+        {
+          "id": "#model.cwl/nIter",
+          "type": "string"
+        },
+        {
+          "id": "#model.cwl/mode",
+          "type": "string"
+        },
+        {
+          "id": "#model.cwl/deathsCutoff",
+          "type": "string"
+        },
+        {
+          "id": "#model.cwl/batch",
+          "type": "File"
+        }
+      ],
+      "outputs": [
+        {
+          "id": "#model.cwl/output",
+          "outputBinding": {
+            "outputEval": "$('output')"
+          },
+          "type": "string"
+        }
+      ],
+      "requirements": [
+        {
+          "class": "EnvVarRequirement",
+          "envDef": {
+            "BATCH": "$(inputs.batch.contents)",
+            "DEATHS_CUTOFF": "$(inputs.deathsCutoff)",
+            "MODEL_RUN_MODE": "$(inputs.mode)",
+            "N_ITER": "$(inputs.nIter)",
             "S3_BUCKET": "$(inputs.s3_bucket)"
           }
         },
         {
           "class": "DockerRequirement",
-          "dockerPull": "quay.io/cdis/bayes-by-county:feat_cwl"
+          "dockerPull": "quay.io/cdis/bayes-by-county:feat_batch-cwl"
         },
         {
           "class": "ResourceRequirement",
@@ -43,6 +117,100 @@
           "coresMin": 4,
           "ramMax": 16384,
           "ramMin": 16384
+        }
+      ]
+    },
+    {
+      "class": "Workflow",
+      "cwlVersion": "v1.0",
+      "id": "#main",
+      "inputs": [
+        {
+          "id": "#main/stateList",
+          "type": "string"
+        },
+        {
+          "id": "#main/deathsCutoff",
+          "type": "string"
+        },
+        {
+          "id": "#main/maxBatchSize",
+          "type": "string"
+        },
+        {
+          "id": "#main/nIter",
+          "type": "string"
+        },
+        {
+          "id": "#main/mode",
+          "type": "string"
+        },
+        {
+          "id": "#main/s3_bucket",
+          "type": "string"
+        }
+      ],
+      "outputs": [
+        {
+          "id": "#main/output",
+          "outputSource": "#main/model/output",
+          "type": {
+            "items": "string",
+            "type": "array"
+          }
+        }
+      ],
+      "steps": [
+        {
+          "id": "#main/make-batches",
+          "in": [
+            {
+              "id": "#main/make-batches/stateList",
+              "source": "#main/stateList"
+            },
+            {
+              "id": "#main/make-batches/deathsCutoff",
+              "source": "#main/deathsCutoff"
+            },
+            {
+              "id": "#main/make-batches/maxBatchSize",
+              "source": "#main/maxBatchSize"
+            }
+          ],
+          "out": [
+            "#main/make-batches/batches"
+          ],
+          "run": "#make-batches.cwl"
+        },
+        {
+          "id": "#main/model",
+          "in": [
+            {
+              "id": "#main/model/batch",
+              "source": "#main/make-batches/batches"
+            },
+            {
+              "id": "#main/model/s3_bucket",
+              "source": "#main/s3_bucket"
+            },
+            {
+              "id": "#main/model/nIter",
+              "source": "#main/nIter"
+            },
+            {
+              "id": "#main/model/mode",
+              "source": "#main/mode"
+            },
+            {
+              "id": "#main/model/deathsCutoff",
+              "source": "#main/deathsCutoff"
+            }
+          ],
+          "out": [
+            "#main/model/output"
+          ],
+          "run": "#model.cwl",
+          "scatter": "#main/model/batch"
         }
       ]
     }

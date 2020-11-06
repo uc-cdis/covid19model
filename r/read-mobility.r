@@ -243,6 +243,13 @@ pad_mobility <- function(len_mobility, num_pad, min_date, covariates_county, for
 nu_pad_mobility <- function(min_date, covariates_county, County, N2){
   covariates_county <- covariates_county[covariates_county$date >= min_date, ]
   short <- N2 - nrow(covariates_county)
+
+  print("- nu_pad_mobility DEBUG --")
+  print(sprintf("max date: %s", max(covariates_county$date)))
+  print(sprintf("min date: %s", min(covariates_county$date)))
+  print(sprintf("min date arg: %s", min_date))
+  print(sprintf("short: %d", short))
+
   if (short > 0){
       pad_dates_front <- min_date + days(1:short)
       len_covariates <- length(covariates_county$grocery.pharmacy)
@@ -256,7 +263,17 @@ nu_pad_mobility <- function(min_date, covariates_county, County, N2){
                                       "workplace" = c(as.integer(rep(0, short)), covariates_county$workplace))
       return(padded_covariates)
   } else {
-    return(covariates_county)
+    trim_dates_front <- (-1) * short + 1
+    l <- length(covariates_county$grocery.pharmacy)
+    padded_covariates <- data.frame("countyCode" = rep(County, N2),
+                                    "date" = covariates_county$date[trim_dates_front:l],
+                                    "grocery.pharmacy" = covariates_county$grocery.pharmacy[trim_dates_front:l],
+                                    "parks" = covariates_county$parks[trim_dates_front:l], 
+                                    "residential" = covariates_county$residential[trim_dates_front:l],
+                                    "retail.recreation" = covariates_county$retail.recreation[trim_dates_front:l],
+                                    "transitstations" = covariates_county$transitstations[trim_dates_front:l],
+                                    "workplace" = covariates_county$workplace[trim_dates_front:l])
+    return(padded_covariates)
   }
 }
 

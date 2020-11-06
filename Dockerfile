@@ -1,5 +1,8 @@
 FROM debian:bullseye
 
+# clear cache
+RUN echo "clear the cache"
+
 # install R dependencies
 RUN apt-get update && \
 	apt-get install -y build-essential \
@@ -14,7 +17,7 @@ RUN apt-get update && \
 	python3 \
 	python3-pip \
 	r-base \
-	r-cran-rstan \
+# 	r-cran-rstan \
 	r-cran-tidyverse \
 	r-cran-matrixstats \
 	r-cran-scales \
@@ -40,6 +43,11 @@ RUN Rscript -e "install.packages('visdat', dependencies=TRUE)"
 RUN Rscript -e "install.packages('mlr3verse', dependencies=TRUE)"
 RUN Rscript -e "install.packages('ranger', dependencies=TRUE)"
 RUN Rscript -e "install.packages('zoo', dependencies=TRUE)"
+
+RUN Rscript -e "install.packages('StanHeaders', dependencies=TRUE)"
+RUN Rscript -e "install.packages('inline', dependencies=TRUE)"
+RUN Rscript -e "install.packages('loo', dependencies=TRUE)"
+RUN Rscript -e "install.packages('http://cran.r-project.org/src/contrib/Archive/rstan/rstan_2.19.3.tar.gz', repos=NULL, type='source', dependencies=TRUE)"
 
 # install Python dependencies
 RUN pip3 install --upgrade pip==20.1.*

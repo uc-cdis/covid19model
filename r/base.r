@@ -23,18 +23,18 @@ nStanIterations = as.integer(args[3])
 #### example calls of new CLI
 ## Rscript base.r us_mobility 10 10 -stateList "Illinois,NewYork"
 ## Rscript base.r us_mobility 10 10 -stateList "all"
-## Rscript base.r us_mobility 10 10 -batch 1
+## Rscript base.r us_mobility 10 10 -batch <raw_text_from_batch1.txt>
 
 # 4 is "-stateList" or "-batch"
 countySelector <- args[4]
 
-# 5 is statesCSV or batchID
+# 5 is statesCSV or batchString
 if (countySelector == "-stateList") {
   stateList <- as.list(strsplit(args[5], ",")[[1]])
-  batchID <- NULL
+  batchString <- ""
 } else if (countySelector == "-batch") {
   stateList <- NULL
-  batchID <- as.integer(args[5])
+  batchString <- args[5]
 } else {
   stop("must specify either -stateList or -batch for countySelector")
 }
@@ -63,43 +63,9 @@ d$countryterritoryCode <- sapply(d$countryterritoryCode, as.character)
 # trim US code prefix
 d$countryterritoryCode <- sub("840", "", d$countryterritoryCode)
 
-if (is.list(stateList)) {
-  print("Only running on counties in these states:")
-  print(stateList)
-
-  if (stateList[1] != "all") {
-    # filter by provided stateList
-
-    # d$state is like "Alabama" and "New York"
-    # input to CLI is like "Alabama,NewYork"
-    # here we remove the spaces from the df to compare to the CLI input
-    d <- subset(d, (gsub(" ", "", state) %in% stateList))
-  }
-
-  # drop counties with fewer than cutoff cumulative deaths or cases
-  cumCaseAndDeath <- aggregate(cbind(d$deaths), by=list(Category=d$countryterritoryCode), FUN=sum)
-  dropCounties <- subset(cumCaseAndDeath, V1 < minimumReportedDeaths)$Category
-  d <- subset(d, !(countryterritoryCode %in% dropCounties))
-  print(sprintf("nCounties with more than %d deaths: %d", minimumReportedDeaths, length(unique(d$countryterritoryCode))))
-} else if (is.integer(batchID)) {
-  path <- sprintf("../batches/batch%d.txt", batchID)
-  batchString <- readChar(path, file.info(path)$size)
-  batch <- as.list(gsub("\"", "", strsplit(batchString, "\n")[[1]]))
-  d <- subset(d, (countryterritoryCode %in% batch))
-  # note: no deaths cutoff filter applied here because
-  # that's already been handled in the make-batches.r step
-  # all counties in the batch are already vetted to be above the minimumDeathsCutoff
-}
-
 # create useful mapping tables
 codeToName <- unique(data.frame("countyCode" = d$countryterritoryCode, "countyName" = d$countriesAndTerritories))
 codeToNameAndState <- unique(data.frame("countyCode" = d$countryterritoryCode, "countyName" = d$countriesAndTerritories, "state" = d$state))
-
-# write list of counties used in this simulation
-CountyCodeList <- unique(d$countryterritoryCode)
-write.table(CountyCodeList, "../modelOutput/figures/CountyCodeList.txt", row.names=FALSE, col.names=FALSE)
-
-countries <- unique(d$countryterritoryCode)
 
 convertCode <- function(code) {
   s <- as.character(code)
@@ -109,8 +75,9 @@ convertCode <- function(code) {
 }
 
 # weighted fatality table
-cfr.by.country = read.csv("../modelInput/USAWeightedFatalityV2.csv")
-cfr.by.country$countyCode <- sapply(cfr.by.country$countyCode, convertCode)
+# NOTE: suppressing due to missing counties in census age-dist data
+# cfr.by.country = read.csv("../modelInput/USAWeightedFatalityV2.csv")
+# cfr.by.country$countyCode <- sapply(cfr.by.country$countyCode, convertCode)
 
 # serial interval discrete gamma distribution
 serial.interval = read.csv("../modelInput/SerialIntervalV2.csv") # new table
@@ -122,7 +89,7 @@ N2 = 0
 
 # Read google mobility
 source("./read-mobility.r")
-mobility <- read_google_mobility(countries=countries, codeToName=codeToName)
+mobility <- read_google_mobility(countries=unique(d$countryterritoryCode), codeToName=codeToName)
 
 # basic impute values for NA in google mobility
 # see: https://github.com/ImperialCollegeLondon/covid19model/blob/v6.0/base-usa.r#L87-L88
@@ -164,6 +131,38 @@ if (validateFlag == "--validate"){
   print(sprintf("MAX DATE : %s", lastObs))
 }
 d <- d[as.Date(d$dateRep, format = "%m/%d/%y") <= lastObs, ]
+
+if (is.list(stateList)) {
+  print("Only running on counties in these states:")
+  print(stateList)
+
+  if (stateList[1] != "all") {
+    # filter by provided stateList
+  
+    # d$state is like "Alabama" and "New York"
+    # input to CLI is like "Alabama,NewYork"
+    # here we remove the spaces from the df to compare to the CLI input
+    d <- subset(d, (gsub(" ", "", state) %in% stateList))
+  }
+
+  # drop counties with fewer than cutoff cumulative deaths or cases
+  cumCaseAndDeath <- aggregate(cbind(d$deaths), by=list(Category=d$countryterritoryCode), FUN=sum)
+  dropCounties <- subset(cumCaseAndDeath, V1 < minimumReportedDeaths)$Category
+  d <- subset(d, !(countryterritoryCode %in% dropCounties))
+  print(sprintf("nCounties with more than %d deaths: %d", minimumReportedDeaths, length(unique(d$countryterritoryCode))))
+} else if (batchString != "") {
+  batch <- strsplit(gsub("\n", "", batchString), ",")[[1]]
+  d <- subset(d, (countryterritoryCode %in% batch))
+  # note: no deaths cutoff filter applied here because
+  # that's already been handled in the make-batches.r step
+  # all counties in the batch are already vetted to be above the minimumDeathsCutoff
+}
+
+# write list of counties used in this simulation
+CountyCodeList <- unique(d$countryterritoryCode)
+write.table(CountyCodeList, "../modelOutput/figures/CountyCodeList.txt", row.names=FALSE, col.names=FALSE)
+
+countries <- unique(d$countryterritoryCode)
 
 ## need to take a close look @ this -> looks fine ##
 # see: https://stackoverflow.com/questions/8055508/in-r-formulas-why-do-i-have-to-use-the-i-function-on-power-terms-like-y-i
@@ -210,11 +209,16 @@ for(Country in countries) {
 
 covariate_list_partial_county <- list()
 
+# this is the paper ICL consulted for picking their ifr numbers: 
+# https://www.thelancet.com/journals/laninf/article/PIIS1473-3099(20)30243-7/fulltext
+CFR <- .00657
+
 # k is their counter
 k <- 1
 for(Country in countries) {
 
-  CFR=cfr.by.country$weighted_fatality[cfr.by.country$countyCode == Country]
+  # NOTE: suppressing due to missing counties in census age-dist data
+  # CFR=cfr.by.country$weighted_fatality[cfr.by.country$countyCode == Country]
 
   d1=d[d$countryterritoryCode==Country,]
 
@@ -250,6 +254,11 @@ for(Country in countries) {
   min_date <- min(d1$date)
   padded_covariates <- nu_pad_mobility(min_date, covariates_county, Country, N2)
 
+  print(sprintf("N2: %d", N2))
+  print(sprintf("N: %d", N))
+  print(sprintf("short: %d", short))
+  print(sprintf("padded length: %d", nrow(padded_covariates)))
+
   # include transit
   transit_usage <- rep(1, (N + short))
 
@@ -270,6 +279,10 @@ for(Country in countries) {
   x1 = rgammaAlt(5e6,mean1,cv1) # icl: infection-to-onset ----> do all people who are infected get to onset?
   x2 = rgammaAlt(5e6,mean2,cv2) # icl: onset-to-death
   f = ecdf(x1+x2)
+
+  # print("--- DEBUG ---")
+  # print("--- here is the CFR ---")
+  # print(CFR)
 
   convolution = function(u) (CFR * f(u))
   h[1] = (convolution(1.5) - convolution(0))

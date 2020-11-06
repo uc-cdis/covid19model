@@ -18,7 +18,11 @@ echo "Running bayes-by-county..."
 ## sh run.sh us_mobility 150 200 -batch 1
 
 cd /
-sh run.sh us_mobility 2500 150 -stateList "Illinois,NewYork"
+if [ $MODEL_RUN_MODE == "batch" ]; then
+  sh run.sh us_mobility $DEATHS_CUTOFF $N_ITER -batch "$BATCH"
+else
+  sh run.sh us_mobility $DEATHS_CUTOFF $N_ITER -stateList $STATE_LIST
+fi
 
 # copy images to S3 under prefix "bayes-by-county"
 # directory structure:
