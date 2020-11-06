@@ -94,6 +94,10 @@ dropCounties <- subset(cumCaseAndDeath, V1 < minimumReportedDeaths)$Category
 d <- subset(d, !(countryterritoryCode %in% dropCounties))
 print(sprintf("nCounties with more than %d deaths: %d", minimumReportedDeaths, length(unique(d$countryterritoryCode))))
 
+# write list of counties used in this simulation
+CountyCodeList <- unique(d$countryterritoryCode)
+write.table(CountyCodeList, "../modelOutput/CountyCodeList.txt", row.names=FALSE, col.names=FALSE)
+
 # compute batchSize and nBatches
 # balance: aim for a batch size less than but close to maxBatchSize
 n <- length(unique(d$countryterritoryCode))

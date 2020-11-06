@@ -4,11 +4,12 @@ class: CommandLineTool
 requirements:
   - class: EnvVarRequirement
     envDef:
+      S3_BUCKET: $(inputs.s3_bucket)
       STATE_LIST: $(inputs.stateList)
       DEATHS_CUTOFF: $(inputs.deathsCutoff)
       MAX_BATCH_SIZE: $(inputs.maxBatchSize)
   - class: DockerRequirement
-    dockerPull: "quay.io/cdis/make-county-batches:v3.0"
+    dockerPull: "quay.io/cdis/make-county-batches:v3.1"
   - class: ResourceRequirement
     coresMin: 2
     coresMax: 2
@@ -20,6 +21,7 @@ inputs:
   stateList: string
   deathsCutoff: string
   maxBatchSize: string
+  s3_bucket: string
 
 outputs:
   batches:

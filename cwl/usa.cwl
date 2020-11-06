@@ -18,6 +18,7 @@ steps:
   make-batches:
     run: make-batches.cwl
     in:
+      s3_bucket: s3_bucket
       stateList: stateList
       deathsCutoff: deathsCutoff
       maxBatchSize: maxBatchSize

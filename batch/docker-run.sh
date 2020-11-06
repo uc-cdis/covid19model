@@ -30,4 +30,9 @@ echo "\n--- make-batches ---"
 cd /batch
 Rscript /batch/make-batches.r -stateList $STATE_LIST -deathsCutoff $DEATHS_CUTOFF -maxBatchSize $MAX_BATCH_SIZE -outDir $TOOL_WORKING_DIR
 
+echo "Copying CountyCodeList to S3 bucket..."
+if [[ -n "$S3_BUCKET" ]]; then
+  aws s3 cp "/modelOutput/CountyCodeList.txt" "$S3_BUCKET/bayes-by-county/CountyCodeList.txt"
+fi
+
 echo "\n--- routine completed ---\n"
