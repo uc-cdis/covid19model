@@ -10,15 +10,19 @@
       "id": "#make-batches.cwl",
       "inputs": [
         {
+          "id": "#make-batches.cwl/maxBatchSize",
+          "type": "string"
+        },
+        {
+          "id": "#make-batches.cwl/s3_bucket",
+          "type": "string"
+        },
+        {
           "id": "#make-batches.cwl/stateList",
           "type": "string"
         },
         {
           "id": "#make-batches.cwl/deathsCutoff",
-          "type": "string"
-        },
-        {
-          "id": "#make-batches.cwl/maxBatchSize",
           "type": "string"
         }
       ],
@@ -41,6 +45,7 @@
           "envDef": {
             "DEATHS_CUTOFF": "$(inputs.deathsCutoff)",
             "MAX_BATCH_SIZE": "$(inputs.maxBatchSize)",
+            "S3_BUCKET": "$(inputs.s3_bucket)",
             "STATE_LIST": "$(inputs.stateList)"
           }
         },
@@ -126,6 +131,10 @@
       "id": "#main",
       "inputs": [
         {
+          "id": "#main/s3_bucket",
+          "type": "string"
+        },
+        {
           "id": "#main/stateList",
           "type": "string"
         },
@@ -143,10 +152,6 @@
         },
         {
           "id": "#main/mode",
-          "type": "string"
-        },
-        {
-          "id": "#main/s3_bucket",
           "type": "string"
         }
       ],
@@ -175,6 +180,10 @@
             {
               "id": "#main/make-batches/maxBatchSize",
               "source": "#main/maxBatchSize"
+            },
+            {
+              "id": "#main/make-batches/s3_bucket",
+              "source": "#main/s3_bucket"
             }
           ],
           "out": [
@@ -186,6 +195,14 @@
           "id": "#main/model",
           "in": [
             {
+              "id": "#main/model/mode",
+              "source": "#main/mode"
+            },
+            {
+              "id": "#main/model/deathsCutoff",
+              "source": "#main/deathsCutoff"
+            },
+            {
               "id": "#main/model/batch",
               "source": "#main/make-batches/batches"
             },
@@ -196,14 +213,6 @@
             {
               "id": "#main/model/nIter",
               "source": "#main/nIter"
-            },
-            {
-              "id": "#main/model/mode",
-              "source": "#main/mode"
-            },
-            {
-              "id": "#main/model/deathsCutoff",
-              "source": "#main/deathsCutoff"
             }
           ],
           "out": [
