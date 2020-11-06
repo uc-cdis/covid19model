@@ -46,6 +46,7 @@ COPY . /
 # install Python dependencies
 RUN pip3 install --upgrade pip==20.1.*
 RUN pip3 install -r requirements.txt
+RUN pip3 install awscli==1.18.*
 
 WORKDIR /batch/
 
