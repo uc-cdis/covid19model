@@ -160,7 +160,7 @@ if (is.list(stateList)) {
 
 # write list of counties used in this simulation
 CountyCodeList <- unique(d$countryterritoryCode)
-write.table(CountyCodeList, "../modelOutput/figures/CountyCodeList.txt", row.names=FALSE, col.names=FALSE)
+# write.table(CountyCodeList, "../modelOutput/figures/CountyCodeList.txt", row.names=FALSE, col.names=FALSE)
 
 countries <- unique(d$countryterritoryCode)
 
