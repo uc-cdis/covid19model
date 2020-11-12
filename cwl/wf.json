@@ -51,7 +51,7 @@
         },
         {
           "class": "DockerRequirement",
-          "dockerPull": "quay.io/cdis/make-county-batches:v3.1"
+          "dockerPull": "quay.io/cdis/make-county-batches:v3.2"
         },
         {
           "class": "ResourceRequirement",
@@ -114,7 +114,7 @@
         },
         {
           "class": "DockerRequirement",
-          "dockerPull": "quay.io/cdis/bayes-by-county:v3.1"
+          "dockerPull": "quay.io/cdis/bayes-by-county:v3.2"
         },
         {
           "class": "ResourceRequirement",
