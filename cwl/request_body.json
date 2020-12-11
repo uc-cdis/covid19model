@@ -62,7 +62,7 @@
           },
           {
             "class": "DockerRequirement",
-            "dockerPull": "quay.io/cdis/make-county-batches:v3.2"
+            "dockerPull": "quay.io/cdis/make-county-batches:fix_order"
           },
           {
             "class": "ResourceRequirement",
@@ -195,7 +195,7 @@
           },
           {
             "class": "DockerRequirement",
-            "dockerPull": "quay.io/cdis/make-county-batches:v3.2"
+            "dockerPull": "quay.io/cdis/make-county-batches:fix_order"
           },
           {
             "class": "ResourceRequirement",

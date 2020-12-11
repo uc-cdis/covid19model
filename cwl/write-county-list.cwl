@@ -10,7 +10,7 @@ requirements:
       MAX_BATCH_SIZE: $(inputs.maxBatchSize)
       WRITE_LIST_TO_S3: "true"
   - class: DockerRequirement
-    dockerPull: "quay.io/cdis/make-county-batches:v3.2"
+    dockerPull: "quay.io/cdis/make-county-batches:fix_order"
   - class: ResourceRequirement
     coresMin: 2
     coresMax: 2
