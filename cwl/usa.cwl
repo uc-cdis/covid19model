@@ -35,3 +35,12 @@ steps:
       batch: make-batches/batches
     out: [output]
 
+  write-county-list:
+    run: write-county-list.cwl
+    in:
+      s3_bucket: s3_bucket
+      stateList: stateList
+      deathsCutoff: deathsCutoff
+      maxBatchSize: maxBatchSize
+      hold: model/output
+    out: [batches]

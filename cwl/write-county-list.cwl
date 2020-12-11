@@ -8,7 +8,7 @@ requirements:
       STATE_LIST: $(inputs.stateList)
       DEATHS_CUTOFF: $(inputs.deathsCutoff)
       MAX_BATCH_SIZE: $(inputs.maxBatchSize)
-      WRITE_LIST_TO_S3: "false"
+      WRITE_LIST_TO_S3: "true"
   - class: DockerRequirement
     dockerPull: "quay.io/cdis/make-county-batches:v3.2"
   - class: ResourceRequirement
@@ -23,6 +23,7 @@ inputs:
   deathsCutoff: string
   maxBatchSize: string
   s3_bucket: string
+  hold: string[]
 
 outputs:
   batches:
