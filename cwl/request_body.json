@@ -20,19 +20,19 @@
         "id": "#make-batches.cwl",
         "inputs": [
           {
-            "id": "#make-batches.cwl/maxBatchSize",
-            "type": "string"
-          },
-          {
-            "id": "#make-batches.cwl/s3_bucket",
-            "type": "string"
-          },
-          {
             "id": "#make-batches.cwl/stateList",
             "type": "string"
           },
           {
             "id": "#make-batches.cwl/deathsCutoff",
+            "type": "string"
+          },
+          {
+            "id": "#make-batches.cwl/maxBatchSize",
+            "type": "string"
+          },
+          {
+            "id": "#make-batches.cwl/s3_bucket",
             "type": "string"
           }
         ],
@@ -56,7 +56,8 @@
               "DEATHS_CUTOFF": "$(inputs.deathsCutoff)",
               "MAX_BATCH_SIZE": "$(inputs.maxBatchSize)",
               "S3_BUCKET": "$(inputs.s3_bucket)",
-              "STATE_LIST": "$(inputs.stateList)"
+              "STATE_LIST": "$(inputs.stateList)",
+              "WRITE_LIST_TO_S3": "false"
             }
           },
           {
@@ -82,6 +83,10 @@
         "id": "#model.cwl",
         "inputs": [
           {
+            "id": "#model.cwl/batch",
+            "type": "File"
+          },
+          {
             "id": "#model.cwl/s3_bucket",
             "type": "string"
           },
@@ -96,10 +101,6 @@
           {
             "id": "#model.cwl/deathsCutoff",
             "type": "string"
-          },
-          {
-            "id": "#model.cwl/batch",
-            "type": "File"
           }
         ],
         "outputs": [
@@ -136,10 +137,88 @@
         ]
       },
       {
+        "baseCommand": [
+          "bash",
+          "/batch/docker-run.sh"
+        ],
+        "class": "CommandLineTool",
+        "cwlVersion": "v1.0",
+        "id": "#write-county-list.cwl",
+        "inputs": [
+          {
+            "id": "#write-county-list.cwl/stateList",
+            "type": "string"
+          },
+          {
+            "id": "#write-county-list.cwl/deathsCutoff",
+            "type": "string"
+          },
+          {
+            "id": "#write-county-list.cwl/maxBatchSize",
+            "type": "string"
+          },
+          {
+            "id": "#write-county-list.cwl/s3_bucket",
+            "type": "string"
+          },
+          {
+            "id": "#write-county-list.cwl/hold",
+            "type": {
+              "items": "string",
+              "type": "array"
+            }
+          }
+        ],
+        "outputs": [
+          {
+            "id": "#write-county-list.cwl/batches",
+            "outputBinding": {
+              "glob": "batch*.txt",
+              "loadContents": true
+            },
+            "type": {
+              "items": "File",
+              "type": "array"
+            }
+          }
+        ],
+        "requirements": [
+          {
+            "class": "EnvVarRequirement",
+            "envDef": {
+              "DEATHS_CUTOFF": "$(inputs.deathsCutoff)",
+              "MAX_BATCH_SIZE": "$(inputs.maxBatchSize)",
+              "S3_BUCKET": "$(inputs.s3_bucket)",
+              "STATE_LIST": "$(inputs.stateList)",
+              "WRITE_LIST_TO_S3": "true"
+            }
+          },
+          {
+            "class": "DockerRequirement",
+            "dockerPull": "quay.io/cdis/make-county-batches:v3.2"
+          },
+          {
+            "class": "ResourceRequirement",
+            "coresMax": 2,
+            "coresMin": 2,
+            "ramMax": 16384,
+            "ramMin": 16384
+          }
+        ]
+      },
+      {
         "class": "Workflow",
         "cwlVersion": "v1.0",
         "id": "#main",
         "inputs": [
+          {
+            "id": "#main/nIter",
+            "type": "string"
+          },
+          {
+            "id": "#main/mode",
+            "type": "string"
+          },
           {
             "id": "#main/s3_bucket",
             "type": "string"
@@ -154,14 +233,6 @@
           },
           {
             "id": "#main/maxBatchSize",
-            "type": "string"
-          },
-          {
-            "id": "#main/nIter",
-            "type": "string"
-          },
-          {
-            "id": "#main/mode",
             "type": "string"
           }
         ],
@@ -180,20 +251,20 @@
             "id": "#main/make-batches",
             "in": [
               {
-                "id": "#main/make-batches/stateList",
-                "source": "#main/stateList"
-              },
-              {
-                "id": "#main/make-batches/deathsCutoff",
-                "source": "#main/deathsCutoff"
-              },
-              {
                 "id": "#main/make-batches/maxBatchSize",
                 "source": "#main/maxBatchSize"
               },
               {
                 "id": "#main/make-batches/s3_bucket",
                 "source": "#main/s3_bucket"
+              },
+              {
+                "id": "#main/make-batches/stateList",
+                "source": "#main/stateList"
+              },
+              {
+                "id": "#main/make-batches/deathsCutoff",
+                "source": "#main/deathsCutoff"
               }
             ],
             "out": [
@@ -204,6 +275,10 @@
           {
             "id": "#main/model",
             "in": [
+              {
+                "id": "#main/model/nIter",
+                "source": "#main/nIter"
+              },
               {
                 "id": "#main/model/mode",
                 "source": "#main/mode"
@@ -219,10 +294,6 @@
               {
                 "id": "#main/model/s3_bucket",
                 "source": "#main/s3_bucket"
-              },
-              {
-                "id": "#main/model/nIter",
-                "source": "#main/nIter"
               }
             ],
             "out": [
@@ -230,10 +301,39 @@
             ],
             "run": "#model.cwl",
             "scatter": "#main/model/batch"
+          },
+          {
+            "id": "#main/write-county-list",
+            "in": [
+              {
+                "id": "#main/write-county-list/deathsCutoff",
+                "source": "#main/deathsCutoff"
+              },
+              {
+                "id": "#main/write-county-list/maxBatchSize",
+                "source": "#main/maxBatchSize"
+              },
+              {
+                "id": "#main/write-county-list/hold",
+                "source": "#main/model/output"
+              },
+              {
+                "id": "#main/write-county-list/s3_bucket",
+                "source": "#main/s3_bucket"
+              },
+              {
+                "id": "#main/write-county-list/stateList",
+                "source": "#main/stateList"
+              }
+            ],
+            "out": [
+              "#main/write-county-list/batches"
+            ],
+            "run": "#write-county-list.cwl"
           }
         ]
       }
     ],
     "cwlVersion": "v1.0"
-  }     
+  }       
 }
