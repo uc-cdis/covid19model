@@ -1,9 +1,10 @@
 #!/bin/bash
 
 echo "\n--- making county batches with these parameters ---"
-echo 'stateList = '     $STATE_LIST
-echo 'deathsCutoff = '  $DEATHS_CUTOFF
-echo 'maxBatchSize = '  $MAX_BATCH_SIZE
+echo 'stateList = '         $STATE_LIST
+echo 'deathsCutoff = '      $DEATHS_CUTOFF
+echo 'maxBatchSize = '      $MAX_BATCH_SIZE
+echo 'write_list_to_s3 = '  $WRITE_LIST_TO_S3
 
 # run the etl to generate all input tables
 echo "\n--- input ETL ---"
@@ -31,7 +32,7 @@ cd /batch
 Rscript /batch/make-batches.r -stateList $STATE_LIST -deathsCutoff $DEATHS_CUTOFF -maxBatchSize $MAX_BATCH_SIZE -outDir $TOOL_WORKING_DIR
 
 echo "Copying CountyCodeList to S3 bucket..."
-if [[ -n "$S3_BUCKET" ]]; then
+if [[ -n "$S3_BUCKET" ]] && [ "$WRITE_LIST_TO_S3"="true" ] ; then
   aws s3 cp "/modelOutput/CountyCodeList.txt" "$S3_BUCKET/bayes-by-county/CountyCodeList.txt"
 fi
 
