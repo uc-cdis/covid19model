@@ -307,8 +307,15 @@ for(Country in countries) {
   stan_data$N = c(stan_data$N,N)
   stan_data$y = c(stan_data$y,y[1]) # icl: just the index case!
 
-  stan_data$SI=serial.interval$fit[1:N2]
-
+  padBack <- N2 - length(serial.interval$fit)
+  if (padBack > 0) {
+    # extend
+    stan_data$SI=c(serial.interval$fit, rep(0,padBack))
+  } else {
+    # clip
+    stan_data$SI=serial.interval$fit[1:N2]
+  }
+  
   stan_data$f = cbind(stan_data$f,f)
 
   stan_data$deaths = cbind(stan_data$deaths,deaths)
