@@ -1,22 +1,31 @@
 FROM debian:bullseye
 
-# clear cache
-RUN echo "clear the cache"
-
-# install R dependencies
+# basics and python stuff
 RUN apt-get update && \
 	apt-get install -y build-essential \
-	wget \
+ 	wget \
 	libxml2-dev \
 	libcurl4-openssl-dev \
 	libssl-dev \
-	fonts-open-sans \
-	fonts-arkpandora \
-	fonts-adf-verana \
 	gnupg2 \
 	python3 \
 	python3-pip \
+	python3-pandas
+
+# install Python dependencies
+RUN pip3 install --upgrade pip==20.1.*
+RUN pip3 install awscli==1.18.*
+
+# RUN pip3 install -r requirements.txt
+
+# R things.
+RUN apt-get update && \
+	apt-get install -y \
+	fonts-open-sans \
+	fonts-arkpandora \
+	fonts-adf-verana \
 	r-base \
+	libboost-all-dev \
 # 	r-cran-rstan \
 	r-cran-tidyverse \
 	r-cran-matrixstats \
@@ -34,9 +43,6 @@ RUN apt-get update && \
 	r-cran-cowplot \
 	r-cran-isoband
 
-RUN apt-get update && \
-	apt-get install -y libboost-all-dev
-
 RUN Rscript -e "install.packages('EnvStats', dependencies=TRUE)"
 RUN Rscript -e "install.packages('BH', dependencies=TRUE)"
 RUN Rscript -e "install.packages('visdat', dependencies=TRUE)"
@@ -49,13 +55,7 @@ RUN Rscript -e "install.packages('inline', dependencies=TRUE)"
 RUN Rscript -e "install.packages('loo', dependencies=TRUE)"
 RUN Rscript -e "install.packages('http://cran.r-project.org/src/contrib/Archive/rstan/rstan_2.19.3.tar.gz', repos=NULL, type='source', dependencies=TRUE)"
 
-# install Python dependencies
-RUN pip3 install --upgrade pip==20.1.*
-RUN pip3 install awscli==1.18.*
-
 WORKDIR /
 COPY . /
-
-RUN pip3 install -r requirements.txt
 
 CMD [ "bash", "/docker-run.sh" ]
