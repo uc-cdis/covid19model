@@ -125,7 +125,7 @@
           },
           {
             "class": "DockerRequirement",
-            "dockerPull": "quay.io/cdis/bayes-by-county:v3.2"
+            "dockerPull": "quay.io/cdis/bayes-by-county:fix_order"
           },
           {
             "class": "ResourceRequirement",
