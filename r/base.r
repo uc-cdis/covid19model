@@ -54,6 +54,10 @@ print(sprintf("Filtering USA counties with countySelector: %s", countySelector))
 # fixme: almost certain this dep can be removed
 library(zoo)
 
+
+# HERE - find out all package versions
+# print(sessionInfo())
+
 # case-mortality table
 d <- read.csv("../modelInput/CaseAndMortalityV2.csv", stringsAsFactors = FALSE)
 

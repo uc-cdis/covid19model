@@ -284,8 +284,15 @@ def fetchSocEc(dirPath):
 if __name__ == "__main__":
 
     # put tables here
-    dirPath = "/modelInput"
-    os.makedirs(dirPath, exist_ok=True)
+    try:
+        # this script called from docker-run.sh
+        dirPath = "/modelInput"
+        os.makedirs(dirPath, exist_ok=True)
+    except:
+        # this script called from run.sh
+        # this is for running locally
+        dirPath = "../modelInput"
+        os.makedirs(dirPath, exist_ok=True)
 
     p1, countyIDList, population_df = makeCaseMortalityTable(dirPath)
 
