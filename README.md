@@ -130,6 +130,56 @@ Average Rt over last 7 days for all counties included in the simulation:
 
 ## Successes of the Model
 
-## Shortcomings of the Model
+The model appears to do a very good job of capturing trends in case and mortality for the entirety of the pandemic.
+
+## Shortcomings and Limitations of the Model
+
+One assumption of the model as it is currently defined is that there is no mixing between counties.
+That is, the event of somebody from Cook County infecting somebody from DuPage County -
+that event is not included in this model.
+Since that kind of mixing is a very real and important aspect of the outbreak,
+we consider it a limitation that the model has nothing to say about those mixing effects.
+
+Another critical limitation of the model is that the IFR is fixed over time.
+It's possible that the IFR has followed a downward trend since the beginning of the outbreak
+as treatment options have improved, hospital capacity increased,
+and maybe a larger proportion of those infected are young, healthy people
+who experience severe cases much less frequently than older age groups.
+
+It should also be noted that currently the same IFR is applied to all counties.
+Although it's of course true that IFR in reality varies by location,
+we don't consider this to be a signficant limitation of the model.
+The reason it's not a big deal is that when testing out using county-specific IFRs,
+the results were basically indistinguishable from the results achieved
+by just applying the same IFR to all counties.
+
+Finally it should be noted that there is not really a good way to validate this model.
+This seems to be the case with many models of the COVID-19 outbreak.
+You can't validate true case estimates, because there's no reliable number out there to validate against.
+Rt, while useful and important, is an abstract concept and can't really be measured precisely or at all "in the real world".
+You can compare your Rt estimates against other researchers' computed Rt estimates,
+but you can't compare your Rt estimates against "observed Rt". 
+
+With respect to deaths, it's true that this model estimates deaths very well.
+However that seems to be an artifact primarily of the fact that this model is fitted to observed deaths data.
+In various sensitivity analyses we tried to alter the value of Rt by a factor of 2 or 10 or 50,
+expecting to see a corresponding increase in the deaths estimates.
+However, we found that regardless of how we tried to affect the Rt values,
+deaths estimates from the model remained basically spot-on.
+The exact reason for this was never figured out completely,
+but as it stands now, it appears that the model is 
+very insensitive to the mobility data,
+Rt always "fits" to about the same trends and values 
+regardless of attempted manipulations, and the deaths estimates are always quite good.
 
 ## Misc. Comments
+
+Be aware that [RStan](https://mc-stan.org/users/interfaces/rstan) can be tricky to install
+with all its dependencies. When you run the stan model,
+really all the computation actually happens through a series of C++ scripts
+that get generated according to your `.stan` file.
+So there are R dependencies, and then there are implicit C++ dependencies and configuration
+that all need to be perfectly aligned in order for the Stan thing to happen.
+
+Installing and running locally should not pose too great a problem,
+but installing and running in a Docker container can be exceedingly tricky.
