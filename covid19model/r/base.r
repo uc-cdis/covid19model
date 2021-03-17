@@ -1,3 +1,5 @@
+print("--------------- File base.r")
+
 library(rstan)
 library(data.table)
 library(lubridate)
@@ -142,7 +144,7 @@ if (is.list(stateList)) {
 
   if (stateList[1] != "all") {
     # filter by provided stateList
-  
+
     # d$state is like "Alabama" and "New York"
     # input to CLI is like "Alabama,NewYork"
     # here we remove the spaces from the df to compare to the CLI input
@@ -213,7 +215,7 @@ for(Country in countries) {
 
 covariate_list_partial_county <- list()
 
-# this is the paper ICL consulted for picking their ifr numbers: 
+# this is the paper ICL consulted for picking their ifr numbers:
 # https://www.thelancet.com/journals/laninf/article/PIIS1473-3099(20)30243-7/fulltext
 CFR <- .00657
 
@@ -361,7 +363,8 @@ stan_data$y = t(stan_data$y)
 
 options(mc.cores = parallel::detectCores())
 rstan_options(auto_write = TRUE)
-m = stan_model(paste0('../stan/',StanModel,'.stan'))
+filename = paste0('../stan/',StanModel,'.stan')
+m = stan_model(filename)
 
 # it works!!
 fit = sampling(m,data=stan_data,iter=nStanIterations,warmup=nStanIterations/2,chains=8,thin=4,control = list(adapt_delta = 0.90, max_treedepth = 10))

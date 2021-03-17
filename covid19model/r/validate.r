@@ -1,3 +1,5 @@
+print("--------------- File validate.r")
+
 # save(JOBID,
 # nStanIterations,
 # duration,

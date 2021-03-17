@@ -1,3 +1,5 @@
+print("--------------- File plot-trend.r")
+
 library(ggplot2)
 library(tidyr)
 library(dplyr)
@@ -171,32 +173,32 @@ make_three_pannel_plot <- function(){
     # covariates_country_long$country <- rep(country, length(covariates_country_long$value))
 
     data_country <- data.frame("time" = as_date(as.character(dates[[i]])),
-                               "country" = rep(country, length(dates[[i]])),
-                               "reported_cases" = reported_cases[[i]],
-                               "reported_cases_c" = cumsum(reported_cases[[i]]),
-                               "predicted_cases_c" = cumsum(predicted_cases),
-                               "predicted_min_c" = cumsum(predicted_cases_li),
-                               "predicted_max_c" = cumsum(predicted_cases_ui),
-                               "predicted_cases" = predicted_cases,
-                               "predicted_min" = predicted_cases_li,
-                               "predicted_max" = predicted_cases_ui,
-                               "predicted_min2" = predicted_cases_li2,
-                               "predicted_max2" = predicted_cases_ui2,
-                               "deaths" = deaths_by_country[[i]],
-                               "deaths_c" = cumsum(deaths_by_country[[i]]),
-                               "estimated_deaths_c" =  cumsum(estimated_deaths),
-                               "death_min_c" = cumsum(estimated_deaths_li),
-                               "death_max_c"= cumsum(estimated_deaths_ui),
-                               "estimated_deaths" = estimated_deaths,
-                               "death_min" = estimated_deaths_li,
-                               "death_max"= estimated_deaths_ui,
-                               "death_min2" = estimated_deaths_li2,
-                               "death_max2"= estimated_deaths_ui2,
-                               "rt" = rt,
-                               "rt_min" = rt_li,
-                               "rt_max" = rt_ui,
-                               "rt_min2" = rt_li2,
-                               "rt_max2" = rt_ui2)
+        "country" = rep(country, length(dates[[i]])),
+        "reported_cases" = reported_cases[[i]],
+        "reported_cases_c" = cumsum(reported_cases[[i]]),
+        "predicted_cases_c" = cumsum(predicted_cases),
+        "predicted_min_c" = cumsum(predicted_cases_li),
+        "predicted_max_c" = cumsum(predicted_cases_ui),
+        "predicted_cases" = predicted_cases,
+        "predicted_min" = predicted_cases_li,
+        "predicted_max" = predicted_cases_ui,
+        "predicted_min2" = predicted_cases_li2,
+        "predicted_max2" = predicted_cases_ui2,
+        "deaths" = deaths_by_country[[i]],
+        "deaths_c" = cumsum(deaths_by_country[[i]]),
+        "estimated_deaths_c" =  cumsum(estimated_deaths),
+        "death_min_c" = cumsum(estimated_deaths_li),
+        "death_max_c"= cumsum(estimated_deaths_ui),
+        "estimated_deaths" = estimated_deaths,
+        "death_min" = estimated_deaths_li,
+        "death_max"= estimated_deaths_ui,
+        "death_min2" = estimated_deaths_li2,
+        "death_max2"= estimated_deaths_ui2,
+        "rt" = rt,
+        "rt_min" = rt_li,
+        "rt_max" = rt_ui,
+        "rt_min2" = rt_li2,
+        "rt_max2" = rt_ui2)
 
     county_deaths_and_est <- make_plots(data_country = data_country,
                # covariates_country_long = covariates_country_long,
@@ -359,11 +361,11 @@ make_plots <- function(data_country, covariates_country_long,
     ## p1
 
     data_cases_95 <- data.frame(data_country$time, data_country$predicted_min,
-                                data_country$predicted_max)
+         data_country$predicted_max)
     names(data_cases_95) <- c("time", "cases_min", "cases_max")
     data_cases_95$key <- rep("nintyfive", length(data_cases_95$time))
     data_cases_50 <- data.frame(data_country$time, data_country$predicted_min2,
-                                data_country$predicted_max2)
+         data_country$predicted_max2)
     names(data_cases_50) <- c("time", "cases_min", "cases_max")
     data_cases_50$key <- rep("fifty", length(data_cases_50$time))
     data_cases <- rbind(data_cases_95, data_cases_50)
@@ -380,7 +382,7 @@ make_plots <- function(data_country, covariates_country_long,
         scale_x_date(date_breaks = "2 weeks", labels = date_format("%e %b")) +
         scale_fill_manual(name = "", labels = c("50%", "95%"),
                         values = c(alpha("deepskyblue4", 0.55),
-                                    alpha("deepskyblue4", 0.45))) +
+             alpha("deepskyblue4", 0.45))) +
         theme_pubr() +
         theme(axis.text.x = element_text(angle = 45, hjust = 1),
             plot.title = element_text(hjust = 0.5),
@@ -392,11 +394,11 @@ make_plots <- function(data_country, covariates_country_long,
     ### p2
 
     data_deaths_95 <- data.frame(data_country$time, data_country$death_min,
-                                data_country$death_max)
+         data_country$death_max)
     names(data_deaths_95) <- c("time", "death_min", "death_max")
     data_deaths_95$key <- rep("nintyfive", length(data_deaths_95$time))
     data_deaths_50 <- data.frame(data_country$time, data_country$death_min2,
-                                data_country$death_max2)
+         data_country$death_max2)
     names(data_deaths_50) <- c("time", "death_min", "death_max")
     data_deaths_50$key <- rep("fifty", length(data_deaths_50$time))
     data_deaths <- rbind(data_deaths_95, data_deaths_50)
@@ -414,7 +416,7 @@ make_plots <- function(data_country, covariates_country_long,
         scale_x_date(date_breaks = "2 weeks", labels = date_format("%e %b")) +
         scale_fill_manual(name = "", labels = c("50%", "95%"),
                         values = c(alpha("deepskyblue4", 0.55),
-                                    alpha("deepskyblue4", 0.45))) +
+             alpha("deepskyblue4", 0.45))) +
         theme_pubr() +
         theme(axis.text.x = element_text(angle = 45, hjust = 1),
             plot.title = element_text(hjust = 0.5),
@@ -442,9 +444,9 @@ make_plots <- function(data_country, covariates_country_long,
     p3 <- ggplot(data_country) +
         ggtitle(paste0(country, " County Estimated Rt")) +
         geom_stepribbon(data = data_rt, aes(x = time,
-                                            ymin = rt_min, ymax = rt_max,
-                                            group = key,
-                                            fill = key)) +
+                     ymin = rt_min, ymax = rt_max,
+                     group = key,
+                     fill = key)) +
         geom_hline(yintercept = 1, color = 'black', size = 0.1) +
         # missing values in one row -> warning -> td: double check this
         # geom_segment(data = covariates_country_long,
@@ -452,10 +454,10 @@ make_plots <- function(data_country, covariates_country_long,
         #             linetype = "dashed", colour = "grey", alpha = 0.75) +
         # missing values in one row -> warning
         # geom_point(data = covariates_country_long, aes(x = value,
-        #                                             y = x,
-        #                                             group = key,
-        #                                             shape = key,
-        #                                             col = key), size = 2) +
+        #                      y = x,
+        #                      group = key,
+        #                      shape = key,
+        #                      col = key), size = 2) +
         xlab("Time") +
         ylab(expression(R[t])) +
         scale_fill_manual(name = "", labels = c("50%", "95%"),
