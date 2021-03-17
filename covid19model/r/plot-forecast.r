@@ -1,3 +1,5 @@
+print("--------------- File plot-forecast.r")
+
 library(ggplot2)
 library(tidyr)
 library(dplyr)
@@ -54,40 +56,40 @@ make_forecast_plot <- function(){
     rt_ui <- colQuantiles(out$Rt[,1:N,i],probs=.975)
 
     data_country <- data.frame("time" = as_date(as.character(dates[[i]])),
-                               "country" = rep(country, length(dates[[i]])),
-                               #"country_population" = rep(country_population, length(dates[[i]])),
-                               "reported_cases" = reported_cases[[i]],
-                               "reported_cases_c" = cumsum(reported_cases[[i]]),
-                               "predicted_cases_c" = cumsum(predicted_cases),
-                               "predicted_min_c" = cumsum(predicted_cases_li),
-                               "predicted_max_c" = cumsum(predicted_cases_ui),
-                               "predicted_cases" = predicted_cases,
-                               "predicted_min" = predicted_cases_li,
-                               "predicted_max" = predicted_cases_ui,
-                               "deaths" = deaths_by_country[[i]],
-                               "deaths_c" = cumsum(deaths_by_country[[i]]),
-                               "estimated_deaths_c" =  cumsum(estimated_deaths),
-                               "death_min_c" = cumsum(estimated_deaths_li),
-                               "death_max_c"= cumsum(estimated_deaths_ui),
-                               "estimated_deaths" = estimated_deaths,
-                               "death_min" = estimated_deaths_li,
-                               "death_max"= estimated_deaths_ui,
-                               "rt" = rt,
-                               "rt_min" = rt_li,
-                               "rt_max" = rt_ui)
+        "country" = rep(country, length(dates[[i]])),
+        #"country_population" = rep(country_population, length(dates[[i]])),
+        "reported_cases" = reported_cases[[i]],
+        "reported_cases_c" = cumsum(reported_cases[[i]]),
+        "predicted_cases_c" = cumsum(predicted_cases),
+        "predicted_min_c" = cumsum(predicted_cases_li),
+        "predicted_max_c" = cumsum(predicted_cases_ui),
+        "predicted_cases" = predicted_cases,
+        "predicted_min" = predicted_cases_li,
+        "predicted_max" = predicted_cases_ui,
+        "deaths" = deaths_by_country[[i]],
+        "deaths_c" = cumsum(deaths_by_country[[i]]),
+        "estimated_deaths_c" =  cumsum(estimated_deaths),
+        "death_min_c" = cumsum(estimated_deaths_li),
+        "death_max_c"= cumsum(estimated_deaths_ui),
+        "estimated_deaths" = estimated_deaths,
+        "death_min" = estimated_deaths_li,
+        "death_max"= estimated_deaths_ui,
+        "rt" = rt,
+        "rt_min" = rt_li,
+        "rt_max" = rt_ui)
 
     times <- as_date(as.character(dates[[i]]))
     times_forecast <- times[length(times)] + 0:(N2 - N) # the number of days to forecast
     data_country_forecast <- data.frame("time" = times_forecast,
-                                        "country" = rep(country, N2 - N + 1), # p sure this works
-                                        "estimated_deaths_forecast" = estimated_deaths_forecast,
-                                        "death_min_forecast" = estimated_deaths_li_forecast,
-                                        "death_max_forecast" = estimated_deaths_ui_forecast,
-                                        # new
-                                        "estimated_cases_forecast" = predicted_cases_forecast,
-                                        "cases_min_forecast" = predicted_cases_li_forecast,
-                                        "cases_max_forecast" = predicted_cases_ui_forecast
-                                        )
+          "country" = rep(country, N2 - N + 1), # p sure this works
+          "estimated_deaths_forecast" = estimated_deaths_forecast,
+          "death_min_forecast" = estimated_deaths_li_forecast,
+          "death_max_forecast" = estimated_deaths_ui_forecast,
+          # new
+          "estimated_cases_forecast" = predicted_cases_forecast,
+          "cases_min_forecast" = predicted_cases_li_forecast,
+          "cases_max_forecast" = predicted_cases_ui_forecast
+          )
 
     make_two_plots(data_country = data_country,
                      data_country_forecast = data_country_forecast,
@@ -126,8 +128,8 @@ make_two_plots <- function(data_country, data_country_forecast, filename, countr
     #           aes(x = time, y = estimated_deaths_forecast),
     #           col = "black", alpha = 0.5) +
     geom_ribbon(data = data_country, aes(x = time,
-                                         ymin = death_min,
-                                         ymax = death_max),
+           ymin = death_min,
+           ymax = death_max),
                 fill="deepskyblue4", alpha=0.3) +
     # geom_ribbon(data = data_country_forecast,
     #             aes(x = time,
@@ -180,8 +182,8 @@ make_two_plots <- function(data_country, data_country_forecast, filename, countr
     #           aes(x = time, y = estimated_cases_forecast),
     #           col = "black", alpha = 0.5) +
     geom_ribbon(data = data_country, aes(x = time,
-                                         ymin = predicted_min,
-                                         ymax = predicted_max),
+           ymin = predicted_min,
+           ymax = predicted_max),
                 fill="deepskyblue4", alpha=0.3) +
     # geom_ribbon(data = data_country_forecast,
     #             aes(x = time,

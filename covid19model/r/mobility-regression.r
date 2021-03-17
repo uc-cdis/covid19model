@@ -1,3 +1,5 @@
+print("--------------- File mobility-regression.r")
+
 library(lubridate)
 library(modelr)
 library(broom)
@@ -79,7 +81,7 @@ forecast_googleMob<-function(codeToName, stateList){
   tmp <- sapply(mobility_data, class)
   mobility_data[tmp == "list"] <- sapply(mobility_data[tmp == "list"], function(l) l[1])
 
-  # retail.recreation
+  print("retail.recreation")
   task = TaskRegr$new(id = "retail.recreation", backend = as.data.frame(mobility_data %>%
           select(c(-"grocery.pharmacy",-"parks",-"transitstations",-"workplace",-"residential"))), target = "retail.recreation")
   learner = lrn("regr.ranger")
@@ -95,10 +97,10 @@ forecast_googleMob<-function(codeToName, stateList){
   prediction = learner$predict(task, row_ids = test_set)
   mobility_data[test_set,"retail.recreation"] = prediction$response
 
-  # grocery.pharmacy
+  print("grocery.pharmacy")
   task = TaskRegr$new(id = "grocery.pharmacy", backend = as.data.frame(mobility_data %>%
-                                                                          select(c(-"retail.recreation",-"parks",-"transitstations",-"workplace",-"residential"))),
-                      target ="grocery.pharmacy")
+        select(c(-"retail.recreation",-"parks",-"transitstations",-"workplace",-"residential"))),
+        target ="grocery.pharmacy")
   learner=lrn("regr.ranger")
   train_set = c(1:train_end_id)
   test_set = c((train_end_id+1):google_end_id)
@@ -112,10 +114,10 @@ forecast_googleMob<-function(codeToName, stateList){
   prediction = learner$predict(task, row_ids = test_set)
   mobility_data[test_set,"grocery.pharmacy"]=prediction$response
 
-  # parks
+  print("parks")
   task = TaskRegr$new(id = "parks", backend = as.data.frame(mobility_data %>%
-                                                              select(c(-"retail.recreation",-"grocery.pharmacy",-"transitstations",-"workplace",-"residential"))),
-                      target ="parks")
+        select(c(-"retail.recreation",-"grocery.pharmacy",-"transitstations",-"workplace",-"residential"))),
+        target ="parks")
   learner=lrn("regr.ranger")
   train_set = c(1:train_end_id)
   test_set = c((train_end_id+1):google_end_id)
@@ -129,10 +131,10 @@ forecast_googleMob<-function(codeToName, stateList){
   prediction = learner$predict(task, row_ids = test_set)
   mobility_data[test_set,"parks"]=prediction$response
 
-  # transitstations
+  print("transitstations")
   task = TaskRegr$new(id = "transitstations", backend = as.data.frame(mobility_data %>%
-                                                                        select(c(-"retail.recreation",-"grocery.pharmacy",-"parks",-"workplace",-"residential"))),
-                      target ="transitstations")
+        select(c(-"retail.recreation",-"grocery.pharmacy",-"parks",-"workplace",-"residential"))),
+        target ="transitstations")
   learner=lrn("regr.ranger")
   train_set = c(1:train_end_id)
   test_set = c((train_end_id+1):google_end_id)
@@ -147,10 +149,10 @@ forecast_googleMob<-function(codeToName, stateList){
 
   mobility_data[test_set,"transitstations"]=prediction$response
 
-  # workplace
+  print("workplace")
   task = TaskRegr$new(id = "workplace", backend = as.data.frame(mobility_data %>%
-                                                                  select(c(-"retail.recreation",-"grocery.pharmacy",-"parks",-"transitstations",-"residential"))),
-                      target ="workplace")
+        select(c(-"retail.recreation",-"grocery.pharmacy",-"parks",-"transitstations",-"residential"))),
+        target ="workplace")
   learner=lrn("regr.ranger")
   train_set = c(1:train_end_id)
   test_set = c((train_end_id+1):google_end_id)
@@ -164,10 +166,10 @@ forecast_googleMob<-function(codeToName, stateList){
   prediction = learner$predict(task, row_ids = test_set)
   mobility_data[test_set,"workplace"]=prediction$response
 
-  # residential
+  print("residential")
   task = TaskRegr$new(id = "residential", backend = as.data.frame(mobility_data %>%
-                                                                  select(c(-"retail.recreation",-"grocery.pharmacy",-"parks",-"transitstations",-"workplace"))),
-                      target ="residential")
+        select(c(-"retail.recreation",-"grocery.pharmacy",-"parks",-"transitstations",-"workplace"))),
+        target ="residential")
   learner=lrn("regr.ranger")
   train_set = c(1:train_end_id)
   test_set = c((train_end_id+1):google_end_id)
@@ -185,7 +187,7 @@ forecast_googleMob<-function(codeToName, stateList){
 
   # error analysis
   df_raw_error=copy(df_lastweek)
-  print("Error last week")
+  print("Error last week:")
   print(df_raw_error %>% summarise(retail.recreation=mean(retail.recreation),
                             grocery.pharmacy=mean(grocery.pharmacy),
                             parks=mean(parks),transitstations=mean(transitstations),

@@ -14,6 +14,8 @@
 ## sh run.sh us_mobility 150 200 -stateList "all"
 ## sh run.sh us_mobility 150 200 -batch 1
 
+set -e
+
 echo "\n--- running input ETL and model with these parameters ---"
 echo 'stanModel = '         $1
 echo 'minimumDeaths = '     $2
@@ -30,11 +32,11 @@ python3 etl.py
 ## MOBILITY DATA
 echo "\n- Fetch Mobility Data  -"
 cd ../modelInput/mobility/
-wget -O Global_Mobility_Report.csv https://www.gstatic.com/covid19/mobility/Global_Mobility_Report.csv
+wget -O Global_Mobility_Report.csv --no-verbose https://www.gstatic.com/covid19/mobility/Global_Mobility_Report.csv
 cd ./visit-data/
 sh get-visit-data.sh
 cd ../../../r
-Rscript mobility-regression.r > /dev/null 2>&1
+Rscript mobility-regression.r
 
 # run the model via R script
 echo "\n- Model Run -"

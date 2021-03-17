@@ -282,6 +282,7 @@ def fetchSocEc(dirPath):
 # make a class - the whole thing -> not the most time pressing task though
 
 if __name__ == "__main__":
+    print("--------------- File etl.py")
 
     # put tables here
     try:
@@ -301,9 +302,7 @@ if __name__ == "__main__":
 
     p4 = fetchSocEc(dirPath)
 
-    print("\n")
     print("tables successfully written to these paths:")
     print("\t", p1)
     # print("\t", p2)
     print("\t", p4)
-    print("\n")

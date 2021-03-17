@@ -1,3 +1,5 @@
+print("--------------- File soc-ec.r")
+
 # read in soc-ec table
 se <- read.csv("../modelInput/SocEc.csv", stringsAsFactors=FALSE)
 
