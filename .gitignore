@@ -51,3 +51,4 @@ Rplots.pdf
 *.vscode
 
 *auth
+.linter.R
