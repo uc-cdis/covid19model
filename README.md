@@ -35,7 +35,7 @@ moving to the `/r` directory and running:
 
 ```Rscript base.r <stan_model> <minimumDeaths> <nIterations> -stateList <stateList>```
 
-Notice all the params are the same and appear in the same order, 
+Notice all the params are the same and appear in the same order,
 you're just calling an R script instead of the bash.
 
 #### Params
@@ -43,7 +43,7 @@ you're just calling an R script instead of the bash.
 `<stan_model>` is the name of the `.stan` file to run, where the `.stan` file actually defines the bayesian model being run.
 For example, `us_mobility` maps to the `stan/us_mobility.stan` file.
 
-`<minimumDeaths>` is the cutoff for including counties in the simulation - 
+`<minimumDeaths>` is the cutoff for including counties in the simulation -
 only those counties with at least this many deaths get included in the simulation.
 
 `<nIterations>` is the number of iterations to run the Stan model for. More iterations generally yields
@@ -51,7 +51,7 @@ more precise estimates with less variance, however there is a limit
 as to how precise you can make your estimates.
 To optimize for shortest runtime, you should run as few iterations as possible while still getting
 acceptable variance and precision on your estimates.
-For this model in particular, `200` seems to be the magic number beyond which 
+For this model in particular, `200` seems to be the magic number beyond which
 precision doesn't increase any further.
 
 `<stateList>` is a comma-separated list of states to include in the simulation.
@@ -74,7 +74,7 @@ Run on all IL counties which have reported at least 15 deaths:
 
 The stan model takes a while to run.
 
-For example, with this call: 
+For example, with this call:
 
 ```sh run.sh us_mobility 8000 200 -stateList "all"```
 
@@ -158,7 +158,7 @@ This seems to be the case with many models of the COVID-19 outbreak.
 You can't validate true case estimates, because there's no reliable number out there to validate against.
 Rt, while useful and important, is an abstract concept and can't really be measured precisely or at all "in the real world".
 You can compare your Rt estimates against other researchers' computed Rt estimates,
-but you can't compare your Rt estimates against "observed Rt". 
+but you can't compare your Rt estimates against "observed Rt".
 
 With respect to deaths, it's true that this model estimates deaths very well.
 However that seems to be an artifact primarily of the fact that this model is fitted to observed deaths data.
@@ -167,9 +167,9 @@ expecting to see a corresponding increase in the deaths estimates.
 However, we found that regardless of how we tried to affect the Rt values,
 deaths estimates from the model remained basically spot-on.
 The exact reason for this was never figured out completely,
-but as it stands now, it appears that the model is 
+but as it stands now, it appears that the model is
 very insensitive to the mobility data,
-Rt always "fits" to about the same trends and values 
+Rt always "fits" to about the same trends and values
 regardless of attempted manipulations, and the deaths estimates are always quite good.
 
 ## Misc. Comments

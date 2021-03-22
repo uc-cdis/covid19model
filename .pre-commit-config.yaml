@@ -16,3 +16,9 @@ repos:
     rev: 20.8b1
     hooks:
     -   id: black
+-   repo: local
+    hooks:
+    -   id: r_linter
+        name: Lint R code
+        entry: bash r_linter.sh
+        language: system
