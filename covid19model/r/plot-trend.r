@@ -15,9 +15,12 @@ library(ggpubr)
 library(bayesplot)
 library(cowplot)
 library(zoo)
+library(plotly)
 
 source("utils/geom-stepribbon.r")
+
 #---------------------------------------------------------------------------
+
 make_three_pannel_plot <- function(){
 
   args <- commandArgs(trailingOnly = TRUE)
@@ -41,16 +44,25 @@ make_three_pannel_plot <- function(){
   idx <- dimensions[2] - length(cd)
 
   # here we calculate avg Rt over the 7 days leading up to the last observation
+  date_bin = ceiling(dimensions[2]/(10*7))
+  date_break = paste(as.character(date_bin),"weeks",sep=" ")
   Rt = out$Rt[,(idx-6):idx,]
   Rt <- apply(Rt, c(1,3), mean)
 
   # visualize it
   colnames(Rt) <- codeToName$name
-  g = mcmc_intervals(Rt,prob = .9) +
+  g_svg = mcmc_intervals(Rt,prob = .9) +
     ggtitle(sprintf("Average Rt %s to %s", format(lastObs-6, "%B %d"),format(lastObs, "%B %d")), "with 90% posterior credible intervals") +
     xlab("Rt") + ylab("County") +
     theme(plot.title = element_text(hjust = 0.5), plot.subtitle = element_text(hjust = 0.5)) # center title and subtitle
-  ggsave(sprintf("../modelOutput/figures/Rt_All.png"),g,width=6,height=4)
+  g_html = mcmc_intervals(Rt,prob = .9) +
+    ggtitle(sprintf("Average Rt %s to %s", format(lastObs-6, "%B %d"),format(lastObs, "%B %d")), "with 90% posterior credible intervals") +
+    xlab("Rt") + ylab("County") +
+    theme(plot.title = element_text(hjust = 0.5), plot.subtitle = element_text(hjust = 0.5),axis.text.y = element_blank()) # center title and subtitle
+  plg<-ggplotly(g_html)
+  htmlwidgets::saveWidget(plg, sprintf("../modelOutput/figures/Rt_All.html"))
+  ggsave(sprintf("../modelOutput/figures/Rt_All.svg"),g_svg,width=6,height=4)
+  ggsave(sprintf("../modelOutput/figures/Rt_All.png"),g_svg,width=6,height=4)
 
   # next
   # 1. Rt pre-lockdown
@@ -118,10 +130,9 @@ make_three_pannel_plot <- function(){
   # interventions table
   # NOTE: "covariate" == "intervention";
   # e.g., if there are 3 different interventions in the model, then there are 3 covariates here in the code
-  # fixme - feat/usa - suppress intervention situation - no interventions display for now
-  # covariates = read.csv("../modelInput/ILInterventionsV1.csv", stringsAsFactors = FALSE)
-  # covariates$Country <- sapply(covariates$Country, as.character)
-  # covariates$Country <-  sub("840", "", covariates$Country) # cutoff US prefix code - note: maybe this should be in the python etl, not here
+  covariates = read.csv("../modelInput/ILInterventionsV1.csv", stringsAsFactors = FALSE)
+  covariates$Country <- sapply(covariates$Country, as.character)
+  covariates$Country <-  sub("840", "", covariates$Country) # cutoff US prefix code - note: maybe this should be in the python etl, not here
 
   ###
 
@@ -154,23 +165,23 @@ make_three_pannel_plot <- function(){
     rt_ui2 <- colQuantiles(out$Rt[,1:N,i],probs=.75)
 
     # NOTE: `country` is an integer - should be okay here
-    # covariates_country <- covariates[which(covariates$Country == country), 3:ncol(covariates), drop=FALSE]
+    covariates_country <- covariates[which(covariates$Country == country), 3:ncol(covariates), drop=FALSE]
 
-    # covariates_country_long <- gather(covariates_country[], key = "key", value = "value")
-    # covariates_country_long$x <- rep(NULL, length(covariates_country_long$key))
-    # un_dates <- unique(covariates_country_long$value)
+    covariates_country_long <- gather(covariates_country[], key = "key", value = "value")
+    covariates_country_long$x <- rep(NULL, length(covariates_country_long$key))
+    un_dates <- unique(covariates_country_long$value)
 
-    # for (k in 1:length(un_dates)){
-    #   idxs <- which(covariates_country_long$value == un_dates[k])
-    #   max_val <- round(max(rt_ui)) + 0.3
-    #   for (j in idxs){
-    #     covariates_country_long$x[j] <- max_val
-    #     max_val <- max_val - 0.3
-    #   }
-    # }
+    for (k in 1:length(un_dates)){
+      idxs <- which(covariates_country_long$value == un_dates[k])
+      max_val <- round(max(rt_ui)) + 0.3
+      for (j in idxs){
+        covariates_country_long$x[j] <- max_val
+        max_val <- max_val - 0.3
+      }
+    }
 
-    # covariates_country_long$value <- as_date(covariates_country_long$value)
-    # covariates_country_long$country <- rep(country, length(covariates_country_long$value))
+    covariates_country_long$value <- as_date(covariates_country_long$value)
+    covariates_country_long$country <- rep(country, length(covariates_country_long$value))
 
     data_country <- data.frame("time" = as_date(as.character(dates[[i]])),
         "country" = rep(country, length(dates[[i]])),
@@ -201,11 +212,11 @@ make_three_pannel_plot <- function(){
         "rt_max2" = rt_ui2)
 
     county_deaths_and_est <- make_plots(data_country = data_country,
-               # covariates_country_long = covariates_country_long,
-               covariates_country_long = NULL,
+               covariates_country_long = covariates_country_long,
                filename2 = filename2,
                country = countryName,
-               code = country)
+               code = country,
+               date_break=date_break)
 
     # allErr[[i]] <- county_deaths_and_est
   }
@@ -315,7 +326,7 @@ gg_error <- function(df, target, title, path){
     xlab("Time") +
     ylab("Error") +
     labs(subtitle=sprintf("avg_err: %f", mean(df[[target]]))) +
-    scale_x_date(date_breaks = "2 weeks", labels = date_format("%e %b")) +
+    scale_x_date(date_breaks = "weeks", labels = date_format("%e %b")) +
     theme_pubr() +
     theme(axis.text.x = element_text(angle = 45, hjust = 1),
         plot.title = element_text(hjust = 0.5),
@@ -330,7 +341,7 @@ gg_error <- function(df, target, title, path){
 # todo: break down into 3 fn's - modular, man, modular
 
 make_plots <- function(data_country, covariates_country_long,
-                       filename2, country, code){
+                       filename2, country, code, date_break){
 
     countyDir <- file.path("../modelOutput/figures", code)
     dir.create(countyDir, showWarnings = FALSE)
@@ -379,7 +390,7 @@ make_plots <- function(data_country, covariates_country_long,
                     aes(x = time, ymin = cases_min, ymax = cases_max, fill = key)) +
         xlab("Time") +
         ylab("Cases") +
-        scale_x_date(date_breaks = "2 weeks", labels = date_format("%e %b")) +
+        scale_x_date(date_breaks = date_break, labels = date_format("%e %b")) +
         scale_fill_manual(name = "", labels = c("50%", "95%"),
                         values = c(alpha("deepskyblue4", 0.55),
              alpha("deepskyblue4", 0.45))) +
@@ -389,6 +400,7 @@ make_plots <- function(data_country, covariates_country_long,
             legend.position = "None") +
         guides(fill=guide_legend(ncol=1))
 
+    save_plot(filename = file.path(countyDir, "cases.svg"), p1)
     save_plot(filename = file.path(countyDir, "cases.png"), p1)
 
     ### p2
@@ -413,7 +425,7 @@ make_plots <- function(data_country, covariates_country_long,
         aes(ymin = death_min, ymax = death_max, fill = key)) +
         xlab("Time") +
         ylab("Deaths") +
-        scale_x_date(date_breaks = "2 weeks", labels = date_format("%e %b")) +
+        scale_x_date(date_breaks = date_break, labels = date_format("%e %b")) +
         scale_fill_manual(name = "", labels = c("50%", "95%"),
                         values = c(alpha("deepskyblue4", 0.55),
              alpha("deepskyblue4", 0.45))) +
@@ -423,6 +435,7 @@ make_plots <- function(data_country, covariates_country_long,
             legend.position = "None") +
         guides(fill=guide_legend(ncol=1))
 
+    save_plot(filename = file.path(countyDir, "deaths.svg"), p2)
     save_plot(filename = file.path(countyDir, "deaths.png"), p2)
 
     ### p3
@@ -449,28 +462,29 @@ make_plots <- function(data_country, covariates_country_long,
                      fill = key)) +
         geom_hline(yintercept = 1, color = 'black', size = 0.1) +
         # missing values in one row -> warning -> td: double check this
-        # geom_segment(data = covariates_country_long,
-        #             aes(x = value, y = 0, xend = value, yend = max(x)),
-        #             linetype = "dashed", colour = "grey", alpha = 0.75) +
+        geom_segment(data = covariates_country_long,
+                    aes(x = value, y = 0, xend = value, yend = max(x)),
+                    linetype = "dashed", colour = "grey", alpha = 0.75) +
         # missing values in one row -> warning
-        # geom_point(data = covariates_country_long, aes(x = value,
-        #                      y = x,
-        #                      group = key,
-        #                      shape = key,
-        #                      col = key), size = 2) +
+        geom_point(data = covariates_country_long, aes(x = value,
+                                                    y = x,
+                                                    group = key,
+                                                    shape = key,
+                                                    col = key), size = 2) +
         xlab("Time") +
         ylab(expression(R[t])) +
         scale_fill_manual(name = "", labels = c("50%", "95%"),
                         values = c(alpha("seagreen", 0.75), alpha("seagreen", 0.5))) +
-        # scale_shape_manual(name = "Interventions", labels = plot_labels,
-        #                 values = c(21, 22, 23, 24, 25, 12)) +
-        # scale_colour_discrete(name = "Interventions", labels = plot_labels) +
-        scale_x_date(date_breaks = "2 weeks", labels = date_format("%e %b")) +
+        scale_shape_manual(name = "Interventions", labels = plot_labels,
+                        values = c(21, 22, 23, 24, 25, 12)) +
+        scale_colour_discrete(name = "Interventions", labels = plot_labels) +
+        scale_x_date(date_breaks = date_break, labels = date_format("%e %b")) +
         theme_pubr() +
         theme(axis.text.x = element_text(angle = 45, hjust = 1),
                     plot.title = element_text(hjust = 0.5),
                     legend.position="right")
 
+    save_plot(filename = file.path(countyDir, "Rt.svg"), p3)
     save_plot(filename = file.path(countyDir, "Rt.png"), p3)
 
     # df_err <- data.frame(time=deaths_err$time, deaths=deaths_err$deaths, est=deaths_err$est, countyName=country)
