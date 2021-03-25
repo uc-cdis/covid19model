@@ -44,6 +44,7 @@ stan/*.rds
 # others
 modelOutput/*
 modelInput/*
+!modelInput/USInterventions_Static.csv
 batches/*
 Rplots.pdf
 
