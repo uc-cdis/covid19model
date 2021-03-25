@@ -38,12 +38,12 @@ fi
 #     Rt_All.png
 
 # debug
-ls ./modelOutput/figures/*/*.png
+ls /modelOutput/figures/*/*.png
 
 # check
 echo $S3_BUCKET
 
 echo "Copying to S3 bucket..."
 if [[ -n "$S3_BUCKET" ]]; then
-  aws s3 sync "./modelOutput/figures" "$S3_BUCKET/bayes-by-county/" --exclude ".keep"
+  aws s3 sync "/modelOutput/figures" "$S3_BUCKET/bayes-by-county/" --exclude ".keep"
 fi
