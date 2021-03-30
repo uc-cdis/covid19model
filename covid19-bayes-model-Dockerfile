@@ -53,7 +53,7 @@ RUN pip3 install awscli==1.18.*
 
 WORKDIR /
 COPY ./covid19model /
-COPY ./run-with-slack.sh ./docker-run.sh ./run.sh /
+COPY ./covid19-bayes-model-run-with-slack.sh ./covid19-bayes-model-docker-run.sh ./covid19-bayes-model-run.sh /
 
 ENV MODEL_RUN_MODE stateList
 ENV DEATHS_CUTOFF 10
@@ -61,4 +61,4 @@ ENV N_ITER 200
 ENV STATE_LIST all
 # or mode=batch, maxBatchSize=20 like in covid19model/cwl/request_body.json?
 
-CMD [ "bash", "/run-with-slack.sh" ]
+CMD [ "bash", "/covid19-bayes-model-run-with-slack.sh" ]
