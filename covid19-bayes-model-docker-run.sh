@@ -7,7 +7,7 @@ set -euxo pipefail
 echo "Running bayes-by-county..."
 
 # call form:
-# sh run.sh <stan_model> \
+# sh covid19-bayes-model-run.sh <stan_model> \
 #   <minimumDeaths> \
 #   <nIterations> \
 #   (-stateList | -batch) \
@@ -15,16 +15,16 @@ echo "Running bayes-by-county..."
 #   [--validate]
 
 # example calls:
-## sh run.sh us_mobility 150 200 -stateList "Illinois,NewYork"
-## sh run.sh us_mobility 150 200 -stateList "Illinois,NewYork" --validate
-## sh run.sh us_mobility 150 200 -stateList "all"
-## sh run.sh us_mobility 150 200 -batch 1
+## sh covid19-bayes-model-run.sh us_mobility 150 200 -stateList "Illinois,NewYork"
+## sh covid19-bayes-model-run.sh us_mobility 150 200 -stateList "Illinois,NewYork" --validate
+## sh covid19-bayes-model-run.sh us_mobility 150 200 -stateList "all"
+## sh covid19-bayes-model-run.sh us_mobility 150 200 -batch 1
 
 # cd / # TODO remove
 if [ $MODEL_RUN_MODE == "batch" ]; then
-  sh run.sh us_mobility $DEATHS_CUTOFF $N_ITER -batch "$BATCH"
+  sh covid19-bayes-model-run.sh us_mobility $DEATHS_CUTOFF $N_ITER -batch "$BATCH"
 else
-  sh run.sh us_mobility $DEATHS_CUTOFF $N_ITER -stateList $STATE_LIST
+  sh covid19-bayes-model-run.sh us_mobility $DEATHS_CUTOFF $N_ITER -stateList $STATE_LIST
 fi
 echo "Done!"
 
