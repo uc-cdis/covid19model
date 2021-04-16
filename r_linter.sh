@@ -29,8 +29,11 @@ else
   style_file(file_name)
   '
   echo "$linter" > .linter.R
-  staged=$(git diff --staged --name-only | grep ".[rR]$")
+  staged=$(git diff --staged --name-only)
   for file in ${staged}; do
+    if [[ ${file: -2} != ".r" && ${file: -2} != ".R" ]]; then
+      continue
+    fi
     echo "  $file"
     Rscript .linter.R --args $file >/dev/null
   done
