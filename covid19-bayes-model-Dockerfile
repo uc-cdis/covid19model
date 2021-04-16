@@ -1,3 +1,7 @@
+# Run with:
+# gen3 job run covid19-bates-model S3_BUCKET <bucket> STATE_LIST <states>
+# "states" format: "Illinois,NewYork" or "all"
+
 FROM quay.io/cdis/debian:bullseye
 
 # install R dependencies
@@ -58,7 +62,6 @@ COPY ./covid19-bayes-model-run-with-slack.sh ./covid19-bayes-model-docker-run.sh
 ENV MODEL_RUN_MODE stateList
 ENV DEATHS_CUTOFF 10
 ENV N_ITER 200
-ENV STATE_LIST all
 # or mode=batch, maxBatchSize=20 like in covid19model/cwl/request_body.json?
 
 CMD [ "bash", "/covid19-bayes-model-run-with-slack.sh" ]

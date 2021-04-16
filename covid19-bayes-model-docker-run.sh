@@ -3,6 +3,11 @@
 # exit if any step fails
 set -euxo pipefail
 
+if [[ -z "${S3_BUCKET-}" ]]; then
+  echo "No S3 bucket provided (use env var S3_BUCKET)"
+  exit 1
+fi
+
 # run R bayes-by-county simulation and push outputs to S3
 echo "Running bayes-by-county..."
 
@@ -24,6 +29,10 @@ echo "Running bayes-by-county..."
 if [ $MODEL_RUN_MODE == "batch" ]; then
   sh covid19-bayes-model-run.sh us_mobility $DEATHS_CUTOFF $N_ITER -batch "$BATCH"
 else
+  if [[ -z "${STATE_LIST-}" ]]; then
+    echo "No state list provided (use env var STATE_LIST)"
+    exit 1
+  fi
   sh covid19-bayes-model-run.sh us_mobility $DEATHS_CUTOFF $N_ITER -stateList $STATE_LIST
 fi
 echo "Done!"
