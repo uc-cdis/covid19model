@@ -50,22 +50,16 @@ make_three_pannel_plot <- function() {
 
   # visualize it
   colnames(Rt) <- codeToName$name
-  if (dim(Rt)[2] > 20) {
-    Rt_top20 <- Rt[, 1:20]
-    g_svg_top20 <- mcmc_intervals(Rt_top20, prob = .9) +
-      ggtitle(sprintf("Average Rt %s to %s", format(lastObs - 6, "%B %d"), format(lastObs, "%B %d")), "with 90% posterior credible intervals") +
-      xlab("Rt") + ylab("County") +
-      theme(plot.title = element_text(hjust = 0.5), plot.subtitle = element_text(hjust = 0.5)) # center title and subtitle
-    ggsave(sprintf("../modelOutput/figures/Rt_Top20.svg"), g_svg_top20, width = 6, height = 4)
-    ggsave(sprintf("../modelOutput/figures/Rt_Top20.png"), g_svg_top20, width = 6, height = 4)
-  } else {
-    g_svg <- mcmc_intervals(Rt, prob = .9) +
-      ggtitle(sprintf("Average Rt %s to %s", format(lastObs - 6, "%B %d"), format(lastObs, "%B %d")), "with 90% posterior credible intervals") +
-      xlab("Rt") + ylab("County") +
-      theme(plot.title = element_text(hjust = 0.5), plot.subtitle = element_text(hjust = 0.5)) # center title and subtitle
-    ggsave(sprintf("../modelOutput/figures/Rt_All.svg"), g_svg, width = 6, height = 4)
-    ggsave(sprintf("../modelOutput/figures/Rt_All.png"), g_svg, width = 6, height = 4)
+  Rt_to_save <- Rt 
+  if (dim(Rt)[2] > 20){
+    Rt_to_save <- Rt[, 1:20] 
   }
+  g_svg_top20 <- mcmc_intervals(Rt_to_save, prob = .9) +
+      ggtitle(sprintf("Average Rt %s to %s", format(lastObs - 6, "%B %d"), format(lastObs, "%B %d")), "with 90% posterior credible intervals") +
+      xlab("Rt") + ylab("County") +
+      theme(plot.title = element_text(hjust = 0.5), plot.subtitle = element_text(hjust = 0.5)) # center title and subtitle
+  ggsave(sprintf("../modelOutput/figures/Rt_Top20.svg"), g_svg_top20, width = 6, height = 4)
+  ggsave(sprintf("../modelOutput/figures/Rt_Top20.png"), g_svg_top20, width = 6, height = 4)
 
   # next
   # 1. Rt pre-lockdown
