@@ -41,14 +41,14 @@ echo "Done!"
 # directory structure:
 #   bayes-by-county/
 #     17031/ (FIPS)
-#       cases.png
-#       casesForecast.png
-#       deaths.png
-#       deathsForecast.png
-#       Rt.png
+#       cases.[svg/png]
+#       casesForecast.[svg/png]
+#       deaths.[svg/png]
+#       deathsForecast.[svg/png]
+#       Rt.[svg/png]
 #     <more FIPS folders>
 #     CountyCodeList.txt
-#     Rt_All.png
+#     Rt_Top20.[svg/png]
 
 echo "Will upload to S3 bucket:"
 # TODO don't copy the HTML/JS files
