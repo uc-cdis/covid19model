@@ -3,20 +3,15 @@
 
 # todo: refactor
 
-## HERE! -> not handled here in python -> Serial Interval Table -> would be worthwhile to reproduce the R for that here
-## "serial interval table" <--> that discretized gamma distribution
-## so that this script does indeed produce all the required input tables for the model
-## alternatively, could just generate that discretized gamma distribution in the R code itself, pre-simulation
-## I don't like that idea -> will try to reproduce results in python - but not now -> other more pressing tasks now
-
 import os
 import numpy as np
+import pandas as pd
 import warnings
+from scipy.stats import gamma
 
 warnings.simplefilter(
     action="ignore", category=FutureWarning
 )  # suppress pandas "future warning"
-import pandas as pd
 
 
 def makeCaseMortalityTable(dirPath):
@@ -221,12 +216,13 @@ def makeCaseMortalityTable(dirPath):
     df.to_csv(p)
 
     countyIDList = caseAndMortality["CountyID"].unique()
+    dateList = caseAndMortality["Date"].unique()
 
     population_df = (
         caseAndMortality[["CountyID", "Population"]].copy().drop_duplicates()
     )
 
-    return (p, countyIDList, population_df)
+    return (p, countyIDList, dateList, population_df)
 
 
 # feat/usa - fixme - lockdown happened at different times for different states
@@ -278,6 +274,27 @@ def fetchSocEc(dirPath):
     return p
 
 
+def gammaPar(mean, cv):
+    shape = 1 / cv ** 2
+    scale = mean / shape
+    return shape, scale
+
+
+def serialGammaDis(dateList, mean, cv):
+    print("\n~ Gamma Distribution TABLE ~")
+    shape, scale = gammaPar(mean, cv)
+    points = list(range(len(dateList)))
+    serial_gamma_density = gamma.pdf(points[1:], a=shape, scale=scale)
+    df = pd.DataFrame({"X": points[1:], "fit": serial_gamma_density})
+
+    print("--- saving Gamma Distribution table ---")
+
+    p = dirPath + "/SerialIntervalV2.csv"
+    df.to_csv(p)
+
+    return p
+
+
 # wow I want to really, thoroughly refactor all this so bad
 # make a class - the whole thing -> not the most time pressing task though
 
@@ -295,14 +312,17 @@ if __name__ == "__main__":
         dirPath = "../modelInput"
         os.makedirs(dirPath, exist_ok=True)
 
-    p1, countyIDList, population_df = makeCaseMortalityTable(dirPath)
+    p1, countyIDList, dateList, population_df = makeCaseMortalityTable(dirPath)
 
     # see note at this fn definition
     # p2 = makeInterventionsTable(dirPath, countyIDList)
 
     p4 = fetchSocEc(dirPath)
 
+    p5 = serialGammaDis(dateList, 6.5, 0.62)
+
     print("tables successfully written to these paths:")
     print("\t", p1)
     # print("\t", p2)
     print("\t", p4)
+    print("\t", p5)
