@@ -283,7 +283,7 @@ def gammaPar(mean, cv):
 def serialGammaDis(dateList, mean, cv):
     print("\n~ Gamma Distribution TABLE ~")
     shape, scale = gammaPar(mean, cv)
-    points = list(range(len(dateList)+1))
+    points = list(range(len(dateList) + 1))
     serial_gamma_density = gamma.pdf(points[1:], a=shape, scale=scale)
     df = pd.DataFrame({"X": points[1:], "fit": serial_gamma_density})
 
