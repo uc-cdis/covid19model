@@ -1,5 +1,5 @@
 # Run with:
-# gen3 job run covid19-bates-model S3_BUCKET <bucket> STATE_LIST <states>
+# gen3 job run covid19-bayes-model S3_BUCKET <bucket> STATE_LIST <states>
 # "states" format: "Illinois,NewYork" or "all"
 
 FROM quay.io/cdis/debian:bullseye
