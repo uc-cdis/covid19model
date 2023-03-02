@@ -1,4 +1,4 @@
-FROM debian:bullseye
+FROM debian:11
 
 # FROM r-base:4.0.3
 
